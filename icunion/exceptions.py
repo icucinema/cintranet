@@ -1,0 +1,2 @@
+class UnionResponseException(ValueError):
+    pass

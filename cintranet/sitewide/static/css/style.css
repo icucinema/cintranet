@@ -1,0 +1,40 @@
+.alert { padding: 0 10px; font-family: "Open Sans"; font-weight: 600; list-style-type: none; word-wrap: break-word; margin-bottom: 8px; font-size: 14px; font-size: 0.875rem; -webkit-border-radius: 4px; -moz-border-radius: 4px; -ms-border-radius: 4px; -o-border-radius: 4px; border-radius: 4px; }
+.alert.default { background: white; border: 1px solid #f2f2f2; color: #bfbfbf; color: #555555; border: 1px solid #f2f2f2; }
+.alert.primary { background: #85b7e7; border: 1px solid #3085d6; color: #1a5186; }
+.alert.debug { background: #80cb92; border: 1px solid #42a35a; color: #255a32; }
+.alert.info { background: #7b8085; border: 1px solid #4a4d50; color: #191a1b; color: #f2f2f2; }
+.alert.error { background: #df8989; border: 1px solid #ca3838; color: #7b2121; }
+.alert.warning { background: #fbdca0; border: 1px solid #f6b83f; color: #c68609; color: #644405; }
+.alert.success { background: #91e26a; border: 1px solid #58c026; color: #316b15; }
+
+.index-header {
+	margin-top: -20px;
+	padding-top: 15px;
+	background-color: #ccc;
+}
+.index-header p {
+	font-size: 1.7em;
+}
+.index-header small {
+	font-size: 0.6em;
+}
+.row-margin {
+	margin-top: 20px;
+}
+
+.panel.panel-primary .panel-heading {
+	background: #052443;
+	overflow: hidden;
+	padding: 2px 6px;
+	padding-bottom: 0;
+}
+.panel.panel-primary .panel-heading h3 {
+	color: white;
+	font-size: 16pt;
+}
+.panel.panel-primary .panel-body {
+	border: 1px solid #052443;
+	overflow: hidden;
+	padding: 1px 6px;
+	margin: 0 0 20px;
+}

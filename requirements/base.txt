@@ -1,0 +1,7 @@
+Django==1.6
+South==0.8
+django-auth-ldap==1.1.5
+django-floppyforms==1.1
+django-floppy-gumby==0.1
+requests==2.0.1
+beautifulsoup4==4.3.2

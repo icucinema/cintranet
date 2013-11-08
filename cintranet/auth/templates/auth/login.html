@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% load floppyforms %}
+
+{% block title %}Log in{% endblock %}
+
+{% block content %}
+<div class="row">
+	<div class="twelve columns">
+		<h2>Log in to Imperial Cinema</h2>
+	</div>
+</div>
+<div class="row">
+	<div class="twelve columns">
+		<form method="POST" action="">
+			{% csrf_token %}
+			<fieldset>
+				<legend>Log in</legend>
+				{% form form using "floppy_gumby_forms/layouts/gumby.html" %}
+				<div class="medium primary btn"><button type="submit">Log in</button></div>
+			</fieldset>
+		</form>
+	</div>
+</div>
+{% endblock %}

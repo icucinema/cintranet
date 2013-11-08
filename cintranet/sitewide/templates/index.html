@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block outertitle %}Imperial Cinema Staff Area{% endblock %}
+
+{% block head %}
+<div class="index-header">
+  <div class="row">
+    <div class="twelve columns">
+      <p><strong>Welcome to the Imperial Cinema Staff Area.</strong> This page brings together all our online resources.</p>
+      <p><small>If you aren't a member of our team, you are welcome to look at those bits that aren't password protected :)</small></p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row row-margin">
+	<div class="twelve columns">
+		{% for stat in stats %}
+			{% if stat.link %}<a href="{{ stat.link }}">{% endif %}
+				<div class="btn {% if stat.class %}{{ stat.class }}{% else %}primary{% endif %} medium"><button>
+					<strong>{{ stat.title }}:</strong> {{ stat.value }}
+				</button></div>
+			{% if stat.link %}</a>{% endif %}
+		{% endfor %}
+	</div>
+</div>
+<div class="row row-margin">
+<div class="five columns">
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">Wiki</h3>
+    </div>
+    <div class="panel-body">
+      <p>The wiki is the place where everything's documented. If you are bored, just have a wander round the pages - there's so much to learn.</p>
+      <p>Use your cinema username/password (not your Imperial one) to access it, and don't mind the "Security Warnings" when you try to connect.</p>
+      <p><div class="btn small primary"><a href="https://wiki.wide.icucinema.co.uk">Take me there »</a></div></p>
+    </div>
+  </div>
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">Chat</h3>
+    </div>
+    <div class="panel-body">
+      <p>Easy real-time communication - come and talk on IRC. We're in the #icucinema channel on irc.freenode.net</p>
+      <p>Download an <a href="http://quassel-irc.org/downloads">IRC Client</a>, or connect through your <a href="http://webchat.freenode.net/?channels=#icucinema">web browser</a>.</p>
+    </div>
+  </div>
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">Web Site</h3>
+    </div>
+    <div class="panel-body">
+      <p>Our web site. Isn't it blue?</p>
+      <p><div class="btn small primary"><a href="http://www.imperialcinema.co.uk">Take me there »</a></div></p>
+      <p>If you need to make changes to the web site, remember it doesn't use the cinema or Imperial username/passwords yet - you need to request a separate one.</p>
+      <p><div class="btn small primary"><a href="https://union.ic.ac.uk/arts/cinema/special/login">Admin Log In »</a></div></p>
+    </div>
+  </div>
+</div><!-- /.col-sm-4 -->
+<div class="five columns">
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">Trac</h3>
+    </div>
+    <div class="panel-body">
+      <p>The task tracker. File tickets here to remind you or someone else to do something.</p>
+      <p>Use your cinema username/password (not your Imperial one) to access it, and don't mind the "Security Warnings" when you try to connect.</p>
+      <p><div class="btn small primary"><a href="https://trac.wide.icucinema.co.uk">Take me there »</a></div></p>
+    </div>
+  </div>
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">Cloud</h3>
+    </div>
+    <div class="panel-body">
+      <p>It's like Dropbox - but it doesn't fill your Dropbox with shit.</p>
+      <p>Use your cinema username/password (not your Imperial one) to access it, and don't mind the "Security Warnings" when you try to connect.</p>
+      <p><div class="btn small primary"><a href="https://cloud.wide.icucinema.co.uk">Take me there »</a></div></p>
+      <p>You can <a href="https://wiki.wide.icucinema.co.uk/Owncloud#Sync_to_Computer">download the client program</a> to synchronise it all to your computer too.</p>
+    </div>
+  </div>
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">Code</h3>
+    </div>
+    <div class="panel-body">
+      <p>We write lots of code, and release all of it as Open Source.</p>
+      <p>Some of it's pretty specialised, but some is actually quite useful.</p>
+      <p><div class="btn small primary"><a href="http://gitorious.org/icucinema">Take me there »</a></div></p>
+      <p>Also we have an <a href="http://www.ohloh.net/p/icucinema">Ohloh Page</a> if you like that kind of thing.</p>
+    </div>
+  </div>
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">Calendar</h3>
+    </div>
+    <div class="panel-body">
+      <p>Our shared calendar, which keeps track of every important date and time for cinema staffers.</p>
+      <p><div class="btn small primary"><a href="https://wiki.wide.icucinema.co.uk/Staff_Calendar">Take me there »</a></div></p>
+    </div>
+  </div>          
+  
+</div><!-- /.col-sm-4 -->
+<div class="two columns">
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">eActivities</h3>
+    </div>
+    <div class="panel-body">
+      <p>The dreaded place where all things financial and bureaucratic happen...</p>
+      <p><div class="btn small primary"><a href="https://eactivities.union.ic.ac.uk">Take me there »</a></div></p>
+    </div>
+  </div>
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">Transactions</h3>
+    </div>
+    <div class="panel-body">
+      <p>See our money!</p>
+      <p><div class="btn small primary"><a href="https://eactivities.union.ic.ac.uk/finance/transactions/411">Take me there »</a></div></p>
+    </div>
+  </div>
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">Membership</h3>
+    </div>
+    <div class="panel-body">
+      <p>The page where you can see and buy membership.</p>
+      <p><div class="btn small primary"><a href="https://www.imperialcollegeunion.org/activities/a-to-z/411">Take me there »</a></div></p>
+    </div>
+  </div>
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">Products</h3>
+    </div>
+    <div class="panel-body">
+      <p>What we're selling online at the moment.</p>
+      <p><div class="btn small primary"><a href="https://www.imperialcollegeunion.org/shop/club-society-project-products/cinema-products/">Take me there »</a></div></p>
+    </div>
+  </div>
+</div><!-- /.col-sm-2 -->
+</div>
+{% endblock content %}
