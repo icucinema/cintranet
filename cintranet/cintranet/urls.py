@@ -13,6 +13,6 @@ urlpatterns = patterns('',
 
     url(r'^$', sitewide.views.IndexView.as_view()),
 
-    url(r'^user/', include('auth.urls')),
+    url(r'^user/', include('auth.urls', app_name='auth', namespace='auth')),
     url(r'^admin/', include(admin.site.urls)),
 )

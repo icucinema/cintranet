@@ -70,13 +70,13 @@
 					<li><a href="http://trac.wide.imperialcinema.co.uk">Trac</a></li>
 					<li><a href="http://cloud.wide.imperialcinema.co.uk">Cloud</a></li>
 					{% if not user.is_authenticated %}
-						<li><a href="/user/login/">Log in</a></li>
+						<li><a href="{% url 'auth:login' %}">Log in</a></li>
 					{% else %}
 						<li>
 							<a href="/">{{ user.username }}</a>
 							<div class="dropdown">
 								<ul>
-									<li><a href="/user/logout/?token={{ request.session.logout_token }}">Log out</a></li>
+									<li><a href="{% url 'auth:logout' %}?token={{ request.session.logout_token }}">Log out</a></li>
 								</ul>
 							</div>
 						</li>

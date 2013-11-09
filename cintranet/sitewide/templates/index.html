@@ -6,8 +6,13 @@
 <div class="index-header">
   <div class="row">
     <div class="twelve columns">
+{% if user.is_authenticated %}
+      <p><strong>Welcome back, {{ user.first_name }}!</strong></p>
+      <p><small>(Not {{ user.first_name }}? <a href="{% url 'auth:logout' %}?token={{ request.session.logout_token }}">Log out!</a>)</small></p>
+{% else %}
       <p><strong>Welcome to the Imperial Cinema Staff Area.</strong> This page brings together all our online resources.</p>
-      <p><small>If you aren't a member of our team, you are welcome to look at those bits that aren't password protected :)</small></p>
+      <p><small>You are welcome to look at those bits that aren't password protected, but if you're a staff member, please <a href="{% url 'auth:login' %}">log in</a>.</small></p>
+{% endif %}
     </div>
   </div>
 </div>
