@@ -5,26 +5,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.utils.timezone import now
 
-PUNTER_FULL = 0
-PUNTER_ASSOCIATE = 1
-PUNTER_PUBLIC = 2
-PUNTER_TYPES = (
-    (PUNTER_FULL, "full"),
-    (PUNTER_ASSOCIATE, "associate"),
-    (PUNTER_PUBLIC, "public")
-)
-
-TICKET_LIVE = 0
-TICKET_VOID = 1
-TICKET_REFUNDED = 2
-TICKET_STATUSES = (
-    (TICKET_LIVE, "live"),
-    (TICKET_VOID, "void"),
-    (TICKET_REFUNDED, "refunded")
-)
+from model_utils.managers import InheritanceManager
+from model_utils.fields import StatusField
+from model_utils import Choices
 
 class Punter(models.Model):
-    punter_type = models.IntegerField(default=PUNTER_FULL, choices=PUNTER_TYPES, blank=False, null=False)
+    STATUS = Choices('full', 'associate', 'public')
+
+    punter_type = StatusField(db_index=True)
     name = models.CharField(max_length=256, default="", null=False, blank=True)
     cid = models.CharField(max_length=16, default="", null=False, blank=True)
     login = models.CharField(max_length=16, default="", null=False, blank=True)
@@ -73,7 +61,7 @@ class Event(models.Model):
     def __unicode__(self):
         return u"{} ({})".format(self.name, self.start_time)
 
-class CommonTicketInfo(models.Model):
+class BaseTicketInfo(models.Model):
     online_description = models.TextField(null=False, default="", blank=True)
     sell_online = models.BooleanField(default=False)
     sell_on_the_door = models.BooleanField(default=True)
@@ -87,23 +75,20 @@ class CommonTicketInfo(models.Model):
         help_text="""This is the ex-VAT price reported on the BOR for each film!"""
     )
 
-    class Meta:
-        abstract = True
+    objects = InheritanceManager()
 
-class TicketTemplate(CommonTicketInfo):
+class TicketTemplate(BaseTicketInfo):
     event_type = models.ManyToManyField(EventType, related_name='ticket_templates')
     name = models.CharField(max_length=128, null=False, blank=False)
-    entitlements = generic.GenericRelation('Entitlement')
 
     def __unicode__(self):
         return self.name
 
-class TicketType(CommonTicketInfo):
+class TicketType(BaseTicketInfo):
     event = models.ForeignKey(Event)
     name = models.CharField(max_length=128, null=False, blank=False)
 
     template = models.ForeignKey(TicketTemplate, blank=True, null=True)
-    entitlements = generic.GenericRelation('Entitlement')
 
     def __unicode__(self):
         return u"{} (for {})".format(self.name, unicode(self.event))
@@ -136,9 +121,7 @@ class Entitlement(models.Model):
     end_date = models.DateTimeField(null=True, blank=True)
     remaining_uses = models.PositiveIntegerField(null=True, blank=True)
 
-    entitled_to_type = models.ForeignKey(ContentType)
-    entitled_to_id = models.PositiveIntegerField()
-    entitled_to = generic.GenericForeignKey('entitled_to_type', 'entitled_to_id')
+    entitled_to = models.ManyToManyField(BaseTicketInfo, related_name='entitlements')
 
     def valid(self, at_time=None):
         at_time = at_time or now()
@@ -164,13 +147,15 @@ class Entitlement(models.Model):
         )
 
 class Ticket(models.Model):
+    STATUS = Choices('live', 'void', 'refunded')
+
     ticket_type = models.ForeignKey(TicketType, related_name='tickets', null=False)
 
     punter = models.ForeignKey(Punter, related_name='tickets', null=True)
     entitlement = models.ForeignKey(Entitlement, related_name='entitlements', null=True)
 
     timestamp = models.DateTimeField(null=False, blank=False)
-    status = models.IntegerField(default=TICKET_LIVE, choices=TICKET_STATUSES, null=False)
+    status = StatusField(db_index=True)
 
     def __unicode__(self):
         return u"{} ticket for {}".format(self.status, self.ticket_type)

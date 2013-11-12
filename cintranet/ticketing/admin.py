@@ -22,7 +22,7 @@ class TicketTemplateAdmin(admin.ModelAdmin):
 admin.site.register(models.TicketTemplate, TicketTemplateAdmin)
 
 class EntitlementAdmin(admin.ModelAdmin):
-    list_display = ('punter', 'entitled_to', 'valid')
+    list_display = ('punter', 'valid')
 admin.site.register(models.Entitlement, EntitlementAdmin)
 
 admin.site.register(models.Ticket)
