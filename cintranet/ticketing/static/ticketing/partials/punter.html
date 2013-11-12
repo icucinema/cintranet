@@ -1,0 +1,49 @@
+<div ng-show="loading"><h2>Loading...</h2></div>
+<div ng-hide="loading">
+	<h2><div class="btn primary large" ng-click="hBack()"><a href><i class="icon-arrow-left"></i></a></div> {{ data.name }}</h2>
+	<h3>Information</h3>
+	<dl>
+		<dt>Union Membership Type</dt>
+			<dd>{{ punterTypeToString(data.punter_type) }}</dd>
+		<div ng-show="data.cid">
+			<dt>CID</dt>
+				<dd>{{ data.cid }}</dd>
+		</div>
+		<div ng-show="data.swipecard">
+			<dt>Swipecard Data</dt>
+				<dd>{{ data.swipecard }}</dd>
+		</div>
+		<div ng-show="data.login">
+			<dt>Username</dt>
+				<dd>{{ data.login }}</dd>
+		</div>
+		<div ng-show="data.email">
+			<dt>Email</dt>
+				<dd>{{ data.email }}</dd>
+		</div>
+		<div ng-show="data.comment">
+			<dt>Comment</dt>
+				<dd><pre>{{ data.comment }}</pre></dd>
+		</div>
+	</dl>
+	<h3>Entitlements</h3>
+	({{ data.entitlements.length }} entitlements)
+	<ul class="bulleted-list">
+		<li ng-repeat="entitlement in data.entitlements" ng-class="entitlementClass(entitlement)">
+			{{ entitlement.entitled_to.value.name }}
+			<ul>
+				<li ng-show="entitlement.remaining_uses">
+					remaining uses: {{ entitlement.remaining_uses }}
+				</li>
+				<li ng-show="entitlement.start_date">
+					start date: {{ entitlement.start_date }}
+				</li>
+				<li ng-show="entitlement.end_date">
+					end date: {{ entitlement.end_date }}
+				</li>
+		</ul>
+		</li>
+	</ul>
+	<h3>Tickets</h3>
+	({{ data.tickets.length }} tickets)
+</div>

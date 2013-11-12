@@ -42,9 +42,14 @@ INSTALLED_APPS = (
 
     'floppy_gumby_forms',
     'floppyforms',
+    'djangular',
+    'rest_framework',
 
     'sitewide',
     'auth',
+    'ticketing',
+
+    'south',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -54,6 +59,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'sitewide.middleware.LoginRequiredMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -127,3 +133,14 @@ AUTH_LDAP_GROUP_SEARCH = LDAPSearch("ou=groups,dc=icucinema,dc=co,dc=uk",
 )
 AUTH_LDAP_GROUP_TYPE = PosixGroupType()
 AUTH_LDAP_FIND_GROUP_PERMS = True
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
+    'PAGINATE_BY': 20,
+    'PAGINATE_BY_PARAM': 'per_page',
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
+}
+
+LOGIN_URL = '/user/login/'
+LOGIN_EXEMPT_URLS = ('^$',)

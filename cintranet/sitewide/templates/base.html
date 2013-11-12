@@ -38,8 +38,10 @@
 		 However, there is a blank style.css in the css directory should you prefer -->
 	<link rel="stylesheet" href="{% static "css/gumby.css" %}">
 	<link rel="stylesheet" href="{% static "css/style.css" %}">
+	{% block extracss %}{% endblock %}
 
 	<script src="{% static "js/libs/modernizr-2.6.2.min.js" %}"></script>
+	{% block extraheadjs %}{% endblock %}
 </head>
 
 <body>
@@ -59,6 +61,7 @@
 						{% if user.is_authenticated %}
 						<div class="dropdown">
 							<ul>
+								<li><a href="/ticketing/">Ticketing</a></li>
 								<li><a href="/admin/">Admin</a></li>
 							</ul>
 						</div>
@@ -128,6 +131,7 @@
 	<script src="{% static "js/libs/gumby.min.js" %}"></script>
 	<script src="{% static "js/plugins.js" %}"></script>
 	<script src="{% static "js/main.js" %}"></script>
+	{% block extrafootjs %}{% endblock %}
 
   </body>
 </html>

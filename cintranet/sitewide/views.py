@@ -14,6 +14,9 @@ class IndexView(TemplateView):
         cinema_club = icunion.public.Club(411)
 
         products = icunion.public.ProductList(ICU_PRODUCT_LIST_PAGE).get_products()
+        for product in products:
+            if 'All-Nighter' in product.name:
+                product.initial = 200
 
         my_context = {
             'stats': [

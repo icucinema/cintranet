@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Ticketing{% endblock %}
+
+{% block extraheadjs %}
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-route.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-resource.min.js"></script>
+	<script>
+		var __djurls = {
+			'root': '{% url "ticketing:root" %}',
+			'api_root': '{% url "ticketing:root" %}api/',
+			'partial_root': '{% url "ticketing:root" %}partials/',
+		};
+	</script>
+	<script src="{% static 'ticketing/js/TicketingApp.js' %}"></script>
+{% endblock %}
+
+{% block extracss %}
+	<link rel="stylesheet" type="text/css" href="{% static 'ticketing/css/ticketing.css' %}">
+{% endblock %}
+
+{% block content %}
+{% verbatim %}
+<div ng-app="TicketingApp" ng-controller="AppCtrl">
+	<div class="row">
+		<div class="four columns" ng-controller="NavCtrl">
+			<ul class="vertical-nav fixed-nav">
+				<li ng-repeat="nav in navs" ng-class="navActive(nav.name)">
+					<a ng-href="#{{ nav.url }}">{{ nav.text }}</a>
+				</li>
+			</ul>
+		</div>
+		<div class="eight columns" ng-view>
+		</div>
+	</div>
+</div>
+{% endverbatim %}
+{% endblock %}

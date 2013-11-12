@@ -1,0 +1,38 @@
+/* apply a natural box layout model to all elements */
+*, *:before, *:after {
+  -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+ }
+
+.vertical-nav li a {
+	display: block;
+	padding: 12px 17px;
+	color: #052443;
+	background-color: #fff;
+}
+.vertical-nav li.active a {
+	background-color: #052443;
+	color: #fff;
+}
+.fixed-nav {
+	position: fixed;
+	width: 300px;
+}
+@media only screen and (max-width: 767px) {
+	/** unstick! **/
+	.fixed-nav {
+		position: relative;
+		width: auto;
+	}
+}
+
+ul.bulleted-list > li {
+	list-style-type: disc;
+	list-style-position: inside;
+}
+
+.entitlement.valid {
+	color: #336633;
+}
+.entitlement.invalid {
+	color: #ff3333;
+}
