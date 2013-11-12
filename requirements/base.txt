@@ -8,3 +8,4 @@ beautifulsoup4==4.3.2
 Pillow==2.2.1
 djangorestframework==2.3.8
 django-filter==0.7
+django-angular==0.3.0
