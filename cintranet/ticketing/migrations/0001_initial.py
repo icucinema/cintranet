@@ -113,6 +113,7 @@ class Migration(SchemaMigration):
         db.create_table(u'ticketing_entitlement', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('punter', self.gf('django.db.models.fields.related.ForeignKey')(related_name='entitlements', to=orm['ticketing.Punter'])),
+            ('name', self.gf('django.db.models.fields.CharField')(unique=True, max_length=255, db_index=True)),
             ('start_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
             ('end_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
             ('remaining_uses', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
@@ -200,6 +201,7 @@ class Migration(SchemaMigration):
             'end_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'entitled_to': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'entitlements'", 'symmetrical': 'False', 'to': u"orm['ticketing.BaseTicketInfo']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255', 'db_index': 'True'}),
             'punter': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'entitlements'", 'to': u"orm['ticketing.Punter']"}),
             'remaining_uses': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
             'start_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'})

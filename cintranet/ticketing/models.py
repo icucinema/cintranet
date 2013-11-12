@@ -9,6 +9,8 @@ from model_utils.managers import InheritanceManager
 from model_utils.fields import StatusField
 from model_utils import Choices
 
+Q = models.Q
+
 class Punter(models.Model):
     STATUS = Choices('full', 'associate', 'public')
 
@@ -22,6 +24,27 @@ class Punter(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def available_tickets(self, events, at_time=None, on_door=True, online=False):
+        return TicketType.objects.filter(
+            Q(event__in=events) &
+            (
+                Q(
+                    general_availability=True,
+                    sell_on_the_door=on_door,
+                    sell_online=online,
+                ) | Q(
+                    Q(
+                        Entitlement.valid_q_obj("entitlements__", at_time=at_time),
+                        entitlements__punter=self,
+                    ) | Q(
+                        Entitlement.valid_q_obj("template__entitlements__", at_time=at_time),
+                        template__entitlements__punter=self,
+                    ),
+                    general_availability=False,
+                )
+            )
+        )
 
 class Film(models.Model):
     name = models.CharField(max_length=256, default="", null=False, blank=False)
@@ -38,6 +61,24 @@ class Showing(models.Model):
 
     def __unicode__(self):
         return u"{} ({})".format(self.name, self.start_time)
+
+    def save(self, *args, **kwargs):
+        old_pk = self.pk
+        r = super(Showing, self).save(*args, **kwargs)
+        new_pk = self.pk
+
+        is_new = old_pk != new_pk
+        if is_new:
+            ev = Event(
+                name=self.name,
+                start_time=self.start_time
+            )
+            ev.save()
+            ev.showings.add(self)
+        return r
+
+
+
 
 class EventType(models.Model):
     name = models.CharField(max_length=128, default="", null=False, blank=False)
@@ -117,6 +158,7 @@ class TicketType(BaseTicketInfo):
 
 class Entitlement(models.Model):
     punter = models.ForeignKey(Punter, related_name='entitlements')
+    name = models.CharField(max_length=255, null=False, blank=False, db_index=True)
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
     remaining_uses = models.PositiveIntegerField(null=True, blank=True)
@@ -141,10 +183,37 @@ class Entitlement(models.Model):
         return True
     valid.boolean = True
 
+    @classmethod
+    def valid_q_obj(self, prefix="", at_time=None):
+        at_time = at_time or now()
+
+        remaining_uses_q_kw = Q(**{
+            prefix + "remaining_uses__isnull": True
+        }) | Q(**{
+            prefix + "remaining_uses__gt": 0
+        })
+
+        start_date_q_kw = Q(**{
+            prefix + "start_date__isnull": True
+        }) | Q(**{
+            prefix + "start_date__lt": at_time
+        })
+
+        end_date_q_kw = Q(**{
+            prefix + "end_date__isnull": True
+        }) | Q(**{
+            prefix + "end_date__gt": at_time
+        })
+
+        return remaining_uses_q_kw & start_date_q_kw & end_date_q_kw
+
     def __unicode__(self):
         return u"{} entitled to {} ({})".format(
             self.punter, self.entitled_to, 'valid' if self.valid() else 'invalid'
         )
+
+    class Meta:
+        unique_together = (("punter", "name"))
 
 class Ticket(models.Model):
     STATUS = Choices('live', 'void', 'refunded')

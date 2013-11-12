@@ -4,6 +4,7 @@ import codecs
 import traceback
 
 from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
 from django.utils.timezone import utc
 
 from ticketing import models
@@ -11,12 +12,12 @@ from ticketing import models
 START_DATE = datetime.datetime(2013, 9, 28, tzinfo=utc)
 END_DATE = datetime.datetime(2014, 06, 28, tzinfo=utc)
 AUTOMATIC_ENTITLEMENTS = [
-    (models.TicketTemplate, 3, {
+    ("2013 Members Free Ticket", (3,6), {
         'remaining_uses': 1,
         'start_date': START_DATE,
         'end_date': END_DATE
     }), # free ticket
-    (models.TicketTemplate, 1, {
+    ("2013 Member", (1,5), {
         'start_date': START_DATE,
         'end_date': END_DATE
     }),
@@ -79,15 +80,6 @@ class Command(BaseCommand):
         elif len(args) > 1:
             raise CommandError(u"Too many arguments!")
 
-        entitlements = []
-        from django.contrib.contenttypes.models import ContentType
-        for ent_model, ent_pk, ent_kwargs in AUTOMATIC_ENTITLEMENTS:
-            entitlements.append((
-                ContentType.objects.get_for_model(ent_model),
-                ent_pk,
-                ent_kwargs
-            ))
-
         members_report_path, = args
         with open(members_report_path, 'rb') as csvfile:
             csvr = UnicodeDictCsvReader(csvfile, encoding='iso8859-1')
@@ -101,25 +93,26 @@ class Command(BaseCommand):
             count_already_exist_created_ents = 0
             count_total_ents_created = 0
 
-            for member in csvr:
-                try:
-                    _, created, ents_created = self.handle_member(member, entitlements)
-                except Exception, ex:
-                    count_total += 1
-                    count_errored += 1
-                    traceback.print_exc(file=self.stderr)
-                    continue
+            with transaction.atomic():
+                for member in csvr:
+                    try:
+                        _, created, ents_created = self.handle_member(member, AUTOMATIC_ENTITLEMENTS)
+                    except Exception, ex:
+                        count_total += 1
+                        count_errored += 1
+                        traceback.print_exc(file=self.stderr)
+                        continue
 
-                count_total += 1
-                if created:
-                    count_created += 1
-                else:
-                    count_already_exist += 1
-                if ents_created != 0:
-                    count_created_ents += 1
-                    count_total_ents_created += ents_created
-                if not created and ents_created != 0:
-                    count_already_exist_created_ents += 1
+                    count_total += 1
+                    if created:
+                        count_created += 1
+                    else:
+                        count_already_exist += 1
+                    if ents_created != 0:
+                        count_created_ents += 1
+                        count_total_ents_created += ents_created
+                    if not created and ents_created != 0:
+                        count_already_exist_created_ents += 1
 
             self.stdout.write("")
             self.stdout.write("RESULTS")
@@ -146,7 +139,7 @@ class Command(BaseCommand):
         )
         email = csv_row['Email']
         username = csv_row['Login']
-        punter_type = models.PUNTER_FULL if cid != '' else models.PUNTER_ASSOCIATE
+        punter_type = 'full' if cid != '' else 'associate'
 
         filter_on = {}
         if cid != '':
@@ -170,14 +163,14 @@ class Command(BaseCommand):
 
         entitlements_created = 0
         # check if entitlements already exist
-        for ent_ct, ent_id, ent_kwargs in entitlements:
-            _, c = models.Entitlement.objects.get_or_create(
+        for ent_name, ent_ids, ent_kwargs in entitlements:
+            eobj, c = models.Entitlement.objects.get_or_create(
                 punter=obj,
-                entitled_to_type=ent_ct,
-                entitled_to_id=ent_id,
+                name=ent_name,
                 defaults=ent_kwargs
             )
             if c:
+                eobj.entitled_to.add(*ent_ids)
                 entitlements_created += 1
 
         return obj, created, entitlements_created
