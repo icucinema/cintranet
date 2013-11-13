@@ -1,0 +1,50 @@
+<h2>Event Types</h2>
+<table class="striped">
+	<thead>
+		<tr>
+			<th>ID</th>
+			<th>Name</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr ng-repeat="event_type in event_types">
+			<td>{{ event_type.id }}</td>
+			<td>
+				<div ng-hide="event_type.editing">
+					{{ event_type.name }}
+				</div>
+				<input class="input" type="text" ng-model="event_type.editCopy.name" ng-show="event_type.editing">
+			</td>
+			<td style="text-align:right;">
+				<div class="small success btn" ng-show="event_type.editing">
+					<a href ng-click="save(event_type)">Save</a>
+				</div>
+				<div class="small warning btn" ng-show="event_type.editing">
+					<a href ng-click="cancelEdit(event_type)">Cancel</a>
+				</div>
+				<div class="small success btn" ng-hide="event_type.editing">
+					<a href ng-click="edit(event_type)">Edit</a>
+				</div>
+				<div class="small danger btn">
+					<a href ng-click="areYouSureDelete(event_type)" ng-hide="event_type.areYouSure">Delete</a>
+					<a href ng-click="delete(event_type)" ng-show="event_type.areYouSure">Are you sure?</a>
+				</div>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<br>
+<h3>Create New Event Type</h3>
+<form ng-submit="createNew()">
+	<ul>
+		<li class="field">
+			<input class="input" type="text" placeholder="Name" ng-model="newEventType.name">
+		</li>
+		<li class="field">
+			<div class="medium primary btn">
+				<input type="submit" value="Create"/>
+			</div>
+		</li>
+	</ul>
+</form>
