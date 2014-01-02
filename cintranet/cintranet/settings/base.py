@@ -113,7 +113,8 @@ STATIC_URL = '/static/'
 
 import ldap
 from django_auth_ldap.config import LDAPSearch, PosixGroupType
-AUTH_LDAP_SERVER_URI = "ldap://localhost"
+AUTH_LDAP_SERVER_URI = "ldap://su-cinema-ernie.su.ic.ac.uk"
+AUTH_LDAP_START_TLS = True
 AUTH_LDAP_BIND_DN = ""
 AUTH_LDAP_BIND_PASSWORD = ""
 AUTH_LDAP_USER_DN_TEMPLATE = "uid=%(user)s,ou=people,dc=icucinema,dc=co,dc=uk"
@@ -144,3 +145,10 @@ REST_FRAMEWORK = {
 
 LOGIN_URL = '/user/login/'
 LOGIN_EXEMPT_URLS = ('^$',)
+
+### ticketing settings
+TICKETING_MEMBERSHIP_ENTITLEMENT = 1
+TICKETING_SEASON_ENTITLEMENT = 2
+TICKETING_STANDARD_EVENT_TYPE = 1
+TICKETING_DOUBLEBILL_EVENT_TYPE = 2
+TMDB_API_KEY = "91555fc0d844a9ff2177850a87a88294"

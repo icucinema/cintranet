@@ -1,15 +1,32 @@
 import itertools
+import re
 
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.utils.timezone import now
+from django.conf import settings
 
 from model_utils.managers import InheritanceManager
 from model_utils.fields import StatusField
 from model_utils import Choices
+from tmdbsimple import TMDB
 
 Q = models.Q
+tmdb = TMDB(settings.TMDB_API_KEY)
+_tmdb_conf = None
+tmdb_url_re = re.compile(r'^https?://[a-z\.]+/movie/(?P<tmdb_id>\d+)-.*$')
+
+def tmdb_config():
+    global _tmdb_conf
+    if _tmdb_conf is None:
+        _tmdb_conf = tmdb.Configuration()
+        _tmdb_conf.info()
+    return _tmdb_conf
+
+def tmdb_construct_poster(img_bit, size='original'):
+    c = tmdb_config()
+    return c.images['base_url'] + size + img_bit
 
 class Punter(models.Model):
     STATUS = Choices('full', 'associate', 'public')
@@ -35,11 +52,11 @@ class Punter(models.Model):
                     sell_online=online,
                 ) | Q(
                     Q(
-                        Entitlement.valid_q_obj("entitlements__", at_time=at_time),
-                        entitlements__punter=self,
+                        EntitlementDetail.valid_q_obj("entitlements__entitlement_detail__", at_time=at_time),
+                        entitlements__entitlement_detail__punter=self,
                     ) | Q(
-                        Entitlement.valid_q_obj("template__entitlements__", at_time=at_time),
-                        template__entitlements__punter=self,
+                        EntitlementDetail.valid_q_obj("template__entitlements__entitlement_detail__", at_time=at_time),
+                        template__entitlements__entitlement_detail__punter=self,
                     ),
                     general_availability=False,
                 )
@@ -47,12 +64,46 @@ class Punter(models.Model):
         )
 
 class Film(models.Model):
+    tmdb_id = models.PositiveIntegerField(null=True)
+    imdb_id = models.CharField(max_length=20, null=False, blank=True, default="")
+
     name = models.CharField(max_length=256, default="", null=False, blank=False)
     description = models.TextField(default="", null=False, blank=True)
-    picture = models.ImageField(blank=True, upload_to="film_banners")
+
+    poster_url = models.URLField(blank=True, null=False, default="")
 
     def __unicode__(self):
         return self.name
+
+    @classmethod
+    def from_tmdb(cls, tmdb_id):
+        if 'themoviedb.org' in str(tmdb_id):
+            # it looks like a URL...
+            tmdb_match = tmdb_url_re.search(tmdb_id)
+            if not tmdb_match:
+                return None
+            tmdb_id = tmdb_match.groupdict().get('tmdb_id', None)
+        self = cls(tmdb_id=int(tmdb_id))
+        self.update_tmdb()
+        return self
+
+    def update_tmdb(self):
+        movie = tmdb.Movies(self.tmdb_id)
+        movie.info()
+        self.name = movie.title
+        self.description = movie.overview
+        self.imdb_id = movie.imdb_id
+        self.poster_url = tmdb_construct_poster(movie.poster_path)
+
+    def update_imdb(self):
+        pass
+
+    def update_remote(self):
+        if self.tmdb_id is not None:
+            self.update_tmdb()
+        if self.imdb_id != "":
+            self.update_imdb()
+        self.save()
 
 class Showing(models.Model):
     name = models.CharField(max_length=300, default="", null=False, blank=False)
@@ -73,6 +124,7 @@ class Showing(models.Model):
                 name=self.name,
                 start_time=self.start_time
             )
+            ev.event_types = [EventType.objects.get(pk=settings.TICKETING_STANDARD_EVENT_TYPE)]
             ev.save()
             ev.showings.add(self)
         return r
@@ -115,19 +167,19 @@ class BaseTicketInfo(models.Model):
         decimal_places=2, max_digits=5,
         help_text="""This is the ex-VAT price reported on the BOR for each film!"""
     )
+    name = models.CharField(max_length=128, null=False, blank=False)
 
     objects = InheritanceManager()
-
-class TicketTemplate(BaseTicketInfo):
-    event_type = models.ManyToManyField(EventType, related_name='ticket_templates')
-    name = models.CharField(max_length=128, null=False, blank=False)
 
     def __unicode__(self):
         return self.name
 
+
+class TicketTemplate(BaseTicketInfo):
+    event_type = models.ManyToManyField(EventType, related_name='ticket_templates')
+
 class TicketType(BaseTicketInfo):
     event = models.ForeignKey(Event)
-    name = models.CharField(max_length=128, null=False, blank=False)
 
     template = models.ForeignKey(TicketTemplate, blank=True, null=True)
 
@@ -156,21 +208,44 @@ class TicketType(BaseTicketInfo):
     def __unicode__(self):
         return u"{} for {}".format(self.name, self.event)
 
+class EntitlementDetail(models.Model):
+    punter = models.ForeignKey(Punter, related_name='entitlement_details')
+    entitlement = models.ForeignKey('Entitlement', related_name='entitlement_details')
+    created_on = models.DateTimeField(null=False, blank=False, auto_now_add=True)
+    remaining_uses = models.PositiveIntegerField(null=True, blank=True)
+
+    def valid(self, at_time=None):
+        if self.remaining_uses is not None and self.remaining_uses <= 0:
+            # all used up
+            return False
+
+        # delegate it to the base entitlement validity checker
+        return self.entitlement.valid()
+    valid.boolean = True
+
+    @staticmethod
+    def valid_q_obj(prefix="", at_time=None):
+        remaining_uses_q_kw = Q(**{
+            prefix + "remaining_uses__isnull": True
+        }) | Q(**{
+            prefix + "remaining_uses__gt": 0
+        })
+
+        return remaining_uses_q_kw & Entitlement.valid_q_obj(prefix + "entitlement__", at_time)
+
+    def name(self):
+        return self.entitlement.name
+
 class Entitlement(models.Model):
-    punter = models.ForeignKey(Punter, related_name='entitlements')
-    name = models.CharField(max_length=255, null=False, blank=False, db_index=True)
+    punters = models.ManyToManyField(Punter, related_name='entitlements', through=EntitlementDetail)
+    name = models.CharField(max_length=255, null=False, blank=False, db_index=True, unique=True)
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
-    remaining_uses = models.PositiveIntegerField(null=True, blank=True)
 
     entitled_to = models.ManyToManyField(BaseTicketInfo, related_name='entitlements')
 
     def valid(self, at_time=None):
         at_time = at_time or now()
-
-        if self.remaining_uses is not None and self.remaining_uses <= 0:
-            # all tickets used
-            return False
 
         if self.start_date is not None and self.start_date > at_time:
             # not yet valid
@@ -183,15 +258,9 @@ class Entitlement(models.Model):
         return True
     valid.boolean = True
 
-    @classmethod
-    def valid_q_obj(self, prefix="", at_time=None):
+    @staticmethod
+    def valid_q_obj(prefix="", at_time=None):
         at_time = at_time or now()
-
-        remaining_uses_q_kw = Q(**{
-            prefix + "remaining_uses__isnull": True
-        }) | Q(**{
-            prefix + "remaining_uses__gt": 0
-        })
 
         start_date_q_kw = Q(**{
             prefix + "start_date__isnull": True
@@ -205,15 +274,12 @@ class Entitlement(models.Model):
             prefix + "end_date__gt": at_time
         })
 
-        return remaining_uses_q_kw & start_date_q_kw & end_date_q_kw
+        return start_date_q_kw & end_date_q_kw
 
     def __unicode__(self):
-        return u"{} entitled to {} ({})".format(
-            self.punter, self.entitled_to, 'valid' if self.valid() else 'invalid'
+        return u"{} ({})".format(
+            self.name, 'valid' if self.valid() else 'invalid'
         )
-
-    class Meta:
-        unique_together = (("punter", "name"))
 
 class Ticket(models.Model):
     STATUS = Choices('live', 'void', 'refunded')

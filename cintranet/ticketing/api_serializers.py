@@ -51,9 +51,9 @@ class EntitlementSerializer(ModelSerializer):
     class Meta:
         model = models.Entitlement
         fields = (
-            'punter',
+            'name',
             'entitled_to',
-            'start_date', 'end_date', 'remaining_uses',
+            'start_date', 'end_date',
             'valid'
         )
 
