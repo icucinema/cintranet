@@ -25,6 +25,8 @@ def tmdb_config():
     return _tmdb_conf
 
 def tmdb_construct_poster(img_bit, size='original'):
+    if img_bit is None:
+        return None
     c = tmdb_config()
     return c.images['base_url'] + size + img_bit
 
@@ -87,6 +89,12 @@ class Film(models.Model):
         self.update_tmdb()
         return self
 
+    @classmethod
+    def search_tmdb(cls, query):
+        search = tmdb.Search()
+        search.movie({'query': query})
+        return [cls.from_tmdb(r['id']) for r in search.results]
+
     def update_tmdb(self):
         movie = tmdb.Movies(self.tmdb_id)
         movie.info()
@@ -128,9 +136,6 @@ class Showing(models.Model):
             ev.save()
             ev.showings.add(self)
         return r
-
-
-
 
 class EventType(models.Model):
     name = models.CharField(max_length=128, default="", null=False, blank=False)
@@ -236,6 +241,9 @@ class EntitlementDetail(models.Model):
     def name(self):
         return self.entitlement.name
 
+    class Meta:
+        unique_together = (('punter', 'entitlement'),)
+
 class Entitlement(models.Model):
     punters = models.ManyToManyField(Punter, related_name='entitlements', through=EntitlementDetail)
     name = models.CharField(max_length=255, null=False, blank=False, db_index=True, unique=True)
@@ -257,6 +265,10 @@ class Entitlement(models.Model):
 
         return True
     valid.boolean = True
+
+    @property
+    def entitled_to_subclasses(self):
+        return self.entitled_to.all().select_subclasses()
 
     @staticmethod
     def valid_q_obj(prefix="", at_time=None):

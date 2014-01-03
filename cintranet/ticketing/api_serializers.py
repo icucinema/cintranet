@@ -31,7 +31,7 @@ class EntitledToRelatedField(serializers.RelatedField):
             typen = 'template'
             typev = TicketTemplateSerializer(value)
         else:
-            raise Exception("Unexpected entitlement")
+            raise Exception("Unexpected entitlement - %s" % (str(type(value)),))
 
         return {'type': typen, 'value': typev.data}
 
@@ -45,20 +45,40 @@ class FlatEntitledToRelatedField(serializers.RelatedField):
         raise Exception("Unexpected entitlement")
 
 class EntitlementSerializer(ModelSerializer):
-    entitled_to = EntitledToRelatedField()
+    entitled_to = EntitledToRelatedField(source='entitled_to_subclasses', many=True)
     valid = serializers.Field(source='valid')
 
     class Meta:
         model = models.Entitlement
         fields = (
+            'id',
             'name',
             'entitled_to',
             'start_date', 'end_date',
             'valid'
         )
 
+class TicketSerializer(ModelSerializer):
+    class Meta:
+        model = models.Ticket
+        fields = (
+            'id', 'punter', 'entitlement', 'timestamp', 'status', 'ticket_type'
+        )
+
+class EntitlementDetailSerializer(ModelSerializer):
+    entitlement = EntitlementSerializer()
+    valid = serializers.Field(source='valid')
+
+    class Meta:
+        model = models.EntitlementDetail
+        fields = (
+            'id',
+            'remaining_uses',
+            'entitlement', 'valid'
+        )
+
 class PunterSerializer(ModelSerializer):
-    entitlements = EntitlementSerializer(many=True)
+    entitlement_details = EntitlementDetailSerializer(many=True)
 
     class Meta:
         model = models.Punter
@@ -67,8 +87,6 @@ class PunterSerializer(ModelSerializer):
             'punter_type', 'name',
             'cid', 'login', 'swipecard', 'email',
             'comment',
-            'entitlements',
-            'tickets'
         )
 
 class FlatPunterSerializer(ModelSerializer):
@@ -82,4 +100,11 @@ class FlatPunterSerializer(ModelSerializer):
             'cid', 'login', 'swipecard', 'email',
             'comment',
             'entitlements'
+        )
+
+class FilmSerializer(ModelSerializer):
+    class Meta:
+        model = models.Film
+        fields = (
+            'id', 'name', 'description', 'tmdb_id', 'imdb_id', 'poster_url'
         )

@@ -9,19 +9,10 @@ from django.utils.timezone import utc
 
 from ticketing import models
 
-START_DATE = datetime.datetime(2013, 9, 28, tzinfo=utc)
-END_DATE = datetime.datetime(2014, 06, 28, tzinfo=utc)
-AUTOMATIC_ENTITLEMENTS = [
-    ("2013 Members Free Ticket", (3,6), {
-        'remaining_uses': 1,
-        'start_date': START_DATE,
-        'end_date': END_DATE
-    }), # free ticket
-    ("2013 Member", (1,5), {
-        'start_date': START_DATE,
-        'end_date': END_DATE
-    }),
-]
+AUTOMATIC_ENTITLEMENTS = {
+  1: {},
+  3: {'remaining_uses': 1}
+}
 
 ##### FROM http://docs.python.org/2/library/csv.html#csv-examples
 class UTF8Recoder(object):
@@ -163,14 +154,13 @@ class Command(BaseCommand):
 
         entitlements_created = 0
         # check if entitlements already exist
-        for ent_name, ent_ids, ent_kwargs in entitlements:
-            eobj, c = models.Entitlement.objects.get_or_create(
+        for ent_id, ent_kwargs in entitlements.iteritems():
+            eobj, c = models.EntitlementDetail.objects.get_or_create(
                 punter=obj,
-                name=ent_name,
+                entitlement_id=ent_id,
                 defaults=ent_kwargs
             )
             if c:
-                eobj.entitled_to.add(*ent_ids)
                 entitlements_created += 1
 
         return obj, created, entitlements_created

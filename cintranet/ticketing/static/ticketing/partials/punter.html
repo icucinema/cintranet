@@ -1,49 +1,88 @@
 <div ng-show="loading"><h2>Loading...</h2></div>
 <div ng-hide="loading">
 	<h2><div class="btn primary large" ng-click="hBack()"><a href><i class="icon-arrow-left"></i></a></div> {{ data.name }}</h2>
-	<h3>Information</h3>
-	<dl>
-		<dt>Union Membership Type</dt>
-			<dd>{{ punterTypeToString(data.punter_type) }}</dd>
-		<div ng-show="data.cid">
-			<dt>CID</dt>
-				<dd>{{ data.cid }}</dd>
-		</div>
-		<div ng-show="data.swipecard">
-			<dt>Swipecard Data</dt>
-				<dd>{{ data.swipecard }}</dd>
-		</div>
-		<div ng-show="data.login">
-			<dt>Username</dt>
-				<dd>{{ data.login }}</dd>
-		</div>
-		<div ng-show="data.email">
-			<dt>Email</dt>
-				<dd>{{ data.email }}</dd>
-		</div>
-		<div ng-show="data.comment">
-			<dt>Comment</dt>
-				<dd><pre>{{ data.comment }}</pre></dd>
-		</div>
-	</dl>
-	<h3>Entitlements</h3>
-	({{ data.entitlements.length }} entitlements)
-	<ul class="bulleted-list">
-		<li ng-repeat="entitlement in data.entitlements" ng-class="entitlementClass(entitlement)">
-			{{ entitlement.entitled_to.value.name }}
-			<ul>
-				<li ng-show="entitlement.remaining_uses">
-					remaining uses: {{ entitlement.remaining_uses }}
+	<tabs>
+		<tab tab-title="Information">
+			<dl>
+				<dt>Union Membership Type</dt>
+					<dd ng-hide="data_editing">{{ punterTypeToString(data.punter_type) }}</dd>
+					<dd ng-show="data_editing">
+						<select ng-model="edit_data.punter_type" ng-options="c.value as c.label for c in punterTypes"></select>
+					</dd>
+				<div ng-show="data.cid || data_editing">
+					<dt>CID</dt>
+						<dd ng-hide="data_editing">{{ data.cid }}</dd>
+						<dd ng-show="data_editing" class="field"><input type="text" class="xxwide text input" ng-model="edit_data.cid"></dd>
+				</div>
+				<div ng-show="data.swipecard || data_editing">
+					<dt>Swipecard Data</dt>
+						<dd ng-hide="data_editing">{{ data.swipecard }}</dd>
+						<dd ng-show="data_editing" class="field"><input type="text" class="xxwide text input" ng-model="edit_data.swipecard"></dd>
+				</div>
+				<div ng-show="data.login || data_editing">
+					<dt>Username</dt>
+						<dd ng-hide="data_editing">{{ data.login }}</dd>
+						<dd ng-show="data_editing" class="field"><input type="text" class="xxwide text input" ng-model="edit_data.login"></dd>
+				</div>
+				<div ng-show="data.email || data_editing">
+					<dt>Email</dt>
+						<dd ng-hide="data_editing">{{ data.email }}</dd>
+						<dd ng-show="data_editing" class="field"><input type="text" class="xxwide text input" ng-model="edit_data.email"></dd>
+				</div>
+				<div ng-show="data.comment || data_editing">
+					<dt>Comment</dt>
+						<dd ng-hide="data_editing"><pre>{{ data.comment }}</pre></dd>
+						<dd ng-show="data_editing" class="field"><textarea ng-model="edit_data.comment" class="xxwide textarea"></textarea></dd>
+				</div>
+				<div>
+					<dt></dt>
+						<dd ng-hide="data_editing">
+							<div class="medium primary btn" ng-click="editData()"><a href>Edit</a></div>
+						</dd>
+						<dd ng-show="data_editing">
+							<div class="medium success btn" ng-click="saveEditData()"><a href>Save</a></div>
+							<div class="medium danger btn" ng-click="cancelEditData()"><a href>Cancel</a></div>
+						</dd>
+			</dl>
+		</tab>
+		<tab tab-title="Entitlements ({{ entitlement_details.length }})">
+			<ul class="bulleted-list">
+				<li ng-repeat="entitlement_detail in entitlement_details">
+					<h5 ng-class="entitlementClass(entitlement_detail)">{{ entitlement_detail.entitlement.name }} <em>({{ entitlement_detail.id }})</em></h5>
+					<ul>
+						<li ng-show="entitlement_detail.remaining_uses !== null && !entitlement_detail.editing">
+							remaining uses: {{ entitlement_detail.remaining_uses }}
+						</li>
+						<li ng-show="entitlement_detail.editing" class="field">
+							<label for="ed_{{ entitlement_detail.id }}_remaining-uses">Remaining uses (blank for unlimited)</label>
+							<input type="number" class="number numeric input xxlarge" ng-model="entitlement_detail.edit.remaining_uses" id="ed_{{ entitlement_detail.id }}_remaining-uses">
+						</li>
+						<li ng-show="entitlement_detail.entitlement.start_date">
+							start date: {{ entitlement_detail.entitlement.start_date }}
+						</li>
+						<li ng-show="entitlement_detail.entitlement.end_date">
+							end date: {{ entitlement_detail.entitlement.end_date }}
+						</li>
+						<li>
+							allows:
+							<ul>
+								<li ng-repeat="tt in entitlement_detail.entitlement.entitled_to">
+									{{ tt.value.name }}
+								</li>
+							</ul>
+						</li>
+						<li ng-hide="entitlement_detail.editing">
+							<div class="primary medium btn" ng-click="editEntitlementDetail(entitlement_detail)"><a href>Edit</a></div>
+						</li>
+						<li ng-show="entitlement_detail.editing">
+							<div class="success medium btn" ng-click="saveEditEntitlementDetail(entitlement_detail)"><a href>Save</a></div>
+							<div class="danger medium btn" ng-click="cancelEditEntitlementDetail(entitlement_detail)"><a href>Cancel</a></div>
+						</li>
+					</ul>
 				</li>
-				<li ng-show="entitlement.start_date">
-					start date: {{ entitlement.start_date }}
-				</li>
-				<li ng-show="entitlement.end_date">
-					end date: {{ entitlement.end_date }}
-				</li>
-		</ul>
-		</li>
-	</ul>
-	<h3>Tickets</h3>
-	({{ data.tickets.length }} tickets)
+			</ul>
+		</tab>
+		<tab tab-title="Tickets ({{ tickets.length }})">
+		</tab>
+	</tabs>
 </div>
