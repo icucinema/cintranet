@@ -11,6 +11,18 @@ def top_level_action(methods=['post'], **kwargs):
         return func
     return decorator
 
+class TicketTemplateViewSet(viewsets.ModelViewSet):
+    queryset = models.TicketTemplate.objects.all()
+    serializer_class = api_serializers.TicketTemplateSerializer
+
+class TicketTypeViewSet(viewsets.ModelViewSet):
+    queryset = models.TicketType.objects.all()
+    serializer_class = api_serializers.TicketTypeSerializer
+
+class EventTypeViewSet(viewsets.ModelViewSet):
+    queryset = models.EventType.objects.all()
+    serializer_class = api_serializers.EventTypeSerializer
+
 class PunterViewSet(viewsets.ModelViewSet):
     queryset = models.Punter.objects.all()
     serializer_class = api_serializers.PunterSerializer

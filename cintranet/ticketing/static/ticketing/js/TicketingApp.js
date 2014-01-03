@@ -25,6 +25,9 @@ app.config(['djurl', '$routeProvider', '$httpProvider', 'RestangularProvider', f
 	});
 	RestangularProvider.setBaseUrl(djurl.api_root);
 	RestangularProvider.setRequestSuffix('/');
+	RestangularProvider.setRestangularFields({
+		selfLink: 'url'
+	});
 	$routeProvider.
 		when('/', {
 			templateUrl: djurl.partial_root + 'index.html',
@@ -351,18 +354,10 @@ app.controller('PunterCtrl', function($rootScope, $scope, $routeParams, $locatio
 	};
 
 	$scope.editEntitlementDetail = function(ed) {
-		var after = function(res) {
-			ed.edit = Restangular.copy(res);
-			ed.editing = true;
-		};
-		if (!ed.orig) {
-			Restangular.one('entitlement-details', ed.id).get().then(function(res) {
-				ed.orig = res;
-				return res;
-			}).then(after);
-		} else {
-			after(ed.orig);
-		}
+		if (!ed.orig)
+                        ed.orig = Restangular.copy(ed);
+		ed.edit = Restangular.copy(ed.orig);
+		ed.editing = true;
 	};
 	$scope.cancelEditEntitlementDetail = function(ed) {
 		ed.editing = false;

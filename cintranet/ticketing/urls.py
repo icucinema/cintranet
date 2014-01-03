@@ -83,6 +83,9 @@ api_router.register(r'punters', api_views.PunterViewSet)
 api_router.register(r'films', api_views.FilmViewSet)
 api_router.register(r'entitlements', api_views.EntitlementViewSet)
 api_router.register(r'entitlement-details', api_views.EntitlementDetailViewSet)
+api_router.register(r'ticket-types', api_views.TicketTypeViewSet)
+api_router.register(r'ticket-templates', api_views.TicketTemplateViewSet)
+api_router.register(r'event-types', api_views.EventTypeViewSet)
 
 urlpatterns = patterns('',
     url(r'^$', views.IndexView.as_view(), name='root'),

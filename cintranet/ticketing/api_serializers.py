@@ -2,13 +2,21 @@ from rest_framework import serializers
 
 from . import models
 
-ModelSerializer = serializers.ModelSerializer
+ModelSerializer = serializers.HyperlinkedModelSerializer
+
+class EventTypeSerializer(ModelSerializer):
+    class Meta:
+        model = models.EventType
+        fields = (
+            'url', 'id',
+            'name',
+        )
 
 class TicketTypeSerializer(ModelSerializer):
     class Meta:
         model = models.TicketType
         fields = (
-            'id',
+            'url', 'id',
             'name',
             'event'
         )
@@ -17,19 +25,20 @@ class TicketTemplateSerializer(ModelSerializer):
     class Meta:
         model = models.TicketTemplate
         fields = (
-            'id',
+            'url', 'id',
             'name',
             'event_type'
         )
 
 class EntitledToRelatedField(serializers.RelatedField):
     def to_native(self, value):
+        kwargs = {'context': self.context}
         if isinstance(value, models.TicketType):
             typen = 'type'
-            typev = TicketTypeSerializer(value)
+            typev = TicketTypeSerializer(value, **kwargs)
         elif isinstance(value, models.TicketTemplate):
             typen = 'template'
-            typev = TicketTemplateSerializer(value)
+            typev = TicketTemplateSerializer(value, **kwargs)
         else:
             raise Exception("Unexpected entitlement - %s" % (str(type(value)),))
 
@@ -51,7 +60,7 @@ class EntitlementSerializer(ModelSerializer):
     class Meta:
         model = models.Entitlement
         fields = (
-            'id',
+            'url', 'id',
             'name',
             'entitled_to',
             'start_date', 'end_date',
@@ -62,7 +71,7 @@ class TicketSerializer(ModelSerializer):
     class Meta:
         model = models.Ticket
         fields = (
-            'id', 'punter', 'entitlement', 'timestamp', 'status', 'ticket_type'
+            'url', 'id', 'punter', 'entitlement', 'timestamp', 'status', 'ticket_type'
         )
 
 class EntitlementDetailSerializer(ModelSerializer):
@@ -72,7 +81,7 @@ class EntitlementDetailSerializer(ModelSerializer):
     class Meta:
         model = models.EntitlementDetail
         fields = (
-            'id',
+            'url', 'id',
             'remaining_uses',
             'entitlement', 'valid'
         )
@@ -83,28 +92,15 @@ class PunterSerializer(ModelSerializer):
     class Meta:
         model = models.Punter
         fields = (
-            'id',
+            'url', 'id',
             'punter_type', 'name',
             'cid', 'login', 'swipecard', 'email',
             'comment',
-        )
-
-class FlatPunterSerializer(ModelSerializer):
-    entitlements = serializers.PrimaryKeyRelatedField(many=True)
-
-    class Meta:
-        model = models.Punter
-        fields = (
-            'id',
-            'punter_type', 'name',
-            'cid', 'login', 'swipecard', 'email',
-            'comment',
-            'entitlements'
         )
 
 class FilmSerializer(ModelSerializer):
     class Meta:
         model = models.Film
         fields = (
-            'id', 'name', 'description', 'tmdb_id', 'imdb_id', 'poster_url'
+            'url', 'id', 'name', 'description', 'tmdb_id', 'imdb_id', 'poster_url'
         )

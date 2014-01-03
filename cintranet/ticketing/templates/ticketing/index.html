@@ -9,7 +9,6 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-route.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-resource.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/lodash/2.4.1/lodash.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/restangular/1.1.3/restangular.js"></script>
 	<script>
 		var __djurls = {
 			'root': '{% url "ticketing:root" %}',
@@ -18,6 +17,7 @@
 		};
 	</script>
 	<script src="{% static 'ticketing/js/TicketingApp.js' %}"></script>
+	<script src="{% static 'ticketing/js/restangular.min.js' %}"></script>
 {% endblock %}
 
 {% block extracss %}

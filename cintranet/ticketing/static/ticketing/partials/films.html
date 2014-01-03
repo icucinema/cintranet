@@ -1,0 +1,85 @@
+<h2>Films</h2>
+Showing <strong>{{ data.startAt }}</strong>-<strong>{{ data.endAt }}</strong> of <strong>{{ data.count }}</strong>
+<div style="height: 36px; margin-bottom: 20px">
+	<div class="medium btn icon-left entypo icon-arrow-left" ng-class="buttonClass(data.previous)">
+		<a href ng-click="goTo(data.previous)">Prev</a>
+	</div>
+	<div class="medium btn icon-right entypo icon-arrow-right" style="float: right;" ng-class="buttonClass(data.next)">
+		<a href ng-click="goTo(data.next)">Next</a>
+	</div>
+</div>
+<table class="striped">
+	<thead>
+		<tr>
+			<th>Name</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr ng-repeat="film in data.results">
+			<td><a href="{{ filmUrl(film) }}">{{ film.name }}</a></td>
+		</tr>
+	</tbody>
+</table>
+<div style="height: 36px; margin-bottom: 20px">
+	<div class="medium btn icon-left entypo icon-arrow-left" ng-class="buttonClass(data.previous)">
+		<a href ng-click="goTo(data.previous)">Prev</a>
+	</div>
+	<div class="medium btn icon-right entypo icon-arrow-right" style="float: right;" ng-class="buttonClass(data.next)">
+		<a href ng-click="goTo(data.next)">Next</a>
+	</div>
+</div>
+
+<tabs>
+	<tab tab-title="TMDB">
+		<h3>Add Film from TMDB</h3>
+		<form ng-submit="addFilm.go()">
+			<div class="append field">
+				<input class="xwide text input" placeholder="Film title" ng-model="addFilm.search" ng-disabled="addFilm.searching">
+				<div class="medium primary btn" ng-click="addFilm.go()" ng-disabled="addFilm.searching"><a href><i class="icon-search"></i></a></div>
+			</div>
+			<h4 ng-show="addFilm.resultsFor">Results for "<code style="font-family: Courier New, Courier">{{ addFilm.resultsFor }}</code>"</h4>
+			<ol>
+				<li ng-repeat="result in addFilm.results" style="clear:both;">
+					<div>
+					<div style="float: right; margin-left: 5px">
+						<img ng-src="{{ result.poster_url }}" style="max-height: 150px; width: auto">
+					</div>
+					<h5>{{ result.name }}</h5>
+					<div><div class="medium btn success icon-left entypo icon-plus" ng-click="addFilm.create(result)"><a href>Add</a></div></div>
+					<p>{{ result.description }}</p>
+					</div>
+				</li>
+			</ol>
+		</form>
+	</tab>
+	<tab tab-title="Manually">
+		<h3>Add Film Manually</h3>
+		<form ng-submit="addFilm.create(addFilm.manualItem)">
+			<ul>
+				<li class="field">
+					<label class="inline" for="manual-name">Title</label>
+					<input class="xxwide text input" id="manual-name" ng-model="addFilm.manualItem.name" type="text">
+				</li>
+				<li class="field">
+					<label class="inline" for="manual-description">Description</label>
+					<textarea class="xxwide textarea input" id="manual-description" ng-model="addFilm.manualItem.description"></textarea>
+				</li>
+				<li class="field">
+					<label class="inline" for="manual-poster-url">Poster URL</label>
+					<input class="xxwide url input" id="manual-poster-url" ng-model="addFilm.manualItem.poster_url" type="url">
+				</li>
+				<li class="field">
+					<label class="inline" for="manual-imdb-id">IMDb ID (http://www.imdb.com/title/<strong>tt000000</strong>/)</label>
+					<input class="xxwide text input" id="manual-imdb-id" ng-model="addFilm.manualItem.imdb_id" type="text">
+				</li>
+				<li class="field">
+					<label class="inline" for="manual-tmdb-id">TMDB ID (http://www.themoviedb.org/movie/<strong>000000</strong>-my-favourite-film-ever/)</label>
+					<input class="xxwide text input" id="manual-tmdb-id" ng-model="addFilm.manualItem.tmdb_id" type="text">
+				</li>
+				<li>
+					<div class="norm primary btn"><input type="submit" value="Add"></div>
+				</li>
+			</ul>
+		</form>
+	</tab>
+</tabs>
