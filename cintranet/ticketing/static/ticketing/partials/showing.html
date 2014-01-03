@@ -1,0 +1,11 @@
+<div ng-show="loading"><h2>Loading...</h2></div>
+<div ng-hide="loading">
+	<h2><div class="btn primary large" ng-click="hBack()"><a href><i class="icon-arrow-left"></i></a></div> {{ data.film.name }}</span></h2>
+	<h3>Information</h3>
+	<dl>
+		<dt>Film</dt>
+			<dd><a href="{{ filmUrl(data.film) }}">{{ data.film.name }}</a></dd>
+		<dt>Start time</dt>
+			<dd>{{ data.start_time | date:"short" }}</dd>
+	</dl>
+</div>

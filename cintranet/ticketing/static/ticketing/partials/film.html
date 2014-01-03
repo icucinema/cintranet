@@ -1,36 +1,46 @@
 <div ng-show="loading"><h2>Loading...</h2></div>
 <div ng-hide="loading">
 	<h2><div class="btn primary large" ng-click="hBack()"><a href><i class="icon-arrow-left"></i></a></div> <span ng-hide="editing">{{ data.name }}</span><div class="field" ng-show="editing"><input ng-model="edit_data.name" class="wide text input"></div></h2>
-	<h3>Information</h3>
-	<dl>
-		<div ng-show="data.description">
-			<dt>Description</dt>
-				<dd ng-hide="editing">{{ data.description }}</dd>
-				<dd ng-show="editing" class="field"><textarea class="input textarea" ng-model="edit_data.description" rows="6"></textarea></dd>
-		</div>
-		<div ng-show="data.poster_url">
-			<dt>Poster</dt>
-				<dd ng-hide="editing"><a target="_blank" ng-href="{{ data.poster_url }}"><img ng-src="{{ data.poster_url }}" style="max-height:200px;width:auto;"></a></dd>
-				<dd ng-show="editing" class="field"><input type="url" class="xxwide url input" ng-model="edit_data.poster_url"></dd>
-		</div>
-		<dt>Links</dt>
-			<dd ng-hide="editing"><a target="_blank" ng-show="data.imdb_id" href="http://www.imdb.com/title/{{ data.imdb_id }}/">IMDb</a> <a target="_blank" ng-show="data.tmdb_id" href="https://www.themoviedb.org/movie/{{ data.tmdb_id }}">TMDB</a></dd>
-			<dd ng-show="editing">
-				<dl>
-					<dt>IMDb ID</dt>
-						<dd class="field"><input type="text" ng-model="edit_data.imdb_id" class="narrow text input"></dd>
-					<dt>TMDB ID</dt>
-						<dd class="field"><input type="text" ng-model="edit_data.tmdb_id" class="narrow text input"></dd>
-				</dl>
-			</dd>
-	</dl>
-	<h3>Actions</h3>
-	<ul ng-hide="editing">
-		<li><div class="btn secondary norm" ng-click="remoteUpdate()"><a href>Update from TMDB</a></div></li>
-		<li><div class="btn primary norm" ng-click="edit()"><a href>Edit</a></div></li>
-	</ul>
-	<ul ng-show="editing">
-		<li><div class="btn primary norm" ng-click="saveEdit()"><a href>Save</a></div></li>
-		<li><div class="btn danger norm" ng-click="cancelEdit()"><a href>Cancel</a></div></li>
-	</ul>
+	<tabs>
+		<tab tab-title="Information">
+			<dl>
+				<div ng-show="data.description">
+					<dt>Description</dt>
+						<dd ng-hide="editing">{{ data.description }}</dd>
+						<dd ng-show="editing" class="field"><textarea class="input textarea" ng-model="edit_data.description" rows="6"></textarea></dd>
+				</div>
+				<div ng-show="data.poster_url">
+					<dt>Poster</dt>
+						<dd ng-hide="editing"><a target="_blank" ng-href="{{ data.poster_url }}"><img ng-src="{{ data.poster_url }}" style="max-height:200px;width:auto;"></a></dd>
+						<dd ng-show="editing" class="field"><input type="url" class="xxwide url input" ng-model="edit_data.poster_url"></dd>
+				</div>
+				<dt>Links</dt>
+					<dd ng-hide="editing"><a target="_blank" ng-show="data.imdb_id" href="http://www.imdb.com/title/{{ data.imdb_id }}/">IMDb</a> <a target="_blank" ng-show="data.tmdb_id" href="https://www.themoviedb.org/movie/{{ data.tmdb_id }}">TMDB</a></dd>
+					<dd ng-show="editing">
+						<dl>
+							<dt>IMDb ID</dt>
+								<dd class="field"><input type="text" ng-model="edit_data.imdb_id" class="narrow text input"></dd>
+							<dt>TMDB ID</dt>
+								<dd class="field"><input type="text" ng-model="edit_data.tmdb_id" class="narrow text input"></dd>
+						</dl>
+					</dd>
+			</dl>
+			<h3>Actions</h3>
+			<ul ng-hide="editing">
+				<li><div class="btn secondary norm" ng-click="remoteUpdate()"><a href>Update from TMDB</a></div></li>
+				<li><div class="btn primary norm" ng-click="edit()"><a href>Edit</a></div></li>
+			</ul>
+			<ul ng-show="editing">
+				<li><div class="btn primary norm" ng-click="saveEdit()"><a href>Save</a></div></li>
+				<li><div class="btn danger norm" ng-click="cancelEdit()"><a href>Cancel</a></div></li>
+			</ul>
+		</tab>
+		<tab tab-title="Showings ({{ showings.length }})">
+			<ul class="bulleted-list">
+				<li ng-repeat="showing in showings">
+					<a href="#/showings/{{ showing.id }}">{{ showing.start_time|date:"medium" }}</a>
+				</li>
+			</ul>
+		</tab>
+	</tabs>
 </div>

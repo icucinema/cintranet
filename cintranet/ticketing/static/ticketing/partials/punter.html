@@ -1,6 +1,6 @@
 <div ng-show="loading"><h2>Loading...</h2></div>
 <div ng-hide="loading">
-	<h2><div class="btn primary large" ng-click="hBack()"><a href><i class="icon-arrow-left"></i></a></div> {{ data.name }}</h2>
+	<h2><div class="btn primary large" ng-click="hBack()"><a href><i class="icon-arrow-left"></i></a></div> <span ng-hide="data_editing">{{ data.name }}</span><div ng-show="data_editing" class="field"><input type="text" class="xwide text input" ng-model="edit_data.name"></div></h2>
 	<tabs>
 		<tab tab-title="Information">
 			<dl>

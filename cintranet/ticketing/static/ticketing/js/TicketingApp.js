@@ -1,6 +1,5 @@
 var app = angular.module('TicketingApp', [
 	'ngRoute',
-	'ngResource',
 	'restangular'
 ]);
 
@@ -33,6 +32,14 @@ app.config(['djurl', '$routeProvider', '$httpProvider', 'RestangularProvider', f
 			templateUrl: djurl.partial_root + 'index.html',
 			controller: 'IndexCtrl'
 		}).
+		when('/showings', {
+			templateUrl: djurl.partial_root + 'showings.html',
+			controller: 'ShowingsCtrl'
+		}).
+		when('/showings/:id', {
+			templateUrl: djurl.partial_root + 'showing.html',
+			controller: 'ShowingCtrl'
+		}).
 		when('/films', {
 			templateUrl: djurl.partial_root + 'films.html',
 			controller: 'FilmsCtrl'
@@ -56,20 +63,6 @@ app.config(['djurl', '$routeProvider', '$httpProvider', 'RestangularProvider', f
 	$httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	$httpProvider.defaults.xsrfCookieName = 'csrftoken';
 }]);
-
-app.factory('Punter', ['$resource', 'djurl',
-	function($resource, djurl) {
-		return $resource(
-			djurl.api_root + 'punters/:id/', {},
-			{
-				query: {
-					method: "GET",
-					isArray: false
-				}
-			}
-		);
-	}
-]);
 
 app.directive('tabs', function() {
 	return {
@@ -130,6 +123,11 @@ app.controller('NavCtrl', function($scope) {
 			'name': 'films',
 			'url': '/films',
 			'text': 'Films'
+		},
+		{
+			'name': 'showings',
+			'url': '/showings',
+			'text': 'Showings'
 		}
 	];
 
@@ -140,6 +138,68 @@ app.controller('NavCtrl', function($scope) {
 });
 app.controller('IndexCtrl', function($rootScope) {
 	$rootScope.navName = 'index';
+});
+app.controller('ShowingsCtrl', function($rootScope, $scope, $routeParams, $location, Restangular) {
+	$rootScope.navName = 'showings';
+
+	var thisPage = parseInt($routeParams.page, 10);
+	if (thisPage != $routeParams.page) {
+		$location.search('page', 1);
+		return;
+	}
+
+	var perPage = parseInt($routeParams.perPage, 10);
+	if (isNaN(perPage) || perPage < 5) {
+		perPage = 10;
+	}
+
+	var showings = Restangular.all('showings');
+	var updateShowingData = function() {
+        	showings.getList({page: thisPage, per_page: perPage}).then(function(res) {
+			var startRecord = ((thisPage-1) * perPage) + 1;
+			var endRecord = (startRecord + res.length) - 1;
+			$scope.data = {
+				'startAt': startRecord,
+				'endAt': endRecord,
+				'results': res,
+				'next': (res._resultmeta.next ? thisPage+1 : null),
+				'previous': (res._resultmeta.previous ? thisPage-1 : null),
+				'count': res._resultmeta.count
+			}
+		});
+	};
+	updateShowingData();
+
+	$scope.goTo = function(where) {
+		if (!where) return;
+		$location.search('page', where);
+	};
+
+	$scope.buttonClass = function(pageNum) {
+		if (!pageNum) return 'default';
+		return 'secondary';
+	};
+
+	$scope.showingUrl = function(showing) {
+		return '#/showings/' + showing.id;
+	};
+});
+app.controller('ShowingCtrl', function($rootScope, $scope, $routeParams, $location, Restangular) {
+	$rootScope.navName = 'showings';
+
+	$scope.loading = true;
+
+	var showingId = parseInt($routeParams.id, 10);
+
+	var showing = Restangular.one('showings', showingId);
+	showing.get().then(function(res) {
+		$scope.loading = false;
+		$scope.data = res;
+	});
+
+	$scope.filmUrl = function(film) {
+		return '#/films/' + film.id;
+	};
 });
 app.controller('FilmsCtrl', function($rootScope, $scope, $routeParams, $location, Restangular) {
 	$rootScope.navName = 'films';
@@ -212,8 +272,8 @@ app.controller('FilmsCtrl', function($rootScope, $scope, $routeParams, $location
 app.controller('FilmCtrl', function($rootScope, $scope, $routeParams, $location, Restangular) {
 	$rootScope.navName = 'films';
 
-	$scope.loading = true;
 	$scope.editing = false;
+	$scope.loading = true;
 
 	var filmId = parseInt($routeParams.id, 10);
 
@@ -221,6 +281,9 @@ app.controller('FilmCtrl', function($rootScope, $scope, $routeParams, $location,
 	film.get().then(function(res) {
 		$scope.loading = false;
 		$scope.data = res;
+	});
+	film.getList('showings').then(function(res) {
+		$scope.showings = res;
 	});
 
 	$scope.remoteUpdate = function() {

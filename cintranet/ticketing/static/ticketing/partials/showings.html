@@ -1,0 +1,34 @@
+<h2>Showings</h2>
+Showing <strong>{{ data.startAt }}</strong>-<strong>{{ data.endAt }}</strong> of <strong>{{ data.count }}</strong>
+<div style="height: 36px; margin-bottom: 20px">
+	<div class="medium btn icon-left entypo icon-arrow-left" ng-class="buttonClass(data.previous)">
+		<a href ng-click="goTo(data.previous)">Prev</a>
+	</div>
+	<div class="medium btn icon-right entypo icon-arrow-right" style="float: right;" ng-class="buttonClass(data.next)">
+		<a href ng-click="goTo(data.next)">Next</a>
+	</div>
+</div>
+<table class="striped">
+	<thead>
+		<tr>
+			<th>Film</th>
+			<th>Date</th>
+			<th>Time</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr ng-repeat="showing in data.results">
+			<td><a href="{{ showingUrl(showing) }}">{{ showing.film.name }}</a></td>
+			<td>{{ showing.start_time | date:'MMM d (EEE)' }}</td>
+			<td>{{ showing.start_time | date:'H:mm:ss' }}</td>
+		</tr>
+	</tbody>
+</table>
+<div style="height: 36px; margin-bottom: 20px">
+	<div class="medium btn icon-left entypo icon-arrow-left" ng-class="buttonClass(data.previous)">
+		<a href ng-click="goTo(data.previous)">Prev</a>
+	</div>
+	<div class="medium btn icon-right entypo icon-arrow-right" style="float: right;" ng-class="buttonClass(data.next)">
+		<a href ng-click="goTo(data.next)">Next</a>
+	</div>
+</div>
