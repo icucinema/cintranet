@@ -1,0 +1,95 @@
+<h2>Create New Showing</h2>
+<div ng-show="step == 1">
+	<li class="primary alert">
+		Make sure that all the films you're trying to add here have already been added in the <strong>Films</strong> tab!
+	</li>
+
+	<form ng-submit="stepOne.searchFilms(stepOne.filmTitle)">
+		<div class="append field">
+			<input placeholder="Film title" class="xwide text input" id="s1-film-name" ng-model="stepOne.filmTitle">
+			<div class="medium primary btn"><button type="submit" ng-disabled="addFilm.searching"><i class="icon-search"></i></button></div>
+		</div>
+	</form>
+	<ul>
+		<li ng-repeat="result in stepOne.results" style="clear:both;">
+			<div>
+				<div style="float: right; margin-left: 5px">
+					<img ng-src="{{ result.poster_url }}" style="max-height: 150px; width: auto">
+				</div>
+				<h5>{{ result.name }}</h5>
+				<div><div class="medium btn success icon-left entypo icon-plus" ng-click="stepOne.addFilm(result)"><a href>Add</a></div></div>
+				<p>{{ result.description }}</p>
+			</div>
+		</li>
+	</ul>
+
+	<div ng-show="stepOne.films.length > 0">
+		<hr>
+		<h4>Selected films</h4>
+		<ul class="bulleted-list">
+			<li ng-repeat="film in stepOne.films track by $index">{{ film.name }} <div style="float: right;" class="small btn danger" ng-click="stepOne.films.splice($index, 1)"><a style="padding: 0 2px" href><i class="icon-minus"></i></a></div></li>
+		</ul>
+		<div class="medium btn primary entypo icon-right icon-right-bold" style="clear: both; float: right" ng-click="stepOne.next(stepOne.films)"><a href>Next</a></div>
+	</div>
+</div>
+
+<div ng-show="step == 2">
+	<h3>Enter times</h3>
+	<div class="field" ng-class="{ 'success': stepTwo.dateValid(stepTwo.date) }">
+		Date: <input type="text" class="xwide text input" placeholder="dd/mm/yyyy" ng-model="stepTwo.date" required ng-pattern="/(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/(19|20)\d\d/">
+	</div>
+	<ul>
+		<li ng-repeat="film in stepTwo.films track by $index">
+			<div class="field" ng-class="{ 'success': stepTwo.valid(film) }">
+				{{ film.name }} 
+				<input type="text" class="xnarrow text input" placeholder="HH:MM" ng-model="film.time" required ng-pattern="/(0[0-9]|1[0-9]|2[0-3])(:[0-5][0-9])/">
+			</div>
+		</li>
+	</ul>
+	<div class="clear: both;">
+		<div class="medium btn default entypo icon-left icon-left-bold" ng-click="stepTwo.back(stepTwo.films)"><a href>Back</a></div>
+		<div class="medium btn primary entypo icon-right icon-right-bold" style="float: right" ng-click="stepTwo.next(stepTwo.films, stepTwo.date)" ng-show="stepTwo.formValid()"><a href>Next</a></div>
+	</div>
+</div>
+
+<div ng-show="step == 3">
+	<h3>Confirmation</h3>
+
+	<h4>Showings</h4>
+	<ul class="bulleted-list">
+		<li ng-repeat="showing in stepThree.showings" ng-class="{ 'wiz-created': event.created }">
+			<strong>{{ showing.film.name }}</strong> ({{ showing.start_time|date:'shortTime' }})
+		</li>
+	</ul>
+
+	<h4>Ticketable events</h4>
+	<ul ng-class="{ 'wiz-creating': creating }">
+		<li ng-repeat="event in stepThree.events">
+			<h5 ng-class="{ 'wiz-created': event.created }"><strong>{{ event.name }}</strong> ({{ event.start_time|date:'short' }})</h5>
+			<em>including showings:</em>
+			<ul ng-class="{ 'wiz-created': event.created }">
+				<li ng-repeat="showing in event.showings"><strong>{{ showing.film.name }}</strong> ({{ showing.start_time|date:'shortTime' }})</li>
+			</ul>
+			<em>selling tickets:</em>
+			<ul ng-class="{ 'wiz-created': event.tickets_created }">
+				<li ng-repeat="ticket in event.ticket_types"><strong>{{ ticket.name }}</strong> ({{ ticket.sale_price|currency:'£' }})</li>
+			</ul>
+			<hr>
+		</li>
+	</ul>
+	
+	<div class="clear: both;" ng-hide="creating">
+		<div class="medium btn default entypo icon-left icon-left-bold" ng-click="stepThree.back()"><a href>Back</a></div>
+		<div class="medium btn primary entypo icon-check icon-right-bold" style="float: right" ng-click="stepThree.next()"><a href>Create!</a></div>
+	</div>
+</div>
+
+<div ng-show="step == 4">
+	<h3>All done!</h3>
+
+	<p>All showings have been created and saved successfully.</p>
+
+	<div class="clear: both;">
+		<div class="medium btn default entypo icon-left icon-left-bold" ng-click="restart()"><a href>Restart</a></div>
+	</div>
+</div>

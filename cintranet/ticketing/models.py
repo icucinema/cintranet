@@ -54,11 +54,11 @@ class Punter(models.Model):
                     sell_online=online,
                 ) | Q(
                     Q(
-                        EntitlementDetail.valid_q_obj("entitlements__entitlement_detail__", at_time=at_time),
-                        entitlements__entitlement_detail__punter=self,
+                        EntitlementDetail.valid_q_obj("entitlements__entitlement_details__", at_time=at_time),
+                        entitlements__entitlement_details__punter=self,
                     ) | Q(
-                        EntitlementDetail.valid_q_obj("template__entitlements__entitlement_detail__", at_time=at_time),
-                        template__entitlements__entitlement_detail__punter=self,
+                        EntitlementDetail.valid_q_obj("template__entitlements__entitlement_details__", at_time=at_time),
+                        template__entitlements__entitlement_details__punter=self,
                     ),
                     general_availability=False,
                 )
@@ -113,29 +113,50 @@ class Film(models.Model):
             self.update_imdb()
         self.save()
 
+    class Meta:
+        ordering = ['-pk']
+
 class Showing(models.Model):
-    name = models.CharField(max_length=300, default="", null=False, blank=False)
-    film = models.ForeignKey(Film, null=False, blank=False)
+    film = models.ForeignKey(Film, related_name='showings', null=False, blank=False)
     start_time = models.DateTimeField(null=False, blank=False)
+    primary_event = models.OneToOneField('Event', related_name='primary_showing', null=True, blank=True)
 
     def __unicode__(self):
-        return u"{} ({})".format(self.name, self.start_time)
+        return u"{} ({})".format(self.film.name, self.start_time)
+
+    def create_event(self):
+        ev = Event(
+            name=self.film.name,
+            start_time=self.start_time
+        )
+        ev.save()
+        self.primary_event = ev
 
     def save(self, *args, **kwargs):
-        old_pk = self.pk
-        r = super(Showing, self).save(*args, **kwargs)
-        new_pk = self.pk
+        doap = False
+        try:
+            if self.primary_event is None:
+                raise Event.DoesNotExist
+        except Event.DoesNotExist:
+            self.create_event()
+            doap = True
 
-        is_new = old_pk != new_pk
-        if is_new:
-            ev = Event(
-                name=self.name,
-                start_time=self.start_time
-            )
+        ret = super(Showing, self).save(*args, **kwargs)
+
+        ev = self.primary_event
+        if doap:
             ev.event_types = [EventType.objects.get(pk=settings.TICKETING_STANDARD_EVENT_TYPE)]
-            ev.save()
             ev.showings.add(self)
-        return r
+            ev.create_ticket_types_by_event_types()
+
+        ev.name = self.film.name
+        ev.start_time = self.start_time
+        ev.save()
+
+        return ret
+
+    class Meta:
+        ordering = ['-start_time']
 
 class EventType(models.Model):
     name = models.CharField(max_length=128, default="", null=False, blank=False)
@@ -179,6 +200,8 @@ class BaseTicketInfo(models.Model):
     def __unicode__(self):
         return self.name
 
+    class Meta:
+        ordering = ['sale_price']
 
 class TicketTemplate(BaseTicketInfo):
     event_type = models.ManyToManyField(EventType, related_name='ticket_templates')
@@ -188,9 +211,6 @@ class TicketType(BaseTicketInfo):
 
     template = models.ForeignKey(TicketTemplate, blank=True, null=True)
 
-    def __unicode__(self):
-        return u"{} (for {})".format(self.name, unicode(self.event))
-
     @classmethod
     def from_template(cls, template, event):
         props = (
@@ -199,13 +219,13 @@ class TicketType(BaseTicketInfo):
             'sell_on_the_door',
             'general_availability',
             'sale_price',
+            'name',
             'box_office_return_price'
         )
         tt = cls(
             template=template,
             event=event
         )
-        tt.name = '{} for {}'.format(template.name, event.name)
         for prop in props:
             setattr(tt, prop, getattr(template, prop))
         return tt

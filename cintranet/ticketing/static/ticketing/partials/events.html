@@ -1,7 +1,7 @@
 <div class="field search-field">
-	<input type="search" class="xxwide search-input text input" ng-model="searchQuery" placeholder="Search" ng-change="search(searchQuery)">
+	<input type="search" class="search-input xxwide text input" ng-model="searchQuery" placeholder="Search" ng-change="search(searchQuery)">
 </div>
-<h2>Punters</h2>
+<h2>Ticketed Events</h2>
 Showing <strong>{{ data.startAt }}</strong>-<strong>{{ data.endAt }}</strong> of <strong>{{ data.count }}</strong>
 <div style="height: 36px; margin-bottom: 20px">
 	<div class="medium btn icon-left entypo icon-arrow-left" ng-class="buttonClass(data.previous)">
@@ -15,13 +15,15 @@ Showing <strong>{{ data.startAt }}</strong>-<strong>{{ data.endAt }}</strong> of
 	<thead>
 		<tr>
 			<th>Name</th>
-			<th>CID</th>
+			<th>Date</th>
+			<th>Time</th>
 		</tr>
 	</thead>
 	<tbody>
-		<tr ng-repeat="punter in data.results">
-			<td><a href="{{ punterUrl(punter) }}">{{ punter.name }}</a></td>
-			<td>{{ punter.cid }}</td>
+		<tr ng-repeat="event in data.results">
+			<td><a href="{{ eventUrl(event) }}">{{ event.name }}</a></td>
+			<td>{{ event.start_time | date:'MMM d (EEE)' }}</td>
+			<td>{{ event.start_time | date:'H:mm:ss' }}</td>
 		</tr>
 	</tbody>
 </table>

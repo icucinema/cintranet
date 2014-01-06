@@ -36,3 +36,23 @@ ul.bulleted-list > li {
 .entitlement.invalid {
 	color: #ff3333;
 }
+
+.wiz-creating strong {
+	color: #644405;
+}
+.wiz-created strong {
+	color: #336633;
+}
+
+.search-field {
+	float: right;
+	height: 72px;
+	position: relative;
+	width: 50%;
+}
+.search-field .text.input.search-input {
+	position: absolute;
+	bottom: 50%;
+	right: 0;
+	margin-bottom: -18px;
+}

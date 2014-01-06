@@ -4,21 +4,14 @@ from . import models
 
 ModelSerializer = serializers.HyperlinkedModelSerializer
 
-class EventTypeSerializer(ModelSerializer):
-    class Meta:
-        model = models.EventType
-        fields = (
-            'url', 'id',
-            'name',
-        )
-
 class TicketTypeSerializer(ModelSerializer):
     class Meta:
         model = models.TicketType
         fields = (
             'url', 'id',
             'name',
-            'event'
+            'event',
+            'box_office_return_price', 'sale_price'
         )
 
 class TicketTemplateSerializer(ModelSerializer):
@@ -27,7 +20,18 @@ class TicketTemplateSerializer(ModelSerializer):
         fields = (
             'url', 'id',
             'name',
-            'event_type'
+            'event_type',
+            'box_office_return_price', 'sale_price'
+        )
+
+class EventTypeSerializer(ModelSerializer):
+    ticket_templates = TicketTemplateSerializer(many=True)
+
+    class Meta:
+        model = models.EventType
+        fields = (
+            'url', 'id',
+            'name', 'ticket_templates'
         )
 
 class EntitledToRelatedField(serializers.RelatedField):
@@ -103,4 +107,21 @@ class FilmSerializer(ModelSerializer):
         model = models.Film
         fields = (
             'url', 'id', 'name', 'description', 'tmdb_id', 'imdb_id', 'poster_url'
+        )
+
+class ShowingSerializer(ModelSerializer):
+    primary_event = serializers.HyperlinkedRelatedField(required=False, view_name='event-detail')
+    film_title = serializers.SlugRelatedField(read_only=True, slug_field='name', source='film')
+
+    class Meta:
+        model = models.Showing
+        fields = (
+            'url', 'id', 'film', 'primary_event', 'start_time', 'film_title'
+        )
+
+class EventSerializer(ModelSerializer):
+    class Meta:
+        model = models.Event
+        fields = (
+            'url', 'id', 'name', 'showings', 'event_types', 'start_time'
         )

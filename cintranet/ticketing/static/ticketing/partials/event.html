@@ -1,0 +1,69 @@
+<div ng-show="loading"><h2>Loading...</h2></div>
+<div ng-hide="loading">
+	<h2><div class="btn primary large" ng-click="hBack()"><a href><i class="icon-arrow-left"></i></a></div> {{ data.name }}</span></h2>
+	<tabs>
+		<tab tab-title="Information">
+			<dl>
+				<dt>Start time</dt>
+					<dd>{{ data.start_time | date:"short" }}</dd>
+			</dl>
+		</tab>
+		<tab tab-title="Showings ({{ showings.length }})">
+			<ul class="bulleted-list">
+				<li ng-repeat="showing in showings">
+					<a href="{{ showingUrl(showing) }}"><strong>{{ showing.film_title }}</strong></a> ({{ showing.start_time | date:"short" }})
+				</li>
+			</ul>
+		</tab>
+		<tab tab-title="Ticket Types ({{ tickettypes.length }})">
+			<table class="striped">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Price</th>
+						<th>BOR Cost</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="ticket in tickettypes">
+						<td>
+							<div ng-hide="edit.tickettype.original == ticket">
+								{{ ticket.name }}
+							</div>
+							<div ng-show="edit.tickettype.original == ticket" class="field">
+								<input type="text" ng-model="edit.tickettype.edit.name" class="xxwide text input">
+							</div>
+						</td>
+						<td>
+							<div ng-hide="edit.tickettype.original == ticket">
+								{{ ticket.sale_price|currency:'£' }}
+							</div>
+							<div ng-show="edit.tickettype.original == ticket" class="field">
+								<input type="text" ng-model="edit.tickettype.edit.sale_price" class="xxwide text input">
+							</div>
+						</td>
+						<td>
+							<div ng-hide="edit.tickettype.original == ticket">
+								{{ ticket.box_office_return_price|currency:'£' }}
+							</div>
+							<div ng-show="edit.tickettype.original == ticket" class="field">
+								<input type="text" ng-model="edit.tickettype.edit.box_office_return_price" class="xxwide text input">
+							</div>
+						</td>
+						<td>
+							<div ng-hide="edit.tickettype.original == ticket">
+								<div class="btn small success" ng-click="editTicketType(ticket)"><a href>Edit</a></div>
+								<div class="btn small danger" ng-confirm-click="Are you sure? Deleting a ticket type will delete any tickets already sold of that type!" ng-click="deleteTicketType(ticket)"><a href>Delete</a></div>
+							</div>
+							<div ng-show="edit.tickettype.original == ticket">
+								<div class="btn small success" ng-click="saveTicketType(ticket)"><a href>Save</a></div>
+								<div class="btn small danger" ng-click="edit.tickettype = {}"><a href>Cancel</a></div>
+								</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</tab>
+	</tabs>
+</div>
