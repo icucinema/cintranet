@@ -70,12 +70,25 @@ class Film(models.Model):
     imdb_id = models.CharField(max_length=20, null=False, blank=True, default="")
 
     name = models.CharField(max_length=256, default="", null=False, blank=False)
+    sorting_name = models.CharField(max_length=256, null=False, blank=False)
     description = models.TextField(default="", null=False, blank=True)
 
     poster_url = models.URLField(blank=True, null=False, default="")
 
     def __unicode__(self):
         return self.name
+
+    def update_sorting_name(self):
+        removing_prefixes = ['the ',]
+        n = self.name.lower()
+        for remove_prefix in removing_prefixes:
+            if n.startswith(remove_prefix):
+                n = n[len(remove_prefix):]
+        self.sorting_name = n
+
+    def save(self, *args, **kwargs):
+        self.update_sorting_name()
+        super(Film, self).save(*args, **kwargs)
 
     @classmethod
     def from_tmdb(cls, tmdb_id):
@@ -114,7 +127,7 @@ class Film(models.Model):
         self.save()
 
     class Meta:
-        ordering = ['-pk']
+        ordering = ['sorting_name']
 
 class Showing(models.Model):
     film = models.ForeignKey(Film, related_name='showings', null=False, blank=False)

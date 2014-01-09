@@ -34,7 +34,7 @@ class ProductList(object):
 
 
 class Product(object):
-    def __init__(self, id, name=None, initial=150):
+    def __init__(self, id, name=None, initial=100):
         self.id = id
         self.name = name
         self.initial = initial

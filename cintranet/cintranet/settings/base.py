@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     'floppyforms',
     'djangular',
     'rest_framework',
+    'rest_framework.authtoken',
 
     'sitewide',
     'auth',
@@ -138,13 +139,18 @@ AUTH_LDAP_FIND_GROUP_PERMS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ),
     'PAGINATE_BY': 20,
     'PAGINATE_BY_PARAM': 'per_page',
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
 }
 
 LOGIN_URL = '/user/login/'
-LOGIN_EXEMPT_URLS = ('^$',)
+LOGIN_EXEMPT_URLS = ('^$','^ticketing/api/')
 
 ### ticketing settings
 TICKETING_MEMBERSHIP_ENTITLEMENT = 1
