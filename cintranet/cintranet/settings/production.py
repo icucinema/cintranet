@@ -10,3 +10,5 @@ DATABASES['default'] = {
     'PASSWORD': get_env_variable('CINTRANET_DB_PASSWORD'),
     'HOST': get_env_variable('CINTRANET_DB_HOST')
 }
+
+STATIC_ROOT = "/srv/www/vhosts/staff/httpdocs/static"
