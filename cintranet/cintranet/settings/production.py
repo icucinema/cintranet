@@ -12,3 +12,5 @@ DATABASES['default'] = {
 }
 
 STATIC_ROOT = "/srv/www/vhosts/staff/httpdocs/static"
+AUTH_LDAP_SERVER_URI = "ldap://localhost"
+AUTH_LDAP_START_TLS = False

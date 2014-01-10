@@ -26,7 +26,10 @@ DEBUG = True
 TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = [
-    'intranet.scope.icucinema.co.uk'
+    'staff.wide.icucinema.co.uk',
+    'staff.icucinema.co.uk',
+    'staff.wide.imperialcinema.co.uk',
+    'staff.imperialcinema.co.uk',
 ]
 
 
