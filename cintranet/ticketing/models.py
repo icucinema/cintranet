@@ -1,7 +1,7 @@
 import itertools
 import re
 
-from django.db import models
+from django.db import models, transaction
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.utils.timezone import now
@@ -13,6 +13,7 @@ from model_utils import Choices
 from tmdbsimple import TMDB
 
 Q = models.Q
+F = models.F
 tmdb = TMDB(settings.TMDB_API_KEY)
 _tmdb_conf = None
 tmdb_url_re = re.compile(r'^https?://[a-z\.]+/movie/(?P<tmdb_id>\d+)-.*$')
@@ -258,7 +259,7 @@ class EntitlementDetail(models.Model):
             return False
 
         # delegate it to the base entitlement validity checker
-        return self.entitlement.valid()
+        return self.entitlement.valid(at_time)
     valid.boolean = True
 
     @staticmethod
@@ -332,10 +333,80 @@ class Ticket(models.Model):
     ticket_type = models.ForeignKey(TicketType, related_name='tickets', null=False)
 
     punter = models.ForeignKey(Punter, related_name='tickets', null=True)
-    entitlement = models.ForeignKey(Entitlement, related_name='entitlements', null=True)
+    entitlement = models.ForeignKey(Entitlement, related_name='tickets', null=True)
 
-    timestamp = models.DateTimeField(null=False, blank=False)
+    timestamp = models.DateTimeField(null=False, blank=False, auto_now_add=True)
     status = StatusField(db_index=True)
 
     def __unicode__(self):
         return u"{} ticket for {}".format(self.status, self.ticket_type)
+
+    @classmethod
+    def generate(cls, ticket_type, punter=None):
+        self = cls()
+        self.ticket_type = ticket_type
+        self.punter = punter
+        self.entitlement = None
+        self.status = 'live'
+
+        entitlement_detail = None
+
+        # if this isn't a generally available ticket
+        if not ticket_type.general_availability:
+            entitled_to_q = Q(entitlement__entitled_to=ticket_type) | Q(entitlement__entitled_to=ticket_type.template)
+            base_ed_qs = EntitlementDetail.objects.filter(punter=punter).filter(entitled_to_q)
+            base_ed_qs = base_ed_qs.filter(EntitlementDetail.valid_q_obj())
+            free_ed_qs = base_ed_qs.filter(remaining_uses=None)
+            paid_ed_qs = base_ed_qs.exclude(remaining_uses=None)
+
+            # we need to look for any EntitlementDetails that link us to the punter that don't expire, first
+            if not free_ed_qs:  # we might use the result QS
+                # there are no "free" entitlements
+                # is there a "paid" entitlement?
+                if paid_ed_qs:
+                    # yes!
+                    entitlement_detail = paid_ed_qs[0]
+                else:
+                    # basically, there's no way that this person is actually entitled to this ticket
+                    # so we're just going to display the end result
+                    pass
+            else:
+                # we found a free entitlement. link it up!
+                entitlement_detail = free_ed_qs[0]
+
+        if entitlement_detail is not None:
+            self.entitlement = entitlement_detail.entitlement
+
+        # this is the important bit
+        with transaction.atomic():
+            # we save the ticket itself...
+            self.save()
+
+            # and decrement the remaining uses of the entitlement!
+            if entitlement_detail is not None and entitlement_detail.remaining_uses is not None:
+                entitlement_detail.remaining_uses = F('remaining_uses') - 1
+                entitlement_detail.save(update_fields=['remaining_uses'])
+
+        return self
+
+    @transaction.atomic
+    def refund(self):
+        if self.status != 'live':
+            raise Exception("Can't refund a non-live ticket!")
+        # refunding means we give the money back and we return any entitlements that they lost
+        if self.entitlement is not None and self.punter is not None:
+            entitlement_detail = self.entitlement.entitlement_details.get(punter=self.punter)
+            if entitlement_detail.remaining_uses is not None:
+                entitlement_detail.remaining_uses = F('remaining_uses') + 1
+                entitlement_detail.save(update_fields=['remaining_uses'])
+        self.status = 'refunded'
+        self.save()
+        return self
+
+    @transaction.atomic
+    def void(self):
+        if self.status != 'live':
+            raise Exception("Can't void a non-live ticket!")
+        # voiding means we neither give the money back nor return any entitlements
+        self.status = 'void'
+        self.save()

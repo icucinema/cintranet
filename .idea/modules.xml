@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/cinepos/cinepos.iml" filepath="$PROJECT_DIR$/cinepos/cinepos.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cintranet/cintranet.iml" filepath="$PROJECT_DIR$/cintranet/cintranet.iml" />
+      <module fileurl="file://$PROJECT_DIR$/icunion/icunion.iml" filepath="$PROJECT_DIR$/icunion/icunion.iml" />
+    </modules>
+  </component>
+</project>
+

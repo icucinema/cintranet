@@ -32,6 +32,10 @@ class TicketTypeViewSet(viewsets.ModelViewSet):
     queryset = models.TicketType.objects.all()
     serializer_class = api_serializers.TicketTypeSerializer
 
+class TicketViewSet(viewsets.ModelViewSet):
+    queryset = models.Ticket.objects.all()
+    serializer_class = api_serializers.TicketSerializer
+
 class EventTypeViewSet(viewsets.ModelViewSet):
     queryset = models.EventType.objects.all()
     serializer_class = api_serializers.EventTypeSerializer
