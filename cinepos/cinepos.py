@@ -1,4 +1,5 @@
 import sys
+import os.path
 
 from PyQt5 import QtCore, QtGui, QtQuick, QtWidgets
 from cintranet.ticketing import models
@@ -183,11 +184,13 @@ class EditableTicketTypesModel(TicketTypesModel):
 
 
 class CineposApplication(QtWidgets.QApplication):
-    def __init__(self, event_ids, *args, **kwargs):
-        super(CineposApplication, self).__init__(*args, **kwargs)
+    def __init__(self, event_ids, args, view_location='ui/ui.qml', full_screen=False):
+        super(CineposApplication, self).__init__(args)
 
         self.event_ids = event_ids
+        self.view_location = view_location
         self.current_punter = None
+        self.full_screen = full_screen
 
         self.setup_models()
         self.setup_view()
@@ -221,7 +224,7 @@ class CineposApplication(QtWidgets.QApplication):
         self.context.setContextProperty('acquiringPunterData', True)
 
     def prepare_view(self):
-        self.view.setSource(QtCore.QUrl('cinepos/ui/ui.qml'))
+        self.view.setSource(QtCore.QUrl(self.view_location))
         self.rootObj = self.view.rootObject()
 
         # wire slots
@@ -238,7 +241,10 @@ class CineposApplication(QtWidgets.QApplication):
         self.rootObj.setCurrentEvent(str(self.event_ids[0]))
 
         # and show the view
-        self.view.show()
+        if self.full_screen:
+            self.view.showFullScreen()
+        else:
+            self.view.show()
 
     def set_punter(self, punter):
         self.current_punter = punter
@@ -271,6 +277,15 @@ class CineposApplication(QtWidgets.QApplication):
             )
             try:
                 punter = qs.get()
+            except models.Punter.DoesNotExist:
+                print "Could not find punter by", identifier_type, ":", identifier
+                if identifier_type == 'swipecard':
+                    self.get_cid_for_swipecard(identifier)
+                else:
+                    self.unknown_punter()
+                self.set_punter(None)
+                return
+
             except models.Punter.MultipleObjectsReturned:
                 ordering = ['cid', 'name__iexact', 'login__iexact', 'email__iexact']
                 for thing in ordering:
@@ -283,18 +298,10 @@ class CineposApplication(QtWidgets.QApplication):
                         return
                 else:
                     return
-        try:
 
-            print "Found punter by", identifier_type, ":", identifier
-            print punter
-            self.set_punter(punter)
-        except models.Punter.DoesNotExist:
-            print "Could not find punter by", identifier_type, ":", identifier
-            if identifier_type == 'swipecard':
-                self.get_cid_for_swipecard(identifier)
-            else:
-                self.unknown_punter()
-            self.set_punter(None)
+        print "Found punter by", identifier_type, ":", identifier
+        print punter
+        self.set_punter(punter)
 
     def on_added_to_cart(self, ticket_id):
         for tickettype in self.tickettypes:
@@ -355,19 +362,8 @@ class CineposApplication(QtWidgets.QApplication):
         print "PRINTING TICKET"
 
 if __name__ == '__main__':
-    app = CineposApplication([7,8,9], sys.argv)
+    this_dir = os.path.dirname(__file__)
+    sys.path.append(os.path.dirname(this_dir))
+    view_location = os.path.join(this_dir, "ui", "ui.qml")
+    app = CineposApplication([7,8,9], sys.argv, view_location=view_location, full_screen=False)
     app.exec_()
-    # view = QtQuick.QQuickView()
-    # context = view.rootContext()
-    # event_ids = [7, 8, 9]
-    # events_to_load = models.Event.objects.filter(id__in=event_ids)
-    # eventsModel = EventsModel(events_to_load)
-    # tickettypes_to_load = models.TicketType.objects.filter(event__id__in=event_ids)
-    # ticketTypesModel = TicketTypesModel(tickettypes_to_load)
-    # context.setContextProperty('ticketSelectionModel', ticketTypesModel)
-    # context.setContextProperty('eventsModel', eventsModel)
-    # evh = EventHandler()
-    # view.setSource(QtCore.QUrl('cinepos/ui/ui.qml'))
-    # evh.connect_triggers(view.rootObject())
-    # view.show()
-    # app.exec_()

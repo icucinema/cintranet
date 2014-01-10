@@ -125,3 +125,25 @@ class EventSerializer(ModelSerializer):
         fields = (
             'url', 'id', 'name', 'showings', 'event_types', 'start_time'
         )
+
+class ComprehensiveTicketTypeSerializer(ModelSerializer):
+    event = EventSerializer(read_only=True)
+    class Meta:
+        model = models.TicketType
+        fields = (
+            'url', 'id',
+            'name',
+            'event',
+            'box_office_return_price', 'sale_price'
+        )
+
+class ComprehensiveTicketSerializer(ModelSerializer):
+    entitlement = EntitlementSerializer(read_only=True)
+    ticket_type = ComprehensiveTicketTypeSerializer(read_only=True)
+    punter = PunterSerializer(read_only=True)
+
+    class Meta:
+        model = models.Ticket
+        fields = (
+            'url', 'id', 'punter', 'entitlement', 'timestamp', 'status', 'ticket_type'
+        )

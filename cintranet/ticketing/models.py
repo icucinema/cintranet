@@ -146,6 +146,15 @@ class Showing(models.Model):
         ev.save()
         self.primary_event = ev
 
+    def tickets(self):
+        return Ticket.objects.filter(ticket_type__event__showings=self)
+
+    def total_take(self):
+        return self.tickets().aggregate(models.Sum('ticket_type__sale_price'))
+
+    def total_bor(self):
+        return self.tickets().aggregate(models.Sum('ticket_type__box_office_return_price'))
+
     def save(self, *args, **kwargs):
         doap = False
         try:

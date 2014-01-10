@@ -32,6 +32,13 @@ Rectangle {
     }
 
     Keys.onPressed: {
+        if (event.key == Qt.Key_Backspace) {
+            if (currentBuffer.length == 0) return;
+            currentBuffer = currentBuffer.substring(0, currentBuffer.length - 1);
+            event.accepted = true;
+            return;
+        }
+
         if (event.key > 0x01000000) return; // ignore weird keys
         var keyChar = String.fromCharCode(event.key);
         if ((event.modifiers & Qt.ShiftModifier) === 0) {
@@ -69,6 +76,8 @@ Rectangle {
     Keys.onEscapePressed: {
         currentBuffer = "";
         event.accepted = true;
+    }
+    Keys.onBackPressed: {
     }
 
     property string currentEvent: "none";

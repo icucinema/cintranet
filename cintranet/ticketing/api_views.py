@@ -58,7 +58,7 @@ class PunterViewSet(viewsets.ModelViewSet):
     @action(methods=['GET'])
     def tickets(self, request, pk=None):
         punter = self.get_object()
-        return serialize_queryset(self, api_serializers.TicketSerializer, punter.tickets.all())
+        return serialize_queryset(self, api_serializers.ComprehensiveTicketSerializer, punter.tickets.all())
 
 class EntitlementViewSet(viewsets.ModelViewSet):
     queryset = models.Entitlement.objects.all()

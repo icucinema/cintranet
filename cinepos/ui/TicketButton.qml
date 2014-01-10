@@ -33,6 +33,7 @@ Rectangle {
             anchors.leftMargin: 0
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 5
+            wrapMode: Text.WordWrap
             style: Text.Normal
             font.pixelSize: 20
             horizontalAlignment: Text.AlignHCenter

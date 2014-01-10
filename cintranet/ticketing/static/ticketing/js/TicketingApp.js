@@ -220,6 +220,8 @@ app.controller('EventsCtrl', function($rootScope, $scope, $routeParams, $locatio
 
 	$scope.search = function(q) {
 		sobj.search = q;
+        sobj.page = 1;
+        thisPage = 1;
 		updateEventData();
 	};
 
@@ -511,6 +513,7 @@ app.controller('PuntersCtrl', function($rootScope, $scope, $routeParams, $locati
 
 	$scope.search = function(q) {
 		sobj.page = 1;
+        thisPage = 1;
 		updatePunterData();
 	};
 

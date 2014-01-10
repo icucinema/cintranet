@@ -2,12 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="70ae3a3a-fb0a-4f3c-a3c6-607d7b637c77" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/cinepos/ui/CardLinkDialog.qml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/cintranet/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/cinepos/cinepos.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cinepos/ui/TicketButton.qml" afterPath="$PROJECT_DIR$/cinepos/ui/TicketButton.qml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cintranet/ticketing/static/ticketing/js/TicketingApp.js" afterPath="$PROJECT_DIR$/cintranet/ticketing/static/ticketing/js/TicketingApp.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cintranet/ticketing/api_serializers.py" afterPath="$PROJECT_DIR$/cintranet/ticketing/api_serializers.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cintranet/ticketing/api_views.py" afterPath="$PROJECT_DIR$/cintranet/ticketing/api_views.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cinepos/cinepos.py" afterPath="$PROJECT_DIR$/cinepos/cinepos.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cintranet/ticketing/models.py" afterPath="$PROJECT_DIR$/cintranet/ticketing/models.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cintranet/ticketing/urls.py" afterPath="$PROJECT_DIR$/cintranet/ticketing/urls.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cintranet/ticketing/static/ticketing/partials/punter.html" afterPath="$PROJECT_DIR$/cintranet/ticketing/static/ticketing/partials/punter.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cinepos/ui/ui.qml" afterPath="$PROJECT_DIR$/cinepos/ui/ui.qml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="icucintranet.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -74,34 +77,23 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="public.py" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/icunion/public.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="0" selection-start="461" selection-end="461" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1575">
-              <folding>
-                <element signature="e#0#15#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="cinepos.py" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cinepos/cinepos.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="354" column="31" selection-start="12499" selection-end="12499" vertical-scroll-proportion="0.0" vertical-offset="5010" max-vertical-offset="5670">
-              <folding>
-                <element signature="e#0#10#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="models.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cintranet/ticketing/models.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="185" column="0" selection-start="6238" selection-end="6238" vertical-scroll-proportion="0.0" vertical-offset="2430" max-vertical-offset="6270">
+            <state line="155" column="65" selection-start="5319" selection-end="5319" vertical-scroll-proportion="0.0" vertical-offset="1907" max-vertical-offset="6405">
               <folding>
                 <element signature="e#0#16#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="cinepos.py" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/cinepos/cinepos.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="354" column="24" selection-start="12418" selection-end="12418" vertical-scroll-proportion="0.54545456" vertical-offset="4950" max-vertical-offset="5610">
+              <folding>
+                <element signature="e#0#10#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -110,7 +102,7 @@
       <file leaf-file-name="api_serializers.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cintranet/ticketing/api_serializers.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="73" column="6" selection-start="2179" selection-end="2179" vertical-scroll-proportion="0.0" vertical-offset="857" max-vertical-offset="1995">
+            <state line="142" column="44" selection-start="4308" selection-end="4308" vertical-scroll-proportion="0.0" vertical-offset="1635" max-vertical-offset="2310">
               <folding>
                 <element signature="e#0#38#0" expanded="true" />
               </folding>
@@ -118,21 +110,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="api_router.py" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cintranet/ticketing/api_router.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1245">
-              <folding>
-                <element signature="e#0#34#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="urls.py" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="urls.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cintranet/ticketing/urls.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="21" column="42" selection-start="1068" selection-end="1068" vertical-scroll-proportion="0.47727272" vertical-offset="0" max-vertical-offset="660">
+            <state line="24" column="0" selection-start="1105" selection-end="1105" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="450">
               <folding>
                 <element signature="e#0#51#0" expanded="true" />
               </folding>
@@ -140,10 +121,49 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="punter.html" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/cintranet/ticketing/static/ticketing/partials/punter.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="83" column="14" selection-start="4240" selection-end="4240" vertical-scroll-proportion="-10.958333" vertical-offset="982" max-vertical-offset="1605">
+              <folding>
+                <element signature="n#style#0;n#h5#0;n#li#0;n#ul#0;n#tab#1;n#tabs#0;n#div#1;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#h5#0;n#li#0;n#ul#0;n#tab#2;n#tabs#0;n#div#1;n#!!top" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TicketingApp.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/cintranet/ticketing/static/ticketing/js/TicketingApp.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="295" column="5" selection-start="7428" selection-end="7428" vertical-scroll-proportion="0.0" vertical-offset="4225" max-vertical-offset="12390">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="events.html" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/cintranet/ticketing/static/ticketing/partials/events.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="25" column="51" selection-start="1014" selection-end="1021" vertical-scroll-proportion="-15.625" vertical-offset="0" max-vertical-offset="645">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="event.html" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/cintranet/ticketing/static/ticketing/partials/event.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="3.75" vertical-offset="90" max-vertical-offset="1125">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="api_views.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cintranet/ticketing/api_views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="36" column="45" selection-start="1293" selection-end="1293" vertical-scroll-proportion="0.0" vertical-offset="1260" max-vertical-offset="1920">
+            <state line="60" column="85" selection-start="2286" selection-end="2286" vertical-scroll-proportion="0.0" vertical-offset="540" max-vertical-offset="1920">
               <folding>
                 <element signature="e#0#44#0" expanded="true" />
               </folding>
@@ -155,15 +175,6 @@
         <entry file="file://$PROJECT_DIR$/cintranet/ticketing/api_urls.py">
           <provider selected="true" editor-type-id="text-editor">
             <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="120">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="__init__.py" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cintranet/__init__.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="90">
               <folding />
             </state>
           </provider>
@@ -183,10 +194,13 @@
     <option name="changedFiles">
       <list>
         <option value="$PROJECT_DIR$/cinepos/ui/main.qml" />
-        <option value="$PROJECT_DIR$/cinepos/cinepos.py" />
-        <option value="$PROJECT_DIR$/cintranet/ticketing/models.py" />
-        <option value="$PROJECT_DIR$/cintranet/ticketing/api_views.py" />
         <option value="$PROJECT_DIR$/cintranet/ticketing/urls.py" />
+        <option value="$PROJECT_DIR$/cintranet/ticketing/api_views.py" />
+        <option value="$PROJECT_DIR$/cintranet/ticketing/static/ticketing/partials/punter.html" />
+        <option value="$PROJECT_DIR$/cintranet/ticketing/static/ticketing/js/TicketingApp.js" />
+        <option value="$PROJECT_DIR$/cintranet/ticketing/api_serializers.py" />
+        <option value="$PROJECT_DIR$/cintranet/ticketing/models.py" />
+        <option value="$PROJECT_DIR$/cinepos/cinepos.py" />
       </list>
     </option>
   </component>
@@ -270,7 +284,83 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="cintranet" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ticketing" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ticketing" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="partials" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="icucintranet" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cintranet" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ticketing" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ticketing" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="js" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="icucintranet" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cintranet" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ticketing" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ticketing" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="icucintranet" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="cinepos" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="icucintranet" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cinepos" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ui" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -650,49 +740,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/cinepos/cinepos.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="354" column="31" selection-start="12499" selection-end="12499" vertical-scroll-proportion="0.0" vertical-offset="5010" max-vertical-offset="5670">
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cintranet/ticketing/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="185" column="0" selection-start="6238" selection-end="6238" vertical-scroll-proportion="0.0" vertical-offset="2430" max-vertical-offset="6270">
-          <folding>
-            <element signature="e#0#16#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cintranet/ticketing/api_views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="45" selection-start="1293" selection-end="1293" vertical-scroll-proportion="0.0" vertical-offset="1260" max-vertical-offset="1920">
-          <folding>
-            <element signature="e#0#44#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cintranet/ticketing/api_urls.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="660">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cintranet/ticketing/api_serializers.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="73" column="6" selection-start="2179" selection-end="2179" vertical-scroll-proportion="0.0" vertical-offset="857" max-vertical-offset="1995">
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/cintranet/ticketing/api_router.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1245">
@@ -704,9 +751,83 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/cintranet/ticketing/urls.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="42" selection-start="1068" selection-end="1068" vertical-scroll-proportion="0.47727272" vertical-offset="0" max-vertical-offset="660">
+        <state line="24" column="0" selection-start="1105" selection-end="1105" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="450">
           <folding>
             <element signature="e#0#51#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cintranet/ticketing/static/ticketing/partials/event.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="3.75" vertical-offset="90" max-vertical-offset="1125">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cintranet/ticketing/api_urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="660">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cintranet/ticketing/static/ticketing/partials/punter.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="83" column="14" selection-start="4240" selection-end="4240" vertical-scroll-proportion="-10.958333" vertical-offset="982" max-vertical-offset="1605">
+          <folding>
+            <element signature="n#style#0;n#h5#0;n#li#0;n#ul#0;n#tab#1;n#tabs#0;n#div#1;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#h5#0;n#li#0;n#ul#0;n#tab#2;n#tabs#0;n#div#1;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cintranet/ticketing/static/ticketing/partials/events.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="51" selection-start="1014" selection-end="1021" vertical-scroll-proportion="-15.625" vertical-offset="0" max-vertical-offset="645">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cintranet/ticketing/api_views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="60" column="85" selection-start="2286" selection-end="2286" vertical-scroll-proportion="0.0" vertical-offset="540" max-vertical-offset="1920">
+          <folding>
+            <element signature="e#0#44#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cintranet/ticketing/api_serializers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="142" column="44" selection-start="4308" selection-end="4308" vertical-scroll-proportion="0.0" vertical-offset="1635" max-vertical-offset="2310">
+          <folding>
+            <element signature="e#0#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cintranet/ticketing/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="155" column="65" selection-start="5319" selection-end="5319" vertical-scroll-proportion="0.0" vertical-offset="1907" max-vertical-offset="6405">
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cintranet/ticketing/static/ticketing/js/TicketingApp.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="295" column="5" selection-start="7428" selection-end="7428" vertical-scroll-proportion="0.0" vertical-offset="4225" max-vertical-offset="12390">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cinepos/cinepos.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="354" column="24" selection-start="12418" selection-end="12418" vertical-scroll-proportion="0.54545456" vertical-offset="4950" max-vertical-offset="5610">
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>
