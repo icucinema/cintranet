@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
+
 import datetime
 
 from PyQt5 import QtWidgets, QtQuick, QtCore
-from cintranet.ticketing import models
+from ticketing import models, api_serializers
 from django.db.models import Q
 from django.utils.timezone import now
 
@@ -11,6 +13,25 @@ __author__ = 'lukegb'
 
 back_range = datetime.timedelta(minutes=60)
 forward_range = datetime.timedelta(minutes=12*60)
+
+def flatten_element(v):
+    if isinstance(v, dict):
+        return flatten_to_dict(v)
+    elif isinstance(v, list):
+        return flatten_to_list(v)
+    elif isinstance(v, datetime.datetime):
+        return str(v.isoformat())
+    else:
+        return v
+
+def flatten_to_list(pl):
+    return [flatten_element(v) for v in pl]
+
+def flatten_to_dict(pd):
+    d = {}
+    for k, v in pd.iteritems():
+        d[k] = flatten_element(v)
+    return d
 
 class CineposApplication(QtWidgets.QApplication):
     def __init__(self, args, view_location='ui/ui.qml', full_screen=False):
@@ -70,11 +91,6 @@ class CineposApplication(QtWidgets.QApplication):
         self.context.setContextProperty('cartModel', self.cart_model)
         self.context.setContextProperty('eventSearchModel', self.event_search_model)
         self.context.setContextProperty('eventSelectedModel', self.event_select_model)
-        self.context.setContextProperty('ticketDetailsModel', self.ticket_search_model)
-
-
-        self.context.setContextProperty('unknownPunter', False)
-        self.context.setContextProperty('acquiringPunterData', True)
 
     def prepare_view(self):
         self.view.setSource(QtCore.QUrl(self.view_location))
@@ -91,6 +107,9 @@ class CineposApplication(QtWidgets.QApplication):
         self.rootObj.updateEventListing.connect(self.on_update_event_listing)
         self.rootObj.eventsSelected.connect(self.on_events_selected)
         self.rootObj.selectEventsCancelled.connect(self.on_select_events_cancelled)
+        self.rootObj.ticketDetailsRequested.connect(self.on_ticket_details_requested)
+        self.rootObj.voidTicketRequested.connect(self.on_void_ticket)
+        self.rootObj.refundTicketRequested.connect(self.on_refund_ticket)
 
         # final init!
         if len(self.event_ids) > 0:
@@ -150,6 +169,7 @@ class CineposApplication(QtWidgets.QApplication):
                 for thing in ordering:
                     try:
                         punter = models.Punter.objects.get(**{ thing: identifier })
+                        break
                     except models.Punter.DoesNotExist:
                         continue
                     except models.Punter.MultipleObjectsReturned:
@@ -182,17 +202,42 @@ class CineposApplication(QtWidgets.QApplication):
         self.set_punter(None)
 
     def on_sale_no_saled(self):
+        self.show_dialog(
+            type_='error',
+            title='Ticket not found',
+            message='A ticket with the ID {} could not be found.',
+            button='OK', button_target='viewticket'
+        )
         self.cart_model.empty()
         self.set_punter(None)
 
     def on_events_selected(self):
         self.set_event_ids(self.event_select_model.get_pks())
         if len(self.event_ids) == 0:
-            self.quit()
+            self.show_dialog(
+                type_='error',
+                title='Event selection required',
+                message='At least one event must be selected.',
+                button='OK', button_target='eventselect'
+            )
 
     def on_select_events_cancelled(self):
         if len(self.event_ids) == 0:
             self.quit()
+
+    def on_ticket_details_requested(self, ticket_id):
+        try:
+            ticket = models.Ticket.objects.get(pk=ticket_id)
+            self.rootObj.ticketDetailsRetrieved(
+                flatten_to_dict(api_serializers.ComprehensiveTicketSerializer(ticket).data)
+            )
+        except models.Ticket.DoesNotExist:
+            self.show_dialog(
+                type_='error',
+                title='Ticket not found',
+                message='A ticket with the ID {} could not be found.'.format(ticket_id),
+                button='OK', button_target='viewticket'
+            )
 
     def on_card_link_performed(self, cid):
         punter, created = models.Punter.objects.get_or_create(cid=cid, defaults={
@@ -210,6 +255,49 @@ class CineposApplication(QtWidgets.QApplication):
         day_in_question = datetime.datetime.strptime(date, "%d/%m/%Y")
         next_day = day_in_question.replace(day=day_in_question.day+1, hour=0, minute=0, second=0)
         self.event_search_model.refresh(start_time__gte=day_in_question, start_time__lt=next_day)
+
+    def on_refund_ticket(self, ticket_id):
+        try:
+            ticket = models.Ticket.objects.get(pk=ticket_id)
+            ticket.refund()
+            ticket.save()
+            self.on_ticket_details_requested(ticket_id)
+            self.show_dialog(
+                type_='info',
+                title='Ticket refunded',
+                message='Please refund £{}.'.format(ticket.ticket_type.sale_price),
+                button='OK', button_target='ticketdetails'
+            )
+        except models.Ticket.DoesNotExist:
+            self.show_dialog(
+                type_='error',
+                title='Ticket not found',
+                message='A ticket with the ID {} could not be found.'.format(ticket_id),
+                button='OK', button_target='viewticket'
+            )
+
+    def on_void_ticket(self, ticket_id):
+        try:
+            ticket = models.Ticket.objects.get(pk=ticket_id)
+            ticket.void()
+            ticket.save()
+            self.on_ticket_details_requested(ticket_id)
+        except models.Ticket.DoesNotExist:
+            self.show_dialog(
+                type_='error',
+                title='Ticket not found',
+                message='A ticket with the ID {} could not be found.'.format(ticket_id),
+                button='OK', button_target='viewticket'
+            )
+
+    def show_dialog(self, type_, title, message, button='OK', button_target=''):
+        self.rootObj.showDialog({
+            'type': type_,
+            'title': title,
+            'message': message,
+            'button': button,
+            'button_target': button_target
+        })
 
     def get_cid_for_swipecard(self, swipecard):
         self.acquiring_swipecard = swipecard

@@ -1,6 +1,4 @@
-from PyQt5 import QtCore, QtQml
-
-from cintranet.ticketing import models
+from PyQt5 import QtCore
 
 __author__ = 'lukegb'
 

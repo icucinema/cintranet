@@ -19,6 +19,9 @@ Rectangle {
     signal updateEventListing(string date);
     signal eventsSelected();
     signal selectEventsCancelled();
+    signal ticketDetailsRequested(string ticketId);
+    signal voidTicketRequested(string ticketId);
+    signal refundTicketRequested(string ticketId);
 
     function doCardLink() {
         openDialog('cardlink', cardLinkDialog);
@@ -29,6 +32,11 @@ Rectangle {
         openDialog('eventselect', eventSelectDialog);
         eventSelectDialog.resetDateInput();
         eventSelectDialog.focusDateInput();
+    }
+    function ticketDetailsRetrieved(ticketDetails) {
+        console.log(ticketDetails);
+        openDialog('ticketdetails', ticketDetailsDialog);
+        ticketDetailsDialog.ticketDetails = ticketDetails;
     }
 
     function unknownPunterQueried() {
@@ -47,12 +55,33 @@ Rectangle {
         wrapper.focus = true;
     }
     function openDialog(stateName, obj) {
+        if (stateName == '') return closeOpenDialogs();
+        if (!obj) {
+            obj = dialogRegistry[stateName];
+        }
+        if (currentDialog) {
+            currentDialog.enabled = false;
+        }
+
         wrapper.state = stateName;
         wrapper.focus = false;
         obj.enabled = true;
         shadeRectangle.enabled = true;
         currentDialog = obj;
     }
+    function showDialog(dialogInfo) {
+        genericDialog.info = dialogInfo;
+        openDialog('genericdialog', genericDialog);
+    }
+
+    property var dialogRegistry: ({
+                                      'genericdialog': genericDialog,
+                                      'ticketdetails': ticketDetailsDialog,
+                                      'cardlink': cardLinkDialog,
+                                      'eventselect': eventSelectDialog,
+                                      'viewticket': viewTicketDialog
+                                  })
+
     property variant currentDialog;
 
     Keys.onPressed: {
@@ -586,6 +615,18 @@ Rectangle {
                 target: ticketDetailsDialog
                 opacity: 1
             }
+        },
+        State {
+            name: "genericdialog"
+
+            PropertyChanges {
+                target: shadeRectangle
+                opacity: 0.7
+            }
+            PropertyChanges {
+                target: genericDialog
+                opacity: 1
+            }
         }
     ]
 
@@ -670,8 +711,7 @@ Rectangle {
             closeOpenDialogs();
         }
         onOpenTicket: {
-            // TODO
-            //openDialog('ticketdetails', ticketDetailsDialog);
+            ticketDetailsRequested(ticketNumber);
         }
         enabled: false
     }
@@ -691,6 +731,19 @@ Rectangle {
             viewTicketDialog.focusTicketNumberInput();
             viewTicketDialog.clearTicketNumberInput();
         }
+        onVoidTicket: voidTicketRequested(ticketId)
+        onRefundTicket: refundTicketRequested(ticketId)
         enabled: false
+    }
+
+    GenericDialog {
+        id: genericDialog
+        x: 0
+        y: 0
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
+        opacity: 0
+        enabled: false
+        onButtonClicked: openDialog(nextState)
     }
 }

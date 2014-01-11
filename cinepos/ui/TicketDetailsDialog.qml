@@ -3,7 +3,7 @@ import QtQuick 2.0
 Rectangle {
     id: borderRect
     width: 400
-    height: 190
+    height: 400
 
     color: "#cccccc"
     border.width: 5
@@ -12,6 +12,32 @@ Rectangle {
 
     signal closeClicked();
     signal backClicked();
+
+    signal voidTicket(string ticketId);
+    signal refundTicket(string ticketId);
+
+    property var ticketDetails: ({});
+
+    function bitsWithPadding(bits, requiredLength, separator) {
+        var newBits = [];
+        for (var i = 0; i < bits.length; i++) {
+            var b = bits[i].toString();
+            while (b.length < requiredLength) {
+                b = '0' + b;
+            }
+            newBits.push(b);
+        }
+        return newBits.join(separator);
+    }
+
+    function formatDate(isoformat) {
+        var d = new Date(isoformat);
+        return bitsWithPadding([d.getDate(), d.getMonth()+1, d.getFullYear()], 2, '/');
+    }
+    function formatTime(isoformat) {
+        var d = new Date(isoformat);
+        return bitsWithPadding([d.getHours(), d.getMinutes()], 2, ':');
+    }
 
     Text {
         id: titleLabel
@@ -22,31 +48,6 @@ Rectangle {
         anchors.leftMargin: 20
         font.bold: true
         font.pixelSize: 20
-    }
-
-    Text {
-        id: ticketNumberInput
-        height: 20
-        text: qsTr("")
-        anchors.top: parent.top
-        anchors.topMargin: 69
-        anchors.left: parent.left
-        anchors.leftMargin: 145
-        anchors.right: parent.right
-        anchors.rightMargin: 20
-        font.pixelSize: 16
-        font.bold: false
-    }
-
-    Text {
-        id: ticketNumberLabel
-        text: qsTr("Ticket Number:")
-        anchors.top: parent.top
-        anchors.topMargin: 67
-        anchors.left: parent.left
-        anchors.leftMargin: 20
-        font.bold: true
-        font.pixelSize: 16
     }
 
     Button {
@@ -79,5 +80,149 @@ Rectangle {
         onClicked: {
             closeClicked()
         }
+    }
+
+    Grid {
+        id: grid1
+        x: 24
+        y: 56
+        width: 353
+        height: 216
+        spacing: 10
+        columns: 2
+
+        Text {
+            id: ticketNumberLabel
+            text: qsTr("Ticket Number: ")
+            font.bold: true
+            font.pixelSize: 16
+        }
+
+        Text {
+            id: ticketNumberInfo
+            height: 20
+            text: ticketDetails.id
+            font.pixelSize: 16
+            wrapMode: Text.WordWrap
+        }
+
+        Text {
+            id: ticketStatusLabel
+            text: qsTr("Status: ")
+            font.bold: true
+            font.pixelSize: 16
+        }
+
+        Text {
+            id: ticketStatusInfo
+            height: 20
+            font.pixelSize: 16
+            text: ticketDetails.status
+            wrapMode: Text.WordWrap
+        }
+
+        Text {
+            id: ticketTypeLabel
+            text: qsTr("Ticket Type: ")
+            font.bold: true
+            font.pixelSize: 16
+        }
+
+        Text {
+            id: ticketTypeInfo
+            height: 20
+            font.pixelSize: 16
+            text: ticketDetails.ticket_type.name
+            wrapMode: Text.WordWrap
+        }
+
+        Text {
+            id: eventNameLabel
+            text: qsTr("Event Name: ")
+            font.bold: true
+            font.pixelSize: 16
+        }
+
+        Text {
+            id: eventNameInfo
+            height: 20
+            font.pixelSize: 16
+            text: ticketDetails.ticket_type.event.name
+            wrapMode: Text.WordWrap
+        }
+
+        Text {
+            id: eventDateLabel
+            text: qsTr("Event Date: ")
+            font.bold: true
+            font.pixelSize: 16
+        }
+
+        Text {
+            id: eventDateInfo
+            height: 20
+            font.pixelSize: 16
+            text: formatDate(ticketDetails.ticket_type.event.start_time) + " " + formatTime(ticketDetails.ticket_type.event.start_time)
+            wrapMode: Text.WordWrap
+        }
+
+        Text {
+            id: punterNameLabel
+            text: qsTr("Customer Name: ")
+            font.bold: true
+            font.pixelSize: 16
+            visible: (!!ticketDetails.punter)
+        }
+
+        Text {
+            id: punterNameInfo
+            height: 20
+            font.pixelSize: 16
+            text: ticketDetails.punter.name
+            visible: (!!ticketDetails.punter)
+            wrapMode: Text.WordWrap
+        }
+
+        Text {
+            id: entitlementNameLabel
+            text: qsTr("Used Entitlement: ")
+            font.bold: true
+            font.pixelSize: 16
+            visible: (!!ticketDetails.entitlement)
+        }
+
+        Text {
+            id: entitlementNameInfo
+            height: 20
+            font.pixelSize: 16
+            text: ticketDetails.entitlement.name
+            visible: (!!ticketDetails.entitlement)
+            wrapMode: Text.WordWrap
+        }
+
+    }
+
+    Button {
+        id: voidButton
+        x: 237
+        text: "Void"
+        anchors.top: parent.top
+        anchors.topMargin: 17
+        anchors.right: parent.right
+        anchors.rightMargin: 114
+        onClicked: voidTicket(ticketDetails.id.toString())
+        visible: (ticketDetails.status === 'live')
+    }
+
+    Button {
+        id: refundButton
+        x: 308
+        text: "Refund"
+        anchors.top: parent.top
+        anchors.topMargin: 17
+        anchors.right: parent.right
+        anchors.rightMargin: 20
+        onClicked: refundTicket(ticketDetails.id.toString())
+        visible: (ticketDetails.status === 'live')
     }
 }

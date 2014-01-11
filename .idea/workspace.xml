@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="70ae3a3a-fb0a-4f3c-a3c6-607d7b637c77" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/cinepos/ui/TicketDetailsDialog.qml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/cinepos/ui/GenericDialog.qml" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/cintranet/__init__.py" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cinepos/ui/TicketDetailsDialog.qml" afterPath="$PROJECT_DIR$/cinepos/ui/TicketDetailsDialog.qml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/launch_cinepos.py" afterPath="$PROJECT_DIR$/launch_cinepos.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cinepos/qtapp.py" afterPath="$PROJECT_DIR$/cinepos/qtapp.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cinepos/qtmodels.py" afterPath="$PROJECT_DIR$/cinepos/qtmodels.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cinepos/ui/ui.qml" afterPath="$PROJECT_DIR$/cinepos/ui/ui.qml" />
@@ -76,7 +79,7 @@
       <file leaf-file-name="models.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cintranet/ticketing/models.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="155" column="65" selection-start="5319" selection-end="5319" vertical-scroll-proportion="0.0" vertical-offset="1907" max-vertical-offset="6405">
+            <state line="159" column="12" selection-start="5417" selection-end="5417" vertical-scroll-proportion="0.0" vertical-offset="2177" max-vertical-offset="6405">
               <folding>
                 <element signature="e#0#16#0" expanded="true" />
               </folding>
@@ -98,7 +101,7 @@
       <file leaf-file-name="launch_cinepos.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/launch_cinepos.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="10" column="15" selection-start="365" selection-end="365" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="240">
+            <state line="11" column="15" selection-start="422" selection-end="422" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="255">
               <folding />
             </state>
           </provider>
@@ -107,9 +110,9 @@
       <file leaf-file-name="qtapp.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/cinepos/qtapp.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="17" column="0" selection-start="602" selection-end="602" vertical-scroll-proportion="0.2845982" vertical-offset="0" max-vertical-offset="3615">
+            <state line="111" column="72" selection-start="4441" selection-end="4441" vertical-scroll-proportion="0.48549107" vertical-offset="1230" max-vertical-offset="4935">
               <folding>
-                <element signature="e#0#15#0" expanded="true" />
+                <element signature="e#25#40#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -118,10 +121,8 @@
       <file leaf-file-name="qtmodels.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cinepos/qtmodels.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="249" column="65" selection-start="7788" selection-end="7788" vertical-scroll-proportion="0.0" vertical-offset="2929" max-vertical-offset="3825">
-              <folding>
-                <element signature="e#0#31#0" expanded="true" />
-              </folding>
+            <state line="22" column="0" selection-start="571" selection-end="571" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3795">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -129,7 +130,7 @@
       <file leaf-file-name="api_serializers.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cintranet/ticketing/api_serializers.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="142" column="44" selection-start="4308" selection-end="4308" vertical-scroll-proportion="0.0" vertical-offset="1414" max-vertical-offset="2310">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2310">
               <folding>
                 <element signature="e#0#38#0" expanded="true" />
               </folding>
@@ -200,8 +201,8 @@
         <option value="$PROJECT_DIR$/cintranet/ticketing/models.py" />
         <option value="$PROJECT_DIR$/cinepos/cinepos.py" />
         <option value="$PROJECT_DIR$/cinepos/launch.py" />
-        <option value="$PROJECT_DIR$/launch_cinepos.py" />
         <option value="$PROJECT_DIR$/cinepos/qtmodels.py" />
+        <option value="$PROJECT_DIR$/launch_cinepos.py" />
         <option value="$PROJECT_DIR$/cinepos/qtapp.py" />
       </list>
     </option>
@@ -726,13 +727,6 @@
     <breakpoint-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/cintranet/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="660">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/icunion/public.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="19" column="0" selection-start="461" selection-end="461" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1575">
@@ -800,18 +794,23 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/cintranet/ticketing/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="155" column="65" selection-start="5319" selection-end="5319" vertical-scroll-proportion="0.0" vertical-offset="1907" max-vertical-offset="6405">
-          <folding>
-            <element signature="e#0#16#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/cintranet/ticketing/static/ticketing/js/TicketingApp.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="295" column="5" selection-start="7428" selection-end="7428" vertical-scroll-proportion="0.0" vertical-offset="4225" max-vertical-offset="12390">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cinepos/qtmodels.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="22" column="0" selection-start="571" selection-end="571" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3795">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/launch_cinepos.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="11" column="15" selection-start="422" selection-end="422" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="255">
           <folding />
         </state>
       </provider>
@@ -825,36 +824,29 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/cintranet/ticketing/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="159" column="12" selection-start="5417" selection-end="5417" vertical-scroll-proportion="0.0" vertical-offset="2177" max-vertical-offset="6405">
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/cintranet/ticketing/api_serializers.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="142" column="44" selection-start="4308" selection-end="4308" vertical-scroll-proportion="0.0" vertical-offset="1635" max-vertical-offset="2310">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2310">
           <folding>
             <element signature="e#0#38#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/launch_cinepos.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="10" column="15" selection-start="365" selection-end="365" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="240">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cinepos/qtmodels.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="249" column="65" selection-start="7788" selection-end="7788" vertical-scroll-proportion="0.0" vertical-offset="2929" max-vertical-offset="3825">
-          <folding>
-            <element signature="e#0#31#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/cinepos/qtapp.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="0" selection-start="602" selection-end="602" vertical-scroll-proportion="0.2845982" vertical-offset="0" max-vertical-offset="3615">
+        <state line="111" column="72" selection-start="4441" selection-end="4441" vertical-scroll-proportion="0.48549107" vertical-offset="1230" max-vertical-offset="4935">
           <folding>
-            <element signature="e#0#15#0" expanded="true" />
+            <element signature="e#25#40#0" expanded="true" />
           </folding>
         </state>
       </provider>
