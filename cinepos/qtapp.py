@@ -7,12 +7,14 @@ from ticketing import models, api_serializers
 from django.db.models import Q
 from django.utils.timezone import now
 
-from .qtmodels import EventsModel, FilterableTicketTypesModel, EditableTicketTypesModel, SearchingEventsModel, EditableEventsModel
+from .qtmodels import EventsModel, FilterableTicketTypesModel, EditableTicketTypesModel, SearchingEventsModel, \
+    EditableEventsModel
 
 __author__ = 'lukegb'
 
 back_range = datetime.timedelta(minutes=60)
-forward_range = datetime.timedelta(minutes=12*60)
+forward_range = datetime.timedelta(minutes=12 * 60)
+
 
 def flatten_element(v):
     if isinstance(v, dict):
@@ -24,8 +26,10 @@ def flatten_element(v):
     else:
         return v
 
+
 def flatten_to_list(pl):
     return [flatten_element(v) for v in pl]
+
 
 def flatten_to_dict(pd):
     d = {}
@@ -33,8 +37,10 @@ def flatten_to_dict(pd):
         d[k] = flatten_element(v)
     return d
 
+
 class CineposApplication(QtWidgets.QApplication):
-    def __init__(self, args, view_location='ui/ui.qml', full_screen=False, window_title='CinePoS', window_icon=None):
+    def __init__(self, args, hw_interface,
+                 view_location='ui/ui.qml', full_screen=False, window_title='CinePoS', window_icon=None):
         super(CineposApplication, self).__init__(args)
 
         nownow = now()
@@ -43,12 +49,15 @@ class CineposApplication(QtWidgets.QApplication):
         self.event_ids = models.Event.objects.filter(
             start_time__gt=min_between, start_time__lt=max_between
         ).values_list('id', flat=True)
+        self.event_ids_to_char = {}
+        self.hw_interface = hw_interface
         self.view_location = view_location
         self.current_punter = None
         self.full_screen = full_screen
         self.window_title = window_title
         self.window_icon = window_icon
 
+        self.reassign_event_chars()
         self.setup_event_select_models()
         self.setup_models()
         self.setup_view()
@@ -56,8 +65,17 @@ class CineposApplication(QtWidgets.QApplication):
         self.set_punter(None)
         self.prepare_view()
 
+    def reassign_event_chars(self):
+        self.event_ids_to_char = {}
+        cur_char = ord('A')
+        for evi in self.event_ids:
+            self.event_ids_to_char[evi] = chr(cur_char)
+            cur_char += 1
+
     def set_event_ids(self, event_ids):
         self.event_ids = event_ids
+
+        self.reassign_event_chars()
 
         self.setup_models()
         self.wire_view()
@@ -115,6 +133,7 @@ class CineposApplication(QtWidgets.QApplication):
         self.rootObj.ticketDetailsRequested.connect(self.on_ticket_details_requested)
         self.rootObj.voidTicketRequested.connect(self.on_void_ticket)
         self.rootObj.refundTicketRequested.connect(self.on_refund_ticket)
+        self.rootObj.salesReportRequested.connect(self.on_sales_report_requested)
 
         # final init!
         if len(self.event_ids) > 0:
@@ -157,7 +176,8 @@ class CineposApplication(QtWidgets.QApplication):
             })
         else:
             qs = models.Punter.objects.filter(
-                Q(cid=identifier) | Q(name__iexact=identifier) | Q(login__iexact=identifier) | Q(email__iexact=identifier)
+                Q(cid=identifier) | Q(name__iexact=identifier) | Q(login__iexact=identifier) | Q(
+                    email__iexact=identifier)
             )
             try:
                 punter = qs.get()
@@ -174,7 +194,7 @@ class CineposApplication(QtWidgets.QApplication):
                 ordering = ['cid', 'name__iexact', 'login__iexact', 'email__iexact']
                 for thing in ordering:
                     try:
-                        punter = models.Punter.objects.get(**{ thing: identifier })
+                        punter = models.Punter.objects.get(**{thing: identifier})
                         break
                     except models.Punter.DoesNotExist:
                         continue
@@ -203,12 +223,21 @@ class CineposApplication(QtWidgets.QApplication):
 
     def on_sale_completed(self):
         data = self.cart_model.empty()
+        total_cost = 0
         for tickettype in data:
             self.generate_ticket(tickettype)
+            total_cost += int(tickettype.sale_price_for_punter(self.current_punter) * 100)
+        if total_cost > 0:
+            print "Opening cash drawer!"
+            self.hw_interface.cashdrawer.open()
+        self.events_model.refresh()
         self.set_punter(None)
 
     def on_sale_no_saled(self):
-        self.cart_model.empty()
+        if len(self.cart_model.empty()) == 0:
+            # cart was already empty - open the cash drawer instead of emptying the cart
+            print "Opening cash drawer!"
+            self.hw_interface.cashdrawer.open()
         self.set_punter(None)
 
     def on_events_selected(self):
@@ -253,12 +282,13 @@ class CineposApplication(QtWidgets.QApplication):
 
     def on_update_event_listing(self, date):
         day_in_question = datetime.datetime.strptime(date, "%d/%m/%Y")
-        next_day = day_in_question.replace(day=day_in_question.day+1, hour=0, minute=0, second=0)
+        next_day = day_in_question.replace(day=day_in_question.day + 1, hour=0, minute=0, second=0)
         self.event_search_model.refresh(start_time__gte=day_in_question, start_time__lt=next_day)
 
     def on_refund_ticket(self, ticket_id):
         try:
             ticket = models.Ticket.objects.get(pk=ticket_id)
+            self.hw_interface.cashdrawer.open()
             ticket.refund()
             ticket.save()
             self.on_ticket_details_requested(ticket_id)
@@ -290,6 +320,15 @@ class CineposApplication(QtWidgets.QApplication):
                 button='OK', button_target='viewticket'
             )
 
+    def on_sales_report_requested(self):
+        self.show_dialog(
+            type_='info',
+            title='Printing...',
+            message='Now printing sales report',
+            button='OK', button_target=''
+        )
+        self.generate_report()
+
     def show_dialog(self, type_, title, message, button='OK', button_target=''):
         self.rootObj.showDialog({
             'type': type_,
@@ -310,14 +349,12 @@ class CineposApplication(QtWidgets.QApplication):
         # here goes the magic!
         punter = self.current_punter
 
-        print "GENERATING TICKET OF TYPE", tickettype
         ticket = models.Ticket.generate(ticket_type=tickettype, punter=punter)
-        print "TICKET GENERATED", ticket
-        print "Was generally available?", tickettype.general_availability
-        print "Entitlement?", ticket.entitlement
-        try:
-            ed = ticket.entitlement.entitlement_details.get(punter=punter)
-            print "Entitlement Detail?", ed, ed.remaining_uses
-        except:
-            pass
-        print "PRINTING TICKET"
+        ec = self.event_ids_to_char[tickettype.event_id]
+        self.hw_interface.printer.print_ticket(ticket, ec)
+
+    def generate_report(self):
+        # this is going to be interesting...
+        events = models.Event.objects.filter(id__in=self.event_ids)
+
+        self.hw_interface.printer.print_report(events)

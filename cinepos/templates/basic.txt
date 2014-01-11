@@ -1,0 +1,12 @@
+${header}
+
+${ticket_head}
+${film_title}
+${film_line2}
+${film_line3}
+${date} ${time}
+${type} ${price}
+${id} ${number}
+${website}
+${tagline}
+

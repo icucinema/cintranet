@@ -1,5 +1,8 @@
 import itertools
 import re
+import string
+import random
+from decimal import Decimal
 
 from django.db import models, transaction
 from django.contrib.contenttypes.models import ContentType
@@ -18,6 +21,7 @@ tmdb = TMDB(settings.TMDB_API_KEY)
 _tmdb_conf = None
 tmdb_url_re = re.compile(r'^https?://[a-z\.]+/movie/(?P<tmdb_id>\d+)-.*$')
 
+
 def tmdb_config():
     global _tmdb_conf
     if _tmdb_conf is None:
@@ -25,11 +29,13 @@ def tmdb_config():
         _tmdb_conf.info()
     return _tmdb_conf
 
+
 def tmdb_construct_poster(img_bit, size='original'):
     if img_bit is None:
         return None
     c = tmdb_config()
     return c.images['base_url'] + size + img_bit
+
 
 class Punter(models.Model):
     STATUS = Choices('full', 'associate', 'public')
@@ -66,6 +72,7 @@ class Punter(models.Model):
             )
         )
 
+
 class Film(models.Model):
     tmdb_id = models.PositiveIntegerField(null=True)
     imdb_id = models.CharField(max_length=20, null=False, blank=True, default="")
@@ -80,7 +87,7 @@ class Film(models.Model):
         return self.name
 
     def update_sorting_name(self):
-        removing_prefixes = ['the ',]
+        removing_prefixes = ['the ', ]
         n = self.name.lower()
         for remove_prefix in removing_prefixes:
             if n.startswith(remove_prefix):
@@ -129,6 +136,7 @@ class Film(models.Model):
 
     class Meta:
         ordering = ['sorting_name']
+
 
 class Showing(models.Model):
     film = models.ForeignKey(Film, related_name='showings', null=False, blank=False)
@@ -181,11 +189,13 @@ class Showing(models.Model):
     class Meta:
         ordering = ['-start_time']
 
+
 class EventType(models.Model):
     name = models.CharField(max_length=128, default="", null=False, blank=False)
 
     def __unicode__(self):
         return self.name
+
 
 class Event(models.Model):
     name = models.CharField(max_length=300, default="", null=False, blank=False)
@@ -202,6 +212,7 @@ class Event(models.Model):
 
     def __unicode__(self):
         return u"{} ({})".format(self.name, self.start_time)
+
 
 class BaseTicketInfo(models.Model):
     online_description = models.TextField(null=False, default="", blank=True)
@@ -226,8 +237,10 @@ class BaseTicketInfo(models.Model):
     class Meta:
         ordering = ['sale_price']
 
+
 class TicketTemplate(BaseTicketInfo):
     event_type = models.ManyToManyField(EventType, related_name='ticket_templates')
+
 
 class TicketType(BaseTicketInfo):
     event = models.ForeignKey(Event)
@@ -257,6 +270,10 @@ class TicketType(BaseTicketInfo):
         if punter is None:
             return self.sale_price
 
+        if at_time is None:
+            # infer from event time
+            at_time = self.event.start_time
+
         # check if punter has any EntitlementDetails allowing this ticket at a discount
         qs_filter = Q(entitlement__entitled_to=self) & EntitlementDetail.valid_q_obj(at_time=at_time)
         if self.template is not None:
@@ -266,11 +283,12 @@ class TicketType(BaseTicketInfo):
 
         if qs:
             # they do have a discounted rate EntitlementDetail!
-            return (1 - (float(qs[0].discount) / 100)) * self.sale_price
+            return (1 - (Decimal(qs[0].discount) / 100)) * self.sale_price
         return self.sale_price
 
     def __unicode__(self):
         return u"{} for {}".format(self.name, self.event)
+
 
 class EntitlementDetail(models.Model):
     punter = models.ForeignKey(Punter, related_name='entitlement_details')
@@ -286,6 +304,7 @@ class EntitlementDetail(models.Model):
 
         # delegate it to the base entitlement validity checker
         return self.entitlement.valid(at_time)
+
     valid.boolean = True
 
     @staticmethod
@@ -303,6 +322,7 @@ class EntitlementDetail(models.Model):
 
     class Meta:
         unique_together = (('punter', 'entitlement'),)
+
 
 class Entitlement(models.Model):
     punters = models.ManyToManyField(Punter, related_name='entitlements', through=EntitlementDetail)
@@ -324,6 +344,7 @@ class Entitlement(models.Model):
             return False
 
         return True
+
     valid.boolean = True
 
     @property
@@ -352,6 +373,7 @@ class Entitlement(models.Model):
         return u"{} ({})".format(
             self.name, 'valid' if self.valid() else 'invalid'
         )
+
 
 class Ticket(models.Model):
     STATUS = Choices('live', 'void', 'refunded')
@@ -414,6 +436,33 @@ class Ticket(models.Model):
                 entitlement_detail.save(update_fields=['remaining_uses'])
 
         return self
+
+    def ticket_position_in_showing(self):
+        ev = self.ticket_type.event
+        return Ticket.objects.filter(ticket_type__event=ev, id__lte=self.id).count()
+
+    def printed_id(self):
+        allowed_chars = string.digits + string.letters
+
+        ev_name = self.ticket_type.event.name
+        random_title_char_pos = None
+        while random_title_char_pos is None or ev_name[random_title_char_pos] not in allowed_chars:
+            random_title_char_pos = random.randint(0, len(ev_name) - 1)
+        random_title_char = ev_name[random_title_char_pos].upper()
+
+        return (
+                   "%(ticket_id)d/%(ticket_number)d-%(random_title_char_pos)d%(random_title_char)s%(film_day)02d-" +
+                   "%(film_word_count)s-" +
+                   "%(film_char_count)d"
+               ) % {
+                   'ticket_id': self.id,
+                   'random_title_char': random_title_char,
+                   'random_title_char_pos': random_title_char_pos + 1, # humans don't like to 0-index
+                   'film_day': self.ticket_type.event.start_time.day,
+                   'film_word_count': ''.join([str(len(word)) for word in self.ticket_type.event.name.split()]),
+                   'film_char_count': len(self.ticket_type.event.name.split()),
+                   'ticket_number': self.ticket_position_in_showing()
+               }
 
     @transaction.atomic
     def refund(self):

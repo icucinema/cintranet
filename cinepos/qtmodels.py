@@ -1,4 +1,5 @@
 from PyQt5 import QtCore
+from ticketing import models
 
 __author__ = 'lukegb'
 
@@ -6,13 +7,18 @@ __author__ = 'lukegb'
 class EventsModel(QtCore.QAbstractListModel):
     NAME_ROLE = QtCore.Qt.UserRole + 1
     EVENT_ID_ROLE = QtCore.Qt.UserRole + 2
+    SOLD_TICKETS_ROLE = QtCore.Qt.UserRole + 3
 
     def __init__(self, events, parent=None):
         super(EventsModel, self).__init__(parent)
         self._data = list(events)
 
         # register keys
-        keys = {EventsModel.NAME_ROLE: 'name', EventsModel.EVENT_ID_ROLE: 'eventId'}
+        keys = {
+            EventsModel.NAME_ROLE: 'name',
+            EventsModel.EVENT_ID_ROLE: 'eventId',
+            EventsModel.SOLD_TICKETS_ROLE: 'soldTickets'
+        }
         self._role_names = keys
 
     def roleNames(self):
@@ -34,8 +40,18 @@ class EventsModel(QtCore.QAbstractListModel):
             return event.name
         elif role == EventsModel.EVENT_ID_ROLE:
             return str(event.id)
+        elif role == EventsModel.SOLD_TICKETS_ROLE:
+            return int(models.Ticket.objects.filter(ticket_type__event=event, status='live').count())
         else:
             return None
+
+    def refresh(self):
+        p = QtCore.QModelIndex()
+        self.beginRemoveRows(p, 0, len(self._data) - 1)
+        self.endRemoveRows()
+        self.beginInsertRows(p, 0, len(self._data) - 1)
+        self.endInsertRows()
+
 
 class SearchingEventsModel(EventsModel):
     def __init__(self, base_qs, *args, **kwargs):
@@ -51,6 +67,7 @@ class SearchingEventsModel(EventsModel):
         self._data = self._base_qs.filter(**kwargs)
         self.beginInsertRows(p, 0, len(self._data) - 1)
         self.endInsertRows()
+
 
 class EditableEventsModel(EventsModel):
     def __init__(self, base_qs, *args, **kwargs):
@@ -113,6 +130,7 @@ class TicketTypesModel(QtCore.QAbstractListModel):
     SALEPRICE_ROLE = QtCore.Qt.UserRole + 5
     APPLICABLE_ROLE = QtCore.Qt.UserRole + 6
     EVENT_NAME_ROLE = QtCore.Qt.UserRole + 7
+    SOLD_TICKETS_ROLE = QtCore.Qt.UserRole + 8
 
     def __init__(self, parent=None):
         super(TicketTypesModel, self).__init__(parent)
@@ -122,14 +140,15 @@ class TicketTypesModel(QtCore.QAbstractListModel):
         ]
         self.next_colour = 0
         self.available_items = []
-        self.comped_ticket_types = []
+        self.cheapest_items = []
+        self.punter = None
 
         # register keys
         keys = {
             TicketTypesModel.NAME_ROLE: 'name', TicketTypesModel.BGCOLOR_ROLE: 'bgColor',
             TicketTypesModel.EVENT_ID_ROLE: 'eventId', TicketTypesModel.TICKET_ID_ROLE: 'ticketId',
             TicketTypesModel.SALEPRICE_ROLE: 'salePrice', TicketTypesModel.APPLICABLE_ROLE: 'applicable',
-            TicketTypesModel.EVENT_NAME_ROLE: 'eventName'
+            TicketTypesModel.EVENT_NAME_ROLE: 'eventName', TicketTypesModel.SOLD_TICKETS_ROLE: 'soldTickets'
         }
         self._role_names = keys
 
@@ -140,6 +159,9 @@ class TicketTypesModel(QtCore.QAbstractListModel):
         return len(self._data)
 
     def data(self, index, role):
+        if len(self.cheapest_items) == 0:
+            self.update_cheapest_items()
+
         if not index.isValid():
             return None
 
@@ -164,6 +186,8 @@ class TicketTypesModel(QtCore.QAbstractListModel):
             return self.get_suggested_opacity(ticketType)
         elif role == TicketTypesModel.EVENT_NAME_ROLE:
             return ticketType.event.name
+        elif role == TicketTypesModel.SOLD_TICKETS_ROLE:
+            return int(ticketType.tickets.filter(status='live').count())
         else:
             return None
 
@@ -177,30 +201,33 @@ class TicketTypesModel(QtCore.QAbstractListModel):
     def get_suggested_opacity(self, item):
         if item not in self.available_items and not item.general_availability:
             return 0.2
-        elif item not in self.get_cheapest_items():
+        elif item not in self.cheapest_items:
             return 0.55
         return 1
 
-    def get_cheapest_items(self):
+    def update_cheapest_items(self):
         cheapest_price = None
         possible_items = []
         for item in self._data:
             if item not in self.available_items and not item.general_availability:
                 continue
             possible_items.append(item)
-            if cheapest_price is None or item.sale_price < cheapest_price:
-                cheapest_price = item.sale_price
+            sp = item.sale_price_for_punter(self.punter)
+            if cheapest_price is None or sp < cheapest_price:
+                cheapest_price = sp
 
         cheapest_options = []
         for item in possible_items:
-            if item.sale_price == cheapest_price:
+            if item.sale_price_for_punter(self.punter) == cheapest_price:
                 cheapest_options.append(item)
-        return cheapest_options
+        self.cheapest_items = cheapest_options
 
     def set_punter(self, punter, available_items=[]):
         self.punter = punter
         self.available_items = available_items
+        self.update_cheapest_items()
         self.refresh()
+
 
 class FilterableTicketTypesModel(TicketTypesModel):
     def __init__(self, ticket_types, parent=None):
@@ -216,7 +243,9 @@ class FilterableTicketTypesModel(TicketTypesModel):
         new_data = [d for d in self._core_data if str(d.event.id) == event_id]
         self.beginInsertRows(p, 0, len(new_data) - 1)
         self._data = new_data
+        self.update_cheapest_items()
         self.endInsertRows()
+
 
 class EditableTicketTypesModel(TicketTypesModel):
     def __init__(self, parent=None):
@@ -227,12 +256,14 @@ class EditableTicketTypesModel(TicketTypesModel):
         p = QtCore.QModelIndex()
         self.beginInsertRows(p, len(self._data), len(self._data))
         self._data.append(item)
+        self.update_cheapest_items()
         self.endInsertRows()
 
     def remove_item(self, idx):
         p = QtCore.QModelIndex()
         self.beginRemoveRows(p, idx, idx)
         self._data.pop(idx)
+        self.update_cheapest_items()
         self.endRemoveRows()
 
     def empty(self):
@@ -240,6 +271,7 @@ class EditableTicketTypesModel(TicketTypesModel):
         self.beginRemoveRows(p, 0, len(self._data))
         d = self._data
         self._data = []
+        self.update_cheapest_items()
         self.endRemoveRows()
         return d
 

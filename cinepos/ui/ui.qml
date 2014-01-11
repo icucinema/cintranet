@@ -22,6 +22,7 @@ Rectangle {
     signal ticketDetailsRequested(string ticketId);
     signal voidTicketRequested(string ticketId);
     signal refundTicketRequested(string ticketId);
+    signal salesReportRequested();
 
     function doCardLink() {
         openDialog('cardlink', cardLinkDialog);
@@ -52,7 +53,7 @@ Rectangle {
         wrapper.focus = true;
     }
     function openDialog(stateName, obj) {
-        if (stateName == '') return closeOpenDialogs();
+        if (stateName === '') return closeOpenDialogs();
         if (!obj) {
             if (!dialogRegistry[stateName]) return;
             obj = dialogRegistry[stateName].obj;
@@ -68,7 +69,7 @@ Rectangle {
         shadeRectangle.enabled = true;
         currentDialog = obj;
 
-        if (!!dialogRegistry[stateName].onOpen) {
+        if (!!dialogRegistry[stateName] && !!dialogRegistry[stateName].onOpen) {
             dialogRegistry[stateName].onOpen();
         }
     }
@@ -95,6 +96,9 @@ Rectangle {
                                           'onOpen': function() {
                                               eventSelectDialog.focusDateInput();
                                           }
+                                      },
+                                      'managementmenu': {
+                                          'obj': managementMenuDialog
                                       },
                                       'viewticket': {
                                           'obj': viewTicketDialog,
@@ -459,10 +463,11 @@ Rectangle {
                 x: 5
                 TicketButton {
                     id: ticketButton
-                    text: name + "<br><i>" + formatCost(salePrice) + "</i>"
+                    text: name + " (" + soldTickets +")<br><i>" + formatCost(salePrice) + "</i>"
                     height: ticketSelectionView.cellHeight
                     width: ticketSelectionView.cellWidth
                     backgroundColor: bgColor
+                    border.color: (applicable < 0.3) ? "red" : ((applicable < 0.8) ? "orange" : "green");
                     opacity: applicable
                     onClicked: {
                         if (!parent.opacity) return;
@@ -550,7 +555,7 @@ Rectangle {
                             anchors.verticalCenter: parent.verticalCenter
                             horizontalAlignment: Text.AlignHCenter
                             id: itemText
-                            text: name
+                            text: name + '<br>' + soldTickets + ' sold'
                             wrapMode: Text.WordWrap
                             width: parent.width
                             font.italic: currentEvent == eventId
@@ -719,6 +724,11 @@ Rectangle {
             viewTicketDialog.focusTicketNumberInput();
             viewTicketDialog.clearTicketNumberInput();
         }
+        onPrintReportClicked: {
+            closeOpenDialogs();
+            salesReportRequested();
+        }
+
         enabled: false
     }
 

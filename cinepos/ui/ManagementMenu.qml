@@ -12,6 +12,7 @@ Rectangle {
 
     signal closeClicked
     signal viewTicketClicked
+    signal printReportClicked
 
     Text {
         id: titleLabel
@@ -51,6 +52,21 @@ Rectangle {
         anchors.leftMargin: 20
         onClicked: {
             viewTicketClicked()
+        }
+    }
+
+    Button {
+        id: printReportButton
+        text: "Print sales report"
+        heightPadding: 5
+        anchors.right: parent.right
+        anchors.rightMargin: 20
+        anchors.left: parent.left
+        anchors.leftMargin: 20
+        anchors.top: viewTicketButton.bottom
+        anchors.topMargin: 10
+        onClicked: {
+            printReportClicked()
         }
     }
 }
