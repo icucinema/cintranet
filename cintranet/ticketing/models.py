@@ -225,7 +225,7 @@ class BaseTicketInfo(models.Model):
     )
     box_office_return_price = models.DecimalField(
         decimal_places=2, max_digits=5,
-        help_text="""This is the ex-VAT price reported on the BOR for each film!"""
+        help_text="""This is the inc-VAT (gross) price reported on the BOR for *each* film"""
     )
     name = models.CharField(max_length=128, null=False, blank=False)
 
