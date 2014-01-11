@@ -13,14 +13,22 @@ Rectangle {
     signal removedFromCart(int index);
     signal changedCurrentEvent(string eventId);
     signal saleCompleted();
-    signal saleVoided();
+    signal saleNoSaled();
     signal cardLinkPerformed(string cid);
     signal cardLinkCancelled();
+    signal updateEventListing(string date);
+    signal eventsSelected();
+    signal selectEventsCancelled();
 
     function doCardLink() {
-        wrapper.state = 'shaded';
+        wrapper.state = 'cardlink';
         cardLinkDialog.focusCidInput();
         cardLinkDialog.clearCidInput();
+    }
+    function doSelectEvents() {
+        wrapper.state = 'eventselect';
+        eventSelectDialog.resetDateInput();
+        eventSelectDialog.focusDateInput();
     }
 
     function unknownPunterQueried() {
@@ -88,11 +96,6 @@ Rectangle {
     }
     function totalCost(model) {
         return model.totalPrice();
-        var c = 0;
-        for (var i = 0; i < model.count; i++) {
-            c += model.get(i).salePrice;
-        }
-        return c;
     }
 
     Rectangle {
@@ -148,14 +151,14 @@ Rectangle {
         anchors.rightMargin: 0
 
         Button {
-            id: voidButton
-            text: "Void"
+            id: noSaleButton
+            text: "No Sale"
             anchors.left: parent.left
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 8
             anchors.leftMargin: 10
             onClicked: {
-                saleVoided();
+                saleNoSaled();
                 cartLabel.refresh();
             }
         }
@@ -196,6 +199,7 @@ Rectangle {
             anchors.topMargin: 50
             anchors.fill: parent
             model: cartModel
+            clip: true
             delegate: Item {
                 x: 5
                 height: 40
@@ -282,6 +286,7 @@ Rectangle {
                 anchors.fill: parent
                 onClicked: {
                     // TODO
+                    wrapper.state = 'eventselect'
                 }
             }
 
@@ -369,6 +374,7 @@ Rectangle {
             anchors.top: parent.top
             anchors.topMargin: 50
             model: ticketSelectionModel
+            clip: true
             cellWidth: (parent.width / 2) - 20
             cellHeight: (parent.height / 2) - 80
             delegate: Item {
@@ -412,10 +418,20 @@ Rectangle {
             font.pixelSize: 22
             anchors.leftMargin: 10
         }
+        MouseArea {
+            id: eventsMouseArea
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: eventsLabel.height + 12
+            onClicked: {
+                doSelectEvents()
+            }
+        }
 
         ListView {
             id: eventsView
-            interactive: false
+            clip: true
             anchors.topMargin: 50
             anchors.bottomMargin: 50
             anchors.fill: parent
@@ -479,7 +495,7 @@ Rectangle {
     }
     states: [
         State {
-            name: "shaded"
+            name: "cardlink"
 
             PropertyChanges {
                 target: shadeRectangle
@@ -487,6 +503,18 @@ Rectangle {
             }
             PropertyChanges {
                 target: cardLinkDialog
+                opacity: 1
+            }
+        },
+        State {
+            name: "eventselect"
+
+            PropertyChanges {
+                target: shadeRectangle
+                opacity: 0.7
+            }
+            PropertyChanges {
+                target: eventSelectDialog
                 opacity: 1
             }
         }
@@ -518,6 +546,31 @@ Rectangle {
             wrapper.state = '';
             wrapper.focus = true;
             cardLinkCancelled()
+        }
+    }
+
+    EventSelectDialog {
+        id: eventSelectDialog
+        x: 0
+        y: 0
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
+        opacity: 0
+        searchModel: eventSearchModel
+        selectedModel: eventSelectedModel
+
+        onUpdateEventListing: {
+            wrapper.updateEventListing(date);
+        }
+        onCancelClicked: {
+            wrapper.state = '';
+            wrapper.focus = true;
+            selectEventsCancelled();
+        }
+        onConfirmClicked: {
+            wrapper.state = '';
+            wrapper.focus = true;
+            eventsSelected();
         }
     }
 }

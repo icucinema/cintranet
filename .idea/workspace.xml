@@ -2,13 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="70ae3a3a-fb0a-4f3c-a3c6-607d7b637c77" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cinepos/ui/TicketButton.qml" afterPath="$PROJECT_DIR$/cinepos/ui/TicketButton.qml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cintranet/ticketing/static/ticketing/js/TicketingApp.js" afterPath="$PROJECT_DIR$/cintranet/ticketing/static/ticketing/js/TicketingApp.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cintranet/ticketing/api_serializers.py" afterPath="$PROJECT_DIR$/cintranet/ticketing/api_serializers.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cintranet/ticketing/api_views.py" afterPath="$PROJECT_DIR$/cintranet/ticketing/api_views.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/cinepos/qtapp.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/cinepos/qtmodels.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cinepos/cinepos.py" afterPath="$PROJECT_DIR$/cinepos/cinepos.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cintranet/ticketing/models.py" afterPath="$PROJECT_DIR$/cintranet/ticketing/models.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cintranet/ticketing/static/ticketing/partials/punter.html" afterPath="$PROJECT_DIR$/cintranet/ticketing/static/ticketing/partials/punter.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cinepos/ui/ui.qml" afterPath="$PROJECT_DIR$/cinepos/ui/ui.qml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
@@ -88,13 +84,42 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cinepos.py" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="cinepos.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cinepos/cinepos.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="354" column="24" selection-start="12418" selection-end="12418" vertical-scroll-proportion="0.54545456" vertical-offset="4950" max-vertical-offset="5610">
+            <state line="5" column="21" selection-start="87" selection-end="87" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="165">
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="launch_cinepos.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/launch_cinepos.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="8" column="54" selection-start="247" selection-end="247" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="240">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="qtapp.py" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/cinepos/qtapp.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="48" column="69" selection-start="1780" selection-end="1780" vertical-scroll-proportion="0.78459823" vertical-offset="17" max-vertical-offset="3600">
+              <folding>
+                <element signature="e#0#15#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="qtmodels.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/cinepos/qtmodels.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="100" column="28" selection-start="2693" selection-end="2693" vertical-scroll-proportion="0.0" vertical-offset="1154" max-vertical-offset="3795">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -105,17 +130,6 @@
             <state line="142" column="44" selection-start="4308" selection-end="4308" vertical-scroll-proportion="0.0" vertical-offset="1635" max-vertical-offset="2310">
               <folding>
                 <element signature="e#0#38#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="urls.py" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cintranet/ticketing/urls.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="24" column="0" selection-start="1105" selection-end="1105" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="450">
-              <folding>
-                <element signature="e#0#51#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -151,15 +165,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="event.html" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cintranet/ticketing/static/ticketing/partials/event.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="3.75" vertical-offset="90" max-vertical-offset="1125">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="api_views.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cintranet/ticketing/api_views.py">
           <provider selected="true" editor-type-id="text-editor">
@@ -167,15 +172,6 @@
               <folding>
                 <element signature="e#0#44#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="api_urls.py" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cintranet/ticketing/api_urls.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="120">
-              <folding />
             </state>
           </provider>
         </entry>
@@ -201,6 +197,10 @@
         <option value="$PROJECT_DIR$/cintranet/ticketing/api_serializers.py" />
         <option value="$PROJECT_DIR$/cintranet/ticketing/models.py" />
         <option value="$PROJECT_DIR$/cinepos/cinepos.py" />
+        <option value="$PROJECT_DIR$/cinepos/launch.py" />
+        <option value="$PROJECT_DIR$/launch_cinepos.py" />
+        <option value="$PROJECT_DIR$/cinepos/qtmodels.py" />
+        <option value="$PROJECT_DIR$/cinepos/qtapp.py" />
       </list>
     </option>
   </component>
@@ -378,7 +378,7 @@
     <property name="MemberChooser.showClasses" value="true" />
     <property name="MemberChooser.copyJavadoc" value="false" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/cinepos" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/launch_cinepos.py" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.0" />
@@ -688,6 +688,7 @@
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32936078" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
@@ -698,10 +699,9 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2077381" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25568798" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25568798" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
@@ -823,11 +823,34 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/cinepos/qtmodels.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="100" column="28" selection-start="2693" selection-end="2693" vertical-scroll-proportion="0.0" vertical-offset="1154" max-vertical-offset="3795">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/cinepos/cinepos.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="354" column="24" selection-start="12418" selection-end="12418" vertical-scroll-proportion="0.54545456" vertical-offset="4950" max-vertical-offset="5610">
+        <state line="5" column="21" selection-start="87" selection-end="87" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="165">
           <folding>
             <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/launch_cinepos.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="8" column="54" selection-start="247" selection-end="247" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="240">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cinepos/qtapp.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="48" column="69" selection-start="1780" selection-end="1780" vertical-scroll-proportion="0.78459823" vertical-offset="17" max-vertical-offset="3600">
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
           </folding>
         </state>
       </provider>
