@@ -253,6 +253,22 @@ class TicketType(BaseTicketInfo):
             setattr(tt, prop, getattr(template, prop))
         return tt
 
+    def sale_price_for_punter(self, punter=None, at_time=None):
+        if punter is None:
+            return self.sale_price
+
+        # check if punter has any EntitlementDetails allowing this ticket at a discount
+        qs_filter = Q(entitlement__entitled_to=self) & EntitlementDetail.valid_q_obj(at_time=at_time)
+        if self.template is not None:
+            qs_filter = qs_filter | Q(entitlement__entitled_to=self.template)
+        qs_filter = qs_filter & Q(punter=punter, discount__gt=0)
+        qs = EntitlementDetail.objects.filter(qs_filter).order_by('-discount')
+
+        if qs:
+            # they do have a discounted rate EntitlementDetail!
+            return (1 - (float(qs[0].discount) / 100)) * self.sale_price
+        return self.sale_price
+
     def __unicode__(self):
         return u"{} for {}".format(self.name, self.event)
 
@@ -261,6 +277,7 @@ class EntitlementDetail(models.Model):
     entitlement = models.ForeignKey('Entitlement', related_name='entitlement_details')
     created_on = models.DateTimeField(null=False, blank=False, auto_now_add=True)
     remaining_uses = models.PositiveIntegerField(null=True, blank=True)
+    discount = models.PositiveSmallIntegerField(null=False, blank=False, default=0)
 
     def valid(self, at_time=None):
         if self.remaining_uses is not None and self.remaining_uses <= 0:

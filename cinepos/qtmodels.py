@@ -122,6 +122,7 @@ class TicketTypesModel(QtCore.QAbstractListModel):
         ]
         self.next_colour = 0
         self.available_items = []
+        self.comped_ticket_types = []
 
         # register keys
         keys = {
@@ -158,9 +159,8 @@ class TicketTypesModel(QtCore.QAbstractListModel):
         elif role == TicketTypesModel.TICKET_ID_ROLE:
             return str(ticketType.id)
         elif role == TicketTypesModel.SALEPRICE_ROLE:
-            return int(ticketType.sale_price * 100)
+            return int(ticketType.sale_price_for_punter(self.punter) * 100)
         elif role == TicketTypesModel.APPLICABLE_ROLE:
-            #return ticketType in self.get_cheapest_options()
             return self.get_suggested_opacity(ticketType)
         elif role == TicketTypesModel.EVENT_NAME_ROLE:
             return ticketType.event.name
@@ -175,7 +175,7 @@ class TicketTypesModel(QtCore.QAbstractListModel):
         self.endInsertRows()
 
     def get_suggested_opacity(self, item):
-        if item.pk not in self.available_items and not item.general_availability:
+        if item not in self.available_items and not item.general_availability:
             return 0.2
         elif item not in self.get_cheapest_items():
             return 0.55
@@ -185,7 +185,7 @@ class TicketTypesModel(QtCore.QAbstractListModel):
         cheapest_price = None
         possible_items = []
         for item in self._data:
-            if item.pk not in self.available_items and not item.general_availability:
+            if item not in self.available_items and not item.general_availability:
                 continue
             possible_items.append(item)
             if cheapest_price is None or item.sale_price < cheapest_price:
@@ -199,7 +199,7 @@ class TicketTypesModel(QtCore.QAbstractListModel):
 
     def set_punter(self, punter, available_items=[]):
         self.punter = punter
-        self.available_items = [a.pk for a in available_items]
+        self.available_items = available_items
         self.refresh()
 
 class FilterableTicketTypesModel(TicketTypesModel):

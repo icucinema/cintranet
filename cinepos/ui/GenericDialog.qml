@@ -3,7 +3,7 @@ import QtQuick 2.0
 Rectangle {
     id: borderRect
     width: 400
-    height: bodyLabel.anchors.topMargin + bodyLabel.height + bodyLabel.anchors.bottomMargin + 10
+    height: bodyLabel.anchors.topMargin + bodyLabel.height + 97
     //height: 300
 
     color: "#cccccc"
@@ -20,6 +20,10 @@ Rectangle {
                         });
 
     signal buttonClicked(string nextState);
+
+    Keys.onEnterPressed: buttonClicked(info.button_target)
+    Keys.onReturnPressed: buttonClicked(info.button_target)
+    Keys.onEscapePressed: buttonClicked(info.button_target)
 
     Text {
         id: titleLabel
@@ -52,8 +56,6 @@ Rectangle {
     Text {
         id: bodyLabel
         text: info.message
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 87
         anchors.top: parent.top
         anchors.topMargin: 67
         anchors.right: parent.right

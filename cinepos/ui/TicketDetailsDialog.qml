@@ -2,7 +2,7 @@ import QtQuick 2.0
 
 Rectangle {
     id: borderRect
-    width: 400
+    width: 600
     height: 400
 
     color: "#cccccc"
@@ -16,7 +16,19 @@ Rectangle {
     signal voidTicket(string ticketId);
     signal refundTicket(string ticketId);
 
-    property var ticketDetails: ({});
+    property var ticketDetails: ({
+                                     id: "",
+                                     status: "",
+                                     ticket_type: {
+                                         name: "",
+                                         event: {
+                                             name: "",
+                                             start_time: 0
+                                         }
+                                     },
+                                     punter: false,
+                                     entitlement: false
+                                 });
 
     function bitsWithPadding(bits, requiredLength, separator) {
         var newBits = [];
@@ -84,10 +96,13 @@ Rectangle {
 
     Grid {
         id: grid1
-        x: 24
-        y: 56
-        width: 353
         height: 216
+        anchors.right: parent.right
+        anchors.rightMargin: 20
+        anchors.left: parent.left
+        anchors.leftMargin: 20
+        anchors.top: parent.top
+        anchors.topMargin: 56
         spacing: 10
         columns: 2
 
@@ -149,6 +164,7 @@ Rectangle {
             font.pixelSize: 16
             text: ticketDetails.ticket_type.event.name
             wrapMode: Text.WordWrap
+            clip: true
         }
 
         Text {
@@ -178,9 +194,10 @@ Rectangle {
             id: punterNameInfo
             height: 20
             font.pixelSize: 16
-            text: ticketDetails.punter.name
+            text: (!!ticketDetails.punter) ? ticketDetails.punter.name : ""
             visible: (!!ticketDetails.punter)
             wrapMode: Text.WordWrap
+            clip: true
         }
 
         Text {
@@ -195,9 +212,10 @@ Rectangle {
             id: entitlementNameInfo
             height: 20
             font.pixelSize: 16
-            text: ticketDetails.entitlement.name
+            text: (!!ticketDetails.entitlement) ? ticketDetails.entitlement.name : ""
             visible: (!!ticketDetails.entitlement)
             wrapMode: Text.WordWrap
+            clip: true
         }
 
     }

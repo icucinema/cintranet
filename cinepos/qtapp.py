@@ -2,7 +2,7 @@
 
 import datetime
 
-from PyQt5 import QtWidgets, QtQuick, QtCore
+from PyQt5 import QtWidgets, QtQuick, QtCore, QtGui
 from ticketing import models, api_serializers
 from django.db.models import Q
 from django.utils.timezone import now
@@ -34,7 +34,7 @@ def flatten_to_dict(pd):
     return d
 
 class CineposApplication(QtWidgets.QApplication):
-    def __init__(self, args, view_location='ui/ui.qml', full_screen=False):
+    def __init__(self, args, view_location='ui/ui.qml', full_screen=False, window_title='CinePoS', window_icon=None):
         super(CineposApplication, self).__init__(args)
 
         nownow = now()
@@ -46,6 +46,8 @@ class CineposApplication(QtWidgets.QApplication):
         self.view_location = view_location
         self.current_punter = None
         self.full_screen = full_screen
+        self.window_title = window_title
+        self.window_icon = window_icon
 
         self.setup_event_select_models()
         self.setup_models()
@@ -81,6 +83,9 @@ class CineposApplication(QtWidgets.QApplication):
 
     def setup_view(self):
         self.view = QtQuick.QQuickView()
+        self.view.setTitle(self.window_title)
+        if self.window_icon is not None:
+            self.view.setIcon(QtGui.QIcon(self.window_icon))
         self.view.setResizeMode(self.view.SizeRootObjectToView)
         self.context = self.view.rootContext()
 
@@ -122,7 +127,7 @@ class CineposApplication(QtWidgets.QApplication):
         if self.full_screen:
             self.view.showFullScreen()
         else:
-            self.view.show()
+            self.view.showMaximized()
 
     def set_punter(self, punter):
         self.current_punter = punter
@@ -138,6 +143,7 @@ class CineposApplication(QtWidgets.QApplication):
             available_items = []
         else:
             available_items = punter.available_tickets(events=models.Event.objects.filter(id__in=self.event_ids))
+
         self.tickettypes_model.set_punter(punter, available_items)
         self.cart_model.set_punter(punter, available_items)
 
@@ -202,12 +208,6 @@ class CineposApplication(QtWidgets.QApplication):
         self.set_punter(None)
 
     def on_sale_no_saled(self):
-        self.show_dialog(
-            type_='error',
-            title='Ticket not found',
-            message='A ticket with the ID {} could not be found.',
-            button='OK', button_target='viewticket'
-        )
         self.cart_model.empty()
         self.set_punter(None)
 

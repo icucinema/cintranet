@@ -25,16 +25,13 @@ Rectangle {
 
     function doCardLink() {
         openDialog('cardlink', cardLinkDialog);
-        cardLinkDialog.focusCidInput();
         cardLinkDialog.clearCidInput();
     }
     function doSelectEvents() {
         openDialog('eventselect', eventSelectDialog);
         eventSelectDialog.resetDateInput();
-        eventSelectDialog.focusDateInput();
     }
     function ticketDetailsRetrieved(ticketDetails) {
-        console.log(ticketDetails);
         openDialog('ticketdetails', ticketDetailsDialog);
         ticketDetailsDialog.ticketDetails = ticketDetails;
     }
@@ -57,7 +54,8 @@ Rectangle {
     function openDialog(stateName, obj) {
         if (stateName == '') return closeOpenDialogs();
         if (!obj) {
-            obj = dialogRegistry[stateName];
+            if (!dialogRegistry[stateName]) return;
+            obj = dialogRegistry[stateName].obj;
         }
         if (currentDialog) {
             currentDialog.enabled = false;
@@ -66,8 +64,13 @@ Rectangle {
         wrapper.state = stateName;
         wrapper.focus = false;
         obj.enabled = true;
+        obj.focus = true;
         shadeRectangle.enabled = true;
         currentDialog = obj;
+
+        if (!!dialogRegistry[stateName].onOpen) {
+            dialogRegistry[stateName].onOpen();
+        }
     }
     function showDialog(dialogInfo) {
         genericDialog.info = dialogInfo;
@@ -75,11 +78,30 @@ Rectangle {
     }
 
     property var dialogRegistry: ({
-                                      'genericdialog': genericDialog,
-                                      'ticketdetails': ticketDetailsDialog,
-                                      'cardlink': cardLinkDialog,
-                                      'eventselect': eventSelectDialog,
-                                      'viewticket': viewTicketDialog
+                                      'genericdialog': {
+                                          'obj': genericDialog,
+                                      },
+                                      'ticketdetails': {
+                                          'obj': ticketDetailsDialog,
+                                      },
+                                      'cardlink': {
+                                          'obj': cardLinkDialog,
+                                          'onOpen': function() {
+                                              cardLinkDialog.focusCidInput();
+                                          }
+                                      },
+                                      'eventselect': {
+                                          'obj': eventSelectDialog,
+                                          'onOpen': function() {
+                                              eventSelectDialog.focusDateInput();
+                                          }
+                                      },
+                                      'viewticket': {
+                                          'obj': viewTicketDialog,
+                                          'onOpen': function() {
+                                              viewTicketDialog.focusTicketNumberInput();
+                                          }
+                                      }
                                   })
 
     property variant currentDialog;
