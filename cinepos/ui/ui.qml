@@ -21,12 +21,12 @@ Rectangle {
     signal selectEventsCancelled();
 
     function doCardLink() {
-        wrapper.state = 'cardlink';
+        openDialog('cardlink', cardLinkDialog);
         cardLinkDialog.focusCidInput();
         cardLinkDialog.clearCidInput();
     }
     function doSelectEvents() {
-        wrapper.state = 'eventselect';
+        openDialog('eventselect', eventSelectDialog);
         eventSelectDialog.resetDateInput();
         eventSelectDialog.focusDateInput();
     }
@@ -34,10 +34,26 @@ Rectangle {
     function unknownPunterQueried() {
         customerWrapperBlink.start();
     }
-
     function setCurrentEvent(newCE) {
         currentEvent = newCE;
     }
+    function closeOpenDialogs() {
+        shadeRectangle.enabled = false;
+        if (currentDialog) {
+            currentDialog.enabled = false;
+        }
+
+        wrapper.state = '';
+        wrapper.focus = true;
+    }
+    function openDialog(stateName, obj) {
+        wrapper.state = stateName;
+        wrapper.focus = false;
+        obj.enabled = true;
+        shadeRectangle.enabled = true;
+        currentDialog = obj;
+    }
+    property variant currentDialog;
 
     Keys.onPressed: {
         if (event.key == Qt.Key_Backspace) {
@@ -120,6 +136,14 @@ Rectangle {
             sourceSize.height: 57
             sourceSize.width: 266
             source: "logocrop.png"
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    if (wrapper.state !== '') return;
+                    openDialog('managementmenu', managementMenuDialog)
+                }
+            }
         }
 
         Text {
@@ -153,6 +177,8 @@ Rectangle {
         Button {
             id: noSaleButton
             text: "No Sale"
+            widthPadding: 10
+            heightPadding: 30
             anchors.left: parent.left
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 8
@@ -165,6 +191,7 @@ Rectangle {
         Button {
             id: saleButton
             text: "Confirm"
+            heightPadding: 30
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 8
@@ -195,7 +222,7 @@ Rectangle {
             anchors.rightMargin: 10
             anchors.leftMargin: 10
             x: 5
-            anchors.bottomMargin: 50
+            anchors.bottomMargin: 80
             anchors.topMargin: 50
             anchors.fill: parent
             model: cartModel
@@ -286,7 +313,6 @@ Rectangle {
                 anchors.fill: parent
                 onClicked: {
                     // TODO
-                    wrapper.state = 'eventselect'
                 }
             }
 
@@ -492,6 +518,13 @@ Rectangle {
         color: "#ffffff"
         anchors.topMargin: 60
         opacity: 0
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                return
+            }
+        }
     }
     states: [
         State {
@@ -517,6 +550,42 @@ Rectangle {
                 target: eventSelectDialog
                 opacity: 1
             }
+        },
+        State {
+            name: "managementmenu"
+
+            PropertyChanges {
+                target: shadeRectangle
+                opacity: 0.7
+            }
+            PropertyChanges {
+                target: managementMenuDialog
+                opacity: 1
+            }
+        },
+        State {
+            name: "viewticket"
+
+            PropertyChanges {
+                target: shadeRectangle
+                opacity: 0.7
+            }
+            PropertyChanges {
+                target: viewTicketDialog
+                opacity: 1
+            }
+        },
+        State {
+            name: "ticketdetails"
+
+            PropertyChanges {
+                target: shadeRectangle
+                opacity: 0.7
+            }
+            PropertyChanges {
+                target: ticketDetailsDialog
+                opacity: 1
+            }
         }
     ]
 
@@ -538,15 +607,14 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         opacity: 0
         onLinkClicked: {
-            wrapper.state = '';
-            wrapper.focus = true;
+            closeOpenDialogs()
             cardLinkPerformed(cid)
         }
         onCancelClicked: {
-            wrapper.state = '';
-            wrapper.focus = true;
+            closeOpenDialogs()
             cardLinkCancelled()
         }
+        enabled: false
     }
 
     EventSelectDialog {
@@ -563,14 +631,66 @@ Rectangle {
             wrapper.updateEventListing(date);
         }
         onCancelClicked: {
-            wrapper.state = '';
-            wrapper.focus = true;
+            closeOpenDialogs()
             selectEventsCancelled();
         }
         onConfirmClicked: {
-            wrapper.state = '';
-            wrapper.focus = true;
+            closeOpenDialogs()
             eventsSelected();
         }
+        enabled: false
+    }
+
+    ManagementMenu {
+        id: managementMenuDialog
+        x: 0
+        y: 0
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
+        opacity: 0
+        onCloseClicked: {
+            closeOpenDialogs()
+        }
+        onViewTicketClicked: {
+            openDialog('viewticket', viewTicketDialog);
+            viewTicketDialog.focusTicketNumberInput();
+            viewTicketDialog.clearTicketNumberInput();
+        }
+        enabled: false
+    }
+
+    ViewTicketDialog {
+        id: viewTicketDialog
+        x: 0
+        y: 0
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
+        opacity: 0
+        onCloseClicked: {
+            closeOpenDialogs();
+        }
+        onOpenTicket: {
+            // TODO
+            //openDialog('ticketdetails', ticketDetailsDialog);
+        }
+        enabled: false
+    }
+
+    TicketDetailsDialog {
+        id: ticketDetailsDialog
+        x: 0
+        y: 0
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
+        opacity: 0
+        onCloseClicked: {
+            closeOpenDialogs();
+        }
+        onBackClicked: {
+            openDialog('viewticket', viewTicketDialog);
+            viewTicketDialog.focusTicketNumberInput();
+            viewTicketDialog.clearTicketNumberInput();
+        }
+        enabled: false
     }
 }

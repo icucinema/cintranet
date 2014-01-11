@@ -10,7 +10,7 @@ from .qtmodels import EventsModel, FilterableTicketTypesModel, EditableTicketTyp
 __author__ = 'lukegb'
 
 back_range = datetime.timedelta(minutes=60)
-forward_range = datetime.timedelta(minutes=6*60)
+forward_range = datetime.timedelta(minutes=12*60)
 
 class CineposApplication(QtWidgets.QApplication):
     def __init__(self, args, view_location='ui/ui.qml', full_screen=False):
@@ -70,6 +70,7 @@ class CineposApplication(QtWidgets.QApplication):
         self.context.setContextProperty('cartModel', self.cart_model)
         self.context.setContextProperty('eventSearchModel', self.event_search_model)
         self.context.setContextProperty('eventSelectedModel', self.event_select_model)
+        self.context.setContextProperty('ticketDetailsModel', self.ticket_search_model)
 
 
         self.context.setContextProperty('unknownPunter', False)
