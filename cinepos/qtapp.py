@@ -171,7 +171,7 @@ class CineposApplication(QtWidgets.QApplication):
 
     def on_new_punter_identifier(self, identifier_type, identifier):
         if identifier_type != 'unknown':
-            punter = models.Punter.objects.get(**{
+            qs = models.Punter.objects.filter(**{
                 identifier_type: identifier
             })
         else:
@@ -179,18 +179,18 @@ class CineposApplication(QtWidgets.QApplication):
                 Q(cid=identifier) | Q(name__iexact=identifier) | Q(login__iexact=identifier) | Q(
                     email__iexact=identifier)
             )
-            try:
-                punter = qs.get()
-            except models.Punter.DoesNotExist:
-                print "Could not find punter by", identifier_type, ":", identifier
-                if identifier_type == 'swipecard':
-                    self.get_cid_for_swipecard(identifier)
-                else:
-                    self.unknown_punter()
-                self.set_punter(None)
-                return
-
-            except models.Punter.MultipleObjectsReturned:
+        try:
+            punter = qs.get()
+        except models.Punter.DoesNotExist:
+            print "Could not find punter by", identifier_type, ":", identifier
+            if identifier_type == 'swipecard':
+                self.get_cid_for_swipecard(identifier)
+            else:
+                self.unknown_punter()
+            self.set_punter(None)
+            return
+        except models.Punter.MultipleObjectsReturned:
+            if identifier_type == 'unknown':
                 ordering = ['cid', 'name__iexact', 'login__iexact', 'email__iexact']
                 for thing in ordering:
                     try:
@@ -201,8 +201,8 @@ class CineposApplication(QtWidgets.QApplication):
                     except models.Punter.MultipleObjectsReturned:
                         print "WTF? Too many punters with", thing, "as", identifier, "!"
                         return
-                else:
-                    return
+            else:
+                return
 
         print "Found punter by", identifier_type, ":", identifier
         print punter
