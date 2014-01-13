@@ -14,6 +14,7 @@ from model_utils.managers import InheritanceManager
 from model_utils.fields import StatusField
 from model_utils import Choices
 from tmdbsimple import TMDB
+import requests
 
 Q = models.Q
 F = models.F
@@ -74,12 +75,13 @@ class Punter(models.Model):
 
 
 class Film(models.Model):
-    tmdb_id = models.PositiveIntegerField(null=True)
+    tmdb_id = models.PositiveIntegerField(null=True, blank=True)
     imdb_id = models.CharField(max_length=20, null=False, blank=True, default="")
 
     name = models.CharField(max_length=256, default="", null=False, blank=False)
     sorting_name = models.CharField(max_length=256, null=False, blank=False)
     description = models.TextField(default="", null=False, blank=True)
+    certificate = models.CharField(max_length=12, default="", null=False, blank=False)
 
     poster_url = models.URLField(blank=True, null=False, default="")
 
@@ -118,17 +120,30 @@ class Film(models.Model):
 
     def update_tmdb(self):
         movie = tmdb.Movies(self.tmdb_id)
-        movie.info()
+        movie.info({'append_to_response': 'releases'})
         self.name = movie.title
         self.description = movie.overview
         self.imdb_id = movie.imdb_id
         self.poster_url = tmdb_construct_poster(movie.poster_path)
+        for country in movie.releases['countries']:
+            if country['iso_3166_1'] == 'GB':
+                self.certificate = country['certification']
 
     def update_imdb(self):
-        pass
+        resp = requests.get("http://www.imdb.com/title/{}/parentalguide".format(self.imdb_id))
+        if resp.status_code != 200:
+            return
+        txt = resp.text
+        n = txt.find('<h5>Certification:</h5>')
+        txt = txt[n:]
+        n = txt.find('</div>')
+        txt = txt[:n]
+        n = txt.find('">UK:') + len('">UK:')
+        p = txt.find('</a>', n)
+        self.certificate = txt[n:p]
 
     def update_remote(self):
-        if self.tmdb_id is not None:
+        if self.tmdb_id is not None and self.tmdb_id != 0:
             self.update_tmdb()
         if self.imdb_id != "":
             self.update_imdb()
@@ -187,7 +202,14 @@ class Showing(models.Model):
         return ret
 
     class Meta:
-        ordering = ['-start_time']
+        ordering = ['start_time']
+
+
+class BoxOfficeReturn(models.Model):
+    raw_data = models.TextField(null=False, blank=False)
+    pdf_file = models.FileField(upload_to='box_office_returns', null=False, blank=False)
+    film = models.ForeignKey(Film, related_name='box_office_returns')
+    start_time = models.DateField(null=False, blank=False)
 
 
 class EventType(models.Model):

@@ -106,7 +106,7 @@ class FilmSerializer(ModelSerializer):
     class Meta:
         model = models.Film
         fields = (
-            'url', 'id', 'name', 'description', 'tmdb_id', 'imdb_id', 'poster_url'
+            'url', 'id', 'name', 'description', 'tmdb_id', 'imdb_id', 'poster_url', 'certificate'
         )
 
 class ShowingSerializer(ModelSerializer):
@@ -118,6 +118,38 @@ class ShowingSerializer(ModelSerializer):
         fields = (
             'url', 'id', 'film', 'primary_event', 'start_time', 'film_title'
         )
+
+class BoxOfficeReturnSerializer(ModelSerializer):
+    class Meta:
+        model = models.BoxOfficeReturn
+        fields = (
+            'id', 'film', 'start_time', 'pdf_file'
+        )
+
+class GroupedShowing(object):
+    def __init__(self, start_time, showings):
+        self.start_time = start_time
+        self.showings = showings
+
+        self.box_office_return = None
+        if len(self.showings) > 0:
+            self.box_office_return = self.showings[0].film.box_office_returns.filter(start_time=start_time).first()
+
+class GroupedShowingSerializer(serializers.Serializer):
+    start_time = serializers.DateField()
+    showings = ShowingSerializer(many=True)
+    box_office_return = BoxOfficeReturnSerializer()
+
+    def __init__(self, instance, *args, **kwargs):
+        from bor_generator import get_show_week
+        # right, process it!
+        datasets = {}
+        for obj in instance:
+            datasets.setdefault(get_show_week(obj.start_time), []).append(obj)
+        
+        munged_dataset = sorted((GroupedShowing(start_time, objs) for start_time, objs in datasets.iteritems()), key=lambda z: z.start_time)
+
+        super(GroupedShowingSerializer, self).__init__(munged_dataset, *args, **kwargs)
 
 class EventSerializer(ModelSerializer):
     class Meta:

@@ -1,0 +1,88 @@
+<div ng-if="loading"><h2>Loading...</h2></div>
+<div ng-if="!loading">
+	<h2>Creating BOR</h2>
+	<h3>For <em>{{ film.name }}</em></h3>
+	<h3>For show week beginning <em>{{ show_week|date:"EEE d MMM yyyy" }}</em></h3>
+	<div ng-if="stage == 'cleanData'">
+		<!-- here we go! -->
+		<table>
+			<tbody>
+				<tr>
+					<td>Attendance</td>
+					<td>{{ deepTotalAttr(bor_data, 'sold_tickets') }}</td>
+				</tr>
+				<tr>
+					<td>Gross Take</td>
+					<td>{{ (deepTotalAttr(bor_data, 'take') / 100)|currency:"£" }}</td>
+				</tr>
+				<tr>
+					<td>Refunded</td>
+					<td>{{ (deepTotalAttr(bor_data, 'refund') / 100)|currency:"£" }}</td>
+				</tr>
+			</tbody>
+		</table>
+		
+		<tabs>
+			<tab tab-title="Preview">
+				<table>
+					<thead>
+						<tr>
+							<th></th>
+							<th>Tickets</th>
+							<th>Gross Take</th>
+							<th>Refunded</th>
+						</tr>
+					</thead>
+					<tbody ng-repeat="(date, tickets) in bor_data">
+						<tr class="bor-showing-header">
+							<td>{{ date|date:"short" }}</td>
+							<td>{{ totalAttr(tickets, 'sold_tickets') }}</td>
+							<td>{{ (totalAttr(tickets, 'take') / 100)|currency:"£" }}</td>
+							<td>{{ (totalAttr(tickets, 'refund') / 100)|currency:"£" }}</td>
+						</tr>
+						<tr ng-repeat="ticket in tickets" class="bor-showing-row">
+							<td>{{ ticket.ticket_type }} @ {{ (ticket.price/100)|currency:"£" }}</td>
+							<td>{{ ticket.sold_tickets }}</td>
+							<td>{{ (ticket.take/100)|currency:"£" }}</td>
+							<td>{{ (ticket.refund/100)|currency:"£" }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</tab>
+			<tab tab-title="Edit">
+				<table>
+					<thead>
+						<tr>
+							<th></th>
+							<th>Tickets</th>
+							<th>Gross Take</th>
+							<th>Refunded</th>
+						</tr>
+					</thead>
+					<tbody ng-repeat="(date, tickets) in bor_data">
+						<tr class="bor-showing-header">
+							<td>{{ date|date:"short" }}</td>
+							<td>{{ totalAttr(tickets, 'sold_tickets') }}</td>
+							<td>{{ (totalAttr(tickets, 'take') / 100)|currency:"£" }}</td>
+							<td>{{ (totalAttr(tickets, 'refund') / 100)|currency:"£" }}</td>
+						</tr>
+						<tr ng-repeat="ticket in tickets" class="bor-showing-row">
+							<td class="field"><input type="text" class="narrow text input" ng-model="ticket.ticket_type"> @ <input type="number" class="narrow text input" ng-model="ticket.price" ng-change="ticket.take = ticket.price * ticket.sold_tickets">p</td>
+							<td class="field"><input type="number" class="text input" ng-model="ticket.sold_tickets" ng-change="ticket.take = ticket.price * ticket.sold_tickets" min="0"></td>
+							<td>{{ (ticket.take/100)|currency:"£" }}</td>
+							<td class="field"><input type="number" class="text input" ng-model="ticket.refund"></td>
+						</tr>
+					</tbody>
+				</table>
+			</tab>
+			<tab tab-title="View draft">
+				<div class="medium primary btn"><a href ng-click="regenerateDraftBor()">(Re)create draft BOR</a></div>
+				<div class="medium primary btn" style="float:right;" ng-show="canSubmitForm()"><a href ng-click="submitBor()">Submit BOR</a></div>
+				<br>
+				<div id="draft_bor_iframe_wrapper" style="width: 100%; height: 100%;">
+					<iframe seamless style="width: 100%; height: 100%;" id="draft_bor_iframe"></iframe>
+				</div>
+			</tab>
+		</tabs>
+	</div>
+</div>

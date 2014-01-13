@@ -56,3 +56,15 @@ ul.bulleted-list > li {
 	right: 0;
 	margin-bottom: -18px;
 }
+
+.bor-showing-header td {
+	font-weight: bold;
+}
+
+.bor-showing-row td:first-child {
+	font-weight: normal;
+}
+.bor-showing-row td:first-child:before {
+	content: " - ";
+	font-weight: bold;
+}

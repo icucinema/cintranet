@@ -35,10 +35,15 @@
 				<li><div class="btn danger norm" ng-click="cancelEdit()"><a href>Cancel</a></div></li>
 			</ul>
 		</tab>
-		<tab tab-title="Showings ({{ showings.length }})">
+		<tab tab-title="Showings ({{ showing_weeks.expanded_length }})">
 			<ul class="bulleted-list">
-				<li ng-repeat="showing in showings">
-					<a href="#/showings/{{ showing.id }}">{{ showing.start_time|date:"medium" }}</a>
+				<li ng-repeat="showing_week in showing_weeks">
+					Week beginning: {{ showing_week.start_time|date:"EEE d MMM yyyy" }} (<a ng-href="{{ mediaify(showing_week.box_office_return.pdf_file) }}" ng-show="showing_week.box_office_return">download BOR</a><a ng-href="{{ createBorUrl(data, showing_week.start_time) }}" ng-hide="showing_week.box_office_return">create BOR</a>)
+					<ul class="bulleted-list">
+						<li ng-repeat="showing in showing_week.showings">
+							<a href="#/showings/{{ showing.id }}">{{ showing.start_time|date:"EEE d MMM yyyy H:mm" }}</a>
+						</li>
+					</ul>
 				</li>
 			</ul>
 		</tab>

@@ -63,6 +63,10 @@ app.config(['djurl', '$routeProvider', '$httpProvider', 'RestangularProvider', f
 			templateUrl: djurl.partial_root + 'film.html',
 			controller: 'FilmCtrl'
 		}).
+		when('/films/:id/createBor/:show_week', {
+			templateUrl: djurl.partial_root + 'createbor.html',
+			controller: 'BorWizardCtrl'
+		}).
 		when('/punters', {
 			templateUrl: djurl.partial_root + 'punters.html',
 			controller: 'PuntersCtrl'
@@ -262,6 +266,7 @@ app.controller('EventCtrl', function($rootScope, $scope, $routeParams, $location
 	};
 
 	$scope.filmUrl = function(film) {
+                if (!film) return '';
                 var filmId = film.split('/').reverse()[1];
 		return '#/films/' + filmId;
 	};
@@ -432,8 +437,14 @@ app.controller('FilmsCtrl', function($rootScope, $scope, $routeParams, $location
 		addType: 'tmdb'
 	};
 });
-app.controller('FilmCtrl', function($rootScope, $scope, $routeParams, $location, Restangular) {
+app.controller('FilmCtrl', function($rootScope, $scope, $routeParams, $location, Restangular, djurl) {
 	$rootScope.navName = 'films';
+
+	$scope.mediaify = function(url) {
+		if (!url) return;
+		if (url.length > 1 && url[0] == '/') url = url.substring(1);
+		return djurl.media_root + url;
+	}
 
 	$scope.editing = false;
 	$scope.loading = true;
@@ -446,7 +457,12 @@ app.controller('FilmCtrl', function($rootScope, $scope, $routeParams, $location,
 		$scope.data = res;
 	});
 	film.getList('showings').then(function(res) {
-		$scope.showings = res;
+		$scope.showing_weeks = res;
+		var cnt = 0;
+		for (var i = 0; i < $scope.showing_weeks.length; i++) {
+			cnt += $scope.showing_weeks[i].showings.length;
+		}
+		res.expanded_length = cnt;
 	});
 
 	$scope.remoteUpdate = function() {
@@ -469,6 +485,10 @@ app.controller('FilmCtrl', function($rootScope, $scope, $routeParams, $location,
 		$scope.data = $scope.edit_data;
 		$scope.data.put();
 		$scope.editing = false;
+	};
+
+	$scope.createBorUrl = function(film, show_week_date) {
+		return '#/films/' + film.id + '/createBor/' + show_week_date;
 	};
 });
 app.controller('PuntersCtrl', function($rootScope, $scope, $routeParams, $location, Restangular) {
@@ -611,6 +631,111 @@ app.controller('PunterCtrl', function($rootScope, $scope, $routeParams, $locatio
 			ed[n] = ed.orig[n] = ed.edit[n];
 		}
 		ed.editing = false;
+	};
+});
+
+app.controller('BorWizardCtrl', function($rootScope, $scope, Restangular, $route, $routeParams, $q, djurl) {
+	$rootScope.navName = 'films';
+
+	$scope.loading = true;
+	$scope.stage = 'cleanData';
+	$scope.show_week = $routeParams.show_week;
+
+	var last_bor_data;
+	var film = Restangular.one('films', $routeParams.id);
+	$q.all(
+		film.get().then(function(res) {
+			$scope.film = res;
+		}),
+		film.customGET('bor-data/' + $scope.show_week).then(function(res) {
+			// now I need to de-Restangular this
+			var new_res = {};
+			for (var x in res) {
+				if (!res.hasOwnProperty(x)) continue;
+				var y = res[x];
+				if (!y || !y.length || y.apply || y.charAt) continue;
+				new_res[x] = y;
+			}
+			$scope.bor_data = new_res;
+			last_bor_data = null;
+		})
+	).then(function() {
+		$scope.loading = false;
+	});
+
+	$scope.totalAttr = function(arr, attr) {
+		var out = 0;
+		for (var i = 0; i < arr.length; i++) {
+			out += arr[i][attr];
+		}
+		return out;
+	};
+	$scope.deepTotalAttr = function(bor_data, attr) {
+		var out = 0;
+		for (var k in bor_data) {
+			if (!bor_data.hasOwnProperty(k)) continue;
+			out += $scope.totalAttr(bor_data[k], attr);
+		}
+		return out;
+	};
+
+	var getCsrfToken = function() {
+		var cookieBits = document.cookie.split(', ');
+		for (var i = 0; i < cookieBits.length; i++) {
+			var z = cookieBits[i].split('=');
+			if (z[0] !== 'csrftoken') continue;
+			var val = '';
+			for (var q = 1; q < z.length; q += 1) {
+				val += z[q];
+				if (q != (z.length - 1)) val += '=';
+			}
+			return val;
+		}
+	};
+	var csrftoken = getCsrfToken();
+
+	$scope.canSubmitForm = function() {
+		if (!last_bor_data) return false;
+		for (var k in last_bor_data) {
+			if (!last_bor_data.hasOwnProperty(k)) continue;
+			var v = last_bor_data[k];
+			for (var i = 0; i < v.length; i++) {
+				var x = v[i];
+				for (var q in x) {
+					if (!x.hasOwnProperty(q)) continue;
+					if (last_bor_data[k][i][q] != $scope.bor_data[k][i][q]) return false;
+				}
+			}
+		}
+		return true;
+	};
+
+	var sendIframeToUrl = function(target_url) {
+		var iframe = document.getElementById('draft_bor_iframe');
+		iframe.setAttribute('srcdoc', '<!DOCTYPE html><html><body><script type="text/json">' + JSON.stringify($scope.bor_data) + '</script><script>var s = document.querySelector("script[type=\'text/json\']");document.addEventListener("DOMContentLoaded", function() { var data = s.innerText, f = document.getElementById("getpdfform"), inp = document.getElementById("getpdfjson"); inp.value = data; f.submit(); });</script><form style="visibility: hidden;" action="' + target_url + '" id="getpdfform" method="POST"><input type="hidden" name="csrfmiddlewaretoken" value="' + csrftoken + '"><input type="hidden" id="getpdfjson" name="jsondata"></form></body></html>');
+	};
+	var fullScreenIframe = function() {
+		var iframeWrapper = document.getElementById('draft_bor_iframe_wrapper');
+		var prefixes = ['r', 'webkitR', 'mozR'];
+		for (var i = 0; i < prefixes.length; i++) {
+			if (!iframeWrapper[prefixes[i] + 'equestFullScreen']) continue;
+			iframeWrapper[prefixes[i] + 'equestFullScreen']()
+		}
+	};
+
+	$scope.regenerateDraftBor = function() {
+		var target_url = djurl.api_root + 'films/' + $routeParams.id + '/generate-bor-pdf/' + $routeParams.show_week + '/';
+		sendIframeToUrl(target_url);
+		fullScreenIframe();
+		
+		last_bor_data = angular.copy($scope.bor_data);
+	};
+
+	$scope.submitBor = function() {
+		if (!$scope.canSubmitForm()) return;
+
+		var target_url = djurl.api_root + 'films/' + $routeParams.id + '/generate-bor-pdf/' + $routeParams.show_week + '/?save=true';
+		sendIframeToUrl(target_url);
 	};
 });
 

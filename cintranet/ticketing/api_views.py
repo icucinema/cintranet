@@ -90,7 +90,7 @@ class FilmViewSet(viewsets.ModelViewSet):
     @action(methods=['GET'])
     def showings(self, request, pk=None):
         film = self.get_object()
-        return serialize_queryset(self, api_serializers.ShowingSerializer, film.showings.all())
+        return serialize_queryset(self, api_serializers.GroupedShowingSerializer, film.showings.all())
 
 class ShowingViewSet(viewsets.ModelViewSet):
     queryset = models.Showing.objects.all()
