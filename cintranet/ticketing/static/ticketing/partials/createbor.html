@@ -57,6 +57,7 @@
 							<th>Tickets</th>
 							<th>Gross Take</th>
 							<th>Refunded</th>
+							<th></th>
 						</tr>
 					</thead>
 					<tbody ng-repeat="(date, tickets) in bor_data">
@@ -65,12 +66,14 @@
 							<td>{{ totalAttr(tickets, 'sold_tickets') }}</td>
 							<td>{{ (totalAttr(tickets, 'take') / 100)|currency:"£" }}</td>
 							<td>{{ (totalAttr(tickets, 'refund') / 100)|currency:"£" }}</td>
+							<td><div class="success small button"><a href ng-click="addRow(tickets)">+</a></div></td>
 						</tr>
 						<tr ng-repeat="ticket in tickets" class="bor-showing-row">
 							<td class="field"><input type="text" class="narrow text input" ng-model="ticket.ticket_type"> @ <input type="number" class="narrow text input" ng-model="ticket.price" ng-change="ticket.take = ticket.price * ticket.sold_tickets">p</td>
 							<td class="field"><input type="number" class="text input" ng-model="ticket.sold_tickets" ng-change="ticket.take = ticket.price * ticket.sold_tickets" min="0"></td>
 							<td>{{ (ticket.take/100)|currency:"£" }}</td>
 							<td class="field"><input type="number" class="text input" ng-model="ticket.refund"></td>
+							<td><div class="danger small button"><a href ng-click="delRow(tickets, $index)">-</a></div></td>
 						</tr>
 					</tbody>
 				</table>

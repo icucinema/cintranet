@@ -678,6 +678,14 @@ app.controller('BorWizardCtrl', function($rootScope, $scope, Restangular, $route
 		}
 		return out;
 	};
+	$scope.addRow = function(arr) {
+		arr.push({
+			"sold_tickets": 0, "refund": 0, "ticket_type": "Adult", "price": 300, "take": 0, "refund_count": 0
+		});
+	};
+	$scope.delRow = function(wrapper, index) {
+		wrapper.split(index, 1);
+	};
 
 	var getCsrfToken = function() {
 		var cookieBits = document.cookie.split(', ');
