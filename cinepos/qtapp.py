@@ -226,12 +226,12 @@ class CineposApplication(QtGui.QGuiApplication):
     def on_sale_completed(self):
         data = self.cart_model.empty()
         total_cost = 0
-        for tickettype in data:
-            self.generate_ticket(tickettype)
-            total_cost += int(tickettype.sale_price_for_punter(self.current_punter) * 100)
         if total_cost > 0:
             print "Opening cash drawer!"
             self.hw_interface.cashdrawer.open()
+        for tickettype in data:
+            self.generate_ticket(tickettype)
+            total_cost += int(tickettype.sale_price_for_punter(self.current_punter) * 100)
         self.events_model.refresh()
         self.set_punter(None)
 
