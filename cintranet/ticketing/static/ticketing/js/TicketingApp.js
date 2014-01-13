@@ -653,7 +653,7 @@ app.controller('BorWizardCtrl', function($rootScope, $scope, Restangular, $route
 			for (var x in res) {
 				if (!res.hasOwnProperty(x)) continue;
 				var y = res[x];
-				if (!y || !y.length || y.apply || y.charAt) continue;
+				if (!y || (!y.length && y.length !== 0) || y.apply || y.charAt) continue;
 				new_res[x] = y;
 			}
 			$scope.bor_data = new_res;
