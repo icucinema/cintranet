@@ -32,6 +32,7 @@ Rectangle {
     }
 
     Text {
+        renderType: Text.NativeRendering
         id: titleLabel
         text: qsTr("View Ticket Details")
         anchors.top: parent.top
@@ -43,6 +44,7 @@ Rectangle {
     }
 
     TextInput {
+        renderType: TextInput.NativeRendering
         id: ticketNumberInput
         height: 20
         text: qsTr("")
@@ -62,6 +64,7 @@ Rectangle {
     }
 
     Text {
+        renderType: Text.NativeRendering
         id: ticketNumberLabel
         text: qsTr("Ticket Number:")
         anchors.top: parent.top

@@ -16,6 +16,7 @@ Rectangle {
     color: "#cccccc"
 
     Text {
+        renderType: Text.NativeRendering
         x: 5
         y: 3
         anchors.horizontalCenter: parent.horizontalCenter

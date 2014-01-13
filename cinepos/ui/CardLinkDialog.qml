@@ -21,6 +21,7 @@ Rectangle {
     }
 
     Text {
+        renderType: Text.NativeRendering
         id: titleLabel
         text: qsTr("Linking Card to CID")
         anchors.top: parent.top
@@ -32,6 +33,7 @@ Rectangle {
     }
 
     TextInput {
+        renderType: TextInput.NativeRendering
         id: cidInput
         height: 20
         text: qsTr("")
@@ -60,6 +62,7 @@ Rectangle {
     }
 
     Text {
+        renderType: Text.NativeRendering
         id: cidLabel
         text: qsTr("CID:")
         anchors.top: parent.top

@@ -26,6 +26,7 @@ Rectangle {
     Keys.onEscapePressed: buttonClicked(info.button_target)
 
     Text {
+        renderType: Text.NativeRendering
         id: titleLabel
         text: info.title
         anchors.top: parent.top
@@ -54,6 +55,7 @@ Rectangle {
     }
 
     Text {
+        renderType: Text.NativeRendering
         id: bodyLabel
         text: info.message
         anchors.top: parent.top

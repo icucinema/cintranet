@@ -29,6 +29,7 @@ Rectangle {
     signal confirmClicked();
 
     Text {
+        renderType: Text.NativeRendering
         id: titleLabel
         text: qsTr("Selecting Events")
         anchors.top: parent.top
@@ -40,6 +41,7 @@ Rectangle {
     }
 
     TextInput {
+        renderType: TextInput.NativeRendering
         id: dateInput
         height: 20
         text: qsTr("")
@@ -59,6 +61,7 @@ Rectangle {
     }
 
     Text {
+        renderType: Text.NativeRendering
         id: dateLabel
         text: qsTr("Date:")
         anchors.top: parent.top
@@ -122,6 +125,7 @@ Rectangle {
                 spacing: 10
 
                 Text {
+                    renderType: Text.NativeRendering
                     text: name
                     anchors.verticalCenter: parent.verticalCenter
                     font.bold: true
@@ -159,6 +163,7 @@ Rectangle {
                 spacing: 10
 
                 Text {
+                    renderType: Text.NativeRendering
                     text: name
                     anchors.verticalCenter: parent.verticalCenter
                     font.bold: true
@@ -177,14 +182,17 @@ Rectangle {
     }
 
     Text {
+        renderType: Text.NativeRendering
         id: resultsLabel
-        x: 20
+      
+         x: 20
         y: 122
         text: qsTr("Results:")
         font.pixelSize: 12
     }
 
     Text {
+        renderType: Text.NativeRendering
         id: selectedLabel
         x: parent.width / 2
         y: 122

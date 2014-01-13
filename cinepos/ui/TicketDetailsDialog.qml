@@ -53,6 +53,7 @@ Rectangle {
     }
 
     Text {
+        renderType: Text.NativeRendering
         id: titleLabel
         text: qsTr("Ticket Details")
         anchors.top: parent.top
@@ -108,6 +109,7 @@ Rectangle {
         columns: 2
 
         Text {
+            renderType: Text.NativeRendering
             id: ticketNumberLabel
             text: qsTr("Ticket Number: ")
             font.bold: true
@@ -115,6 +117,7 @@ Rectangle {
         }
 
         Text {
+            renderType: Text.NativeRendering
             id: ticketNumberInfo
             height: 20
             text: ticketDetails.id
@@ -123,6 +126,7 @@ Rectangle {
         }
 
         Text {
+            renderType: Text.NativeRendering
             id: ticketStatusLabel
             text: qsTr("Status: ")
             font.bold: true
@@ -130,6 +134,7 @@ Rectangle {
         }
 
         Text {
+            renderType: Text.NativeRendering
             id: ticketStatusInfo
             height: 20
             font.pixelSize: 16
@@ -138,6 +143,7 @@ Rectangle {
         }
 
         Text {
+            renderType: Text.NativeRendering
             id: ticketTypeLabel
             text: qsTr("Ticket Type: ")
             font.bold: true
@@ -145,6 +151,7 @@ Rectangle {
         }
 
         Text {
+            renderType: Text.NativeRendering
             id: ticketTypeInfo
             height: 20
             font.pixelSize: 16
@@ -153,6 +160,7 @@ Rectangle {
         }
 
         Text {
+            renderType: Text.NativeRendering
             id: eventNameLabel
             text: qsTr("Event Name: ")
             font.bold: true
@@ -160,6 +168,7 @@ Rectangle {
         }
 
         Text {
+            renderType: Text.NativeRendering
             id: eventNameInfo
             height: 20
             font.pixelSize: 16
@@ -169,6 +178,7 @@ Rectangle {
         }
 
         Text {
+            renderType: Text.NativeRendering
             id: eventDateLabel
             text: qsTr("Event Date: ")
             font.bold: true
@@ -176,6 +186,7 @@ Rectangle {
         }
 
         Text {
+            renderType: Text.NativeRendering
             id: eventDateInfo
             height: 20
             font.pixelSize: 16
@@ -184,6 +195,7 @@ Rectangle {
         }
 
         Text {
+            renderType: Text.NativeRendering
             id: punterNameLabel
             text: qsTr("Customer Name: ")
             font.bold: true
@@ -192,6 +204,7 @@ Rectangle {
         }
 
         Text {
+            renderType: Text.NativeRendering
             id: punterNameInfo
             height: 20
             font.pixelSize: 16
@@ -202,6 +215,7 @@ Rectangle {
         }
 
         Text {
+            renderType: Text.NativeRendering
             id: entitlementNameLabel
             text: qsTr("Used Entitlement: ")
             font.bold: true
@@ -210,6 +224,7 @@ Rectangle {
         }
 
         Text {
+            renderType: Text.NativeRendering
             id: entitlementNameInfo
             height: 20
             font.pixelSize: 16

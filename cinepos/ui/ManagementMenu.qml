@@ -15,6 +15,7 @@ Rectangle {
     signal printReportClicked
 
     Text {
+        renderType: Text.NativeRendering
         id: titleLabel
         text: qsTr("Management Menu")
         anchors.top: parent.top

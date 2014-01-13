@@ -25,6 +25,7 @@ Rectangle {
         border.width: 5
 
         Text {
+            renderType: Text.NativeRendering
             id: text1
             text: qsTr("Text")
             anchors.right: parent.right

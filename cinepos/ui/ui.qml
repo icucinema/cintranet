@@ -214,6 +214,7 @@ Rectangle {
         }
 
         Text {
+            renderType: Text.NativeRendering
             id: headerText
             x: 303
             y: 8
@@ -271,6 +272,7 @@ Rectangle {
         }
 
         Text {
+            renderType: Text.NativeRendering
             id: cartLabel
             text: "Cart (<i>" + formatCost(totalCost(cartView.model), true) + "</i>)"
             anchors.left: parent.left
@@ -307,10 +309,12 @@ Rectangle {
                         color: "#00000000"
 
                         Text {
+                            renderType: Text.NativeRendering
                             text: name + " (<i>" + formatCost(salePrice) + "</i>)"
                             id: nameTag
                         }
                         Text {
+                            renderType: Text.NativeRendering
                             id: eventNameTag
                             text: eventName
                             anchors.top: nameTag.bottom
@@ -326,6 +330,7 @@ Rectangle {
                             color: "red"
 
                             Text {
+                                renderType: Text.NativeRendering
                                 anchors.fill: parent
                                 text: "x"
                                 color: "white"
@@ -396,6 +401,7 @@ Rectangle {
                 anchors.leftMargin: 13
 
                 Text {
+                    renderType: Text.NativeRendering
                     color: "#ffffff"
                     id: customerLabel
                     text: qsTr("Customer:")
@@ -405,7 +411,8 @@ Rectangle {
                     font.pixelSize: 20
                 }
 
-                Text {
+                Text { 
+                    renderType: Text.NativeRendering
                     color: "#ffffff"
                     id: customerText
                     x: 0
@@ -417,7 +424,8 @@ Rectangle {
             }
         }
 
-        Text {
+        Text { 
+            renderType: Text.NativeRendering
             id: cidEntryText
             x: 472
             y: 22
@@ -445,6 +453,7 @@ Rectangle {
         anchors.topMargin: 60
 
         Text {
+            renderType: Text.NativeRendering
             id: availableTicketsLabel
             x: 504
             y: 6
@@ -504,6 +513,7 @@ Rectangle {
         anchors.bottom: parent.bottom
         anchors.top: parent.top
         Text {
+            renderType: Text.NativeRendering
             id: eventsLabel
             text: qsTr("Events")
             anchors.topMargin: 6
@@ -560,6 +570,7 @@ Rectangle {
                         radius: 5
 
                         Text {
+                            renderType: Text.NativeRendering
                             anchors.left: parent.left
                             anchors.right: parent.right
                             anchors.leftMargin: 7
