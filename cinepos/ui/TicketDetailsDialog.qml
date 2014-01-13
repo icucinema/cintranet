@@ -15,6 +15,7 @@ Rectangle {
 
     signal voidTicket(string ticketId);
     signal refundTicket(string ticketId);
+    signal reprintTicket(string ticketId);
 
     property var ticketDetails: ({
                                      id: "",
@@ -226,8 +227,8 @@ Rectangle {
         text: "Void"
         anchors.top: parent.top
         anchors.topMargin: 17
-        anchors.right: parent.right
-        anchors.rightMargin: 114
+        anchors.right: refundButton.left
+        anchors.rightMargin: 20
         onClicked: voidTicket(ticketDetails.id.toString())
         visible: (ticketDetails.status === 'live')
     }
@@ -238,9 +239,20 @@ Rectangle {
         text: "Refund"
         anchors.top: parent.top
         anchors.topMargin: 17
-        anchors.right: parent.right
+        anchors.right: reprintButton.left
         anchors.rightMargin: 20
         onClicked: refundTicket(ticketDetails.id.toString())
         visible: (ticketDetails.status === 'live')
+    }
+
+    Button {
+        id: reprintButton
+        x: 308
+        text: "Reprint"
+        anchors.top: parent.top
+        anchors.topMargin: 17
+        anchors.right: parent.right
+        anchors.rightMargin: 20
+        onClicked: reprintTicket(ticketDetails.id.toString())
     }
 }

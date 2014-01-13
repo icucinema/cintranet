@@ -44,6 +44,7 @@ class CineposApplication(QtWidgets.QApplication):
         super(CineposApplication, self).__init__(args)
 
         nownow = now()
+        self.now_date = nownow.replace(hour=0, minute=5, second=0)
         min_between = nownow - back_range
         max_between = nownow + forward_range
         self.event_ids = models.Event.objects.filter(
@@ -133,6 +134,7 @@ class CineposApplication(QtWidgets.QApplication):
         self.rootObj.ticketDetailsRequested.connect(self.on_ticket_details_requested)
         self.rootObj.voidTicketRequested.connect(self.on_void_ticket)
         self.rootObj.refundTicketRequested.connect(self.on_refund_ticket)
+        self.rootObj.reprintTicketRequested.connect(self.on_reprint_ticket)
         self.rootObj.salesReportRequested.connect(self.on_sales_report_requested)
 
         # final init!
@@ -161,7 +163,7 @@ class CineposApplication(QtWidgets.QApplication):
         if punter is None:
             available_items = []
         else:
-            available_items = punter.available_tickets(events=models.Event.objects.filter(id__in=self.event_ids))
+            available_items = punter.available_tickets(events=models.Event.objects.filter(id__in=self.event_ids), at_time=self.now_date)
 
         self.tickettypes_model.set_punter(punter, available_items)
         self.cart_model.set_punter(punter, available_items)
@@ -283,6 +285,7 @@ class CineposApplication(QtWidgets.QApplication):
     def on_update_event_listing(self, date):
         day_in_question = datetime.datetime.strptime(date, "%d/%m/%Y")
         next_day = day_in_question.replace(day=day_in_question.day + 1, hour=0, minute=0, second=0)
+        self.now_date = day_in_question.replace(hour=0, minute=5, second=0)
         self.event_search_model.refresh(start_time__gte=day_in_question, start_time__lt=next_day)
 
     def on_refund_ticket(self, ticket_id):
@@ -298,6 +301,19 @@ class CineposApplication(QtWidgets.QApplication):
                 message='Please refund £{}.'.format(ticket.ticket_type.sale_price),
                 button='OK', button_target='ticketdetails'
             )
+        except models.Ticket.DoesNotExist:
+            self.show_dialog(
+                type_='error',
+                title='Ticket not found',
+                message='A ticket with the ID {} could not be found.'.format(ticket_id),
+                button='OK', button_target='viewticket'
+            )
+
+    def on_reprint_ticket(self, ticket_id):
+        try:
+            ticket = models.Ticket.objects.get(pk=ticket_id)
+            ec = self.event_ids_to_char[ticket.ticket_type.event_id]
+            self.hw_interface.printer.print_ticket(ticket, ec)
         except models.Ticket.DoesNotExist:
             self.show_dialog(
                 type_='error',

@@ -22,6 +22,7 @@ Rectangle {
     signal ticketDetailsRequested(string ticketId);
     signal voidTicketRequested(string ticketId);
     signal refundTicketRequested(string ticketId);
+    signal reprintTicketRequested(string ticketId);
     signal salesReportRequested();
 
     function doCardLink() {
@@ -765,6 +766,7 @@ Rectangle {
         }
         onVoidTicket: voidTicketRequested(ticketId)
         onRefundTicket: refundTicketRequested(ticketId)
+        onReprintTicket: reprintTicketRequested(ticketId)
         enabled: false
     }
 

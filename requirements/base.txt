@@ -12,3 +12,5 @@ django-angular==0.3.0
 django-model-utils==1.5.0
 
 tmdbsimple==0.3.0
+reportlab==2.7
+python-dateutil==1.5
