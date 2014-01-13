@@ -4,12 +4,17 @@
 	<tabs>
 		<tab tab-title="Information">
 			<dl>
-				<div ng-show="data.description">
+				<div ng-show="data.description || editing">
 					<dt>Description</dt>
 						<dd ng-hide="editing">{{ data.description }}</dd>
 						<dd ng-show="editing" class="field"><textarea class="input textarea" ng-model="edit_data.description" rows="6"></textarea></dd>
 				</div>
-				<div ng-show="data.poster_url">
+				<div ng-show="data.certificate || editing">
+					<dt>Certificate</dt>
+						<dd ng-hide="editing">{{ data.certificate }}</dd>
+						<dd ng-show="editing" class="field"><input type="text" class="xxwide text input" ng-model="edit_data.certificate"></dd>
+				</div>
+				<div ng-show="data.poster_url || editing">
 					<dt>Poster</dt>
 						<dd ng-hide="editing"><a target="_blank" ng-href="{{ data.poster_url }}"><img ng-src="{{ data.poster_url }}" style="max-height:200px;width:auto;"></a></dd>
 						<dd ng-show="editing" class="field"><input type="url" class="xxwide url input" ng-model="edit_data.poster_url"></dd>
