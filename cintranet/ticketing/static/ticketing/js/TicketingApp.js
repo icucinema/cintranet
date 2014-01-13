@@ -684,7 +684,7 @@ app.controller('BorWizardCtrl', function($rootScope, $scope, Restangular, $route
 		});
 	};
 	$scope.delRow = function(wrapper, index) {
-		wrapper.split(index, 1);
+		wrapper.splice(index, 1);
 	};
 
 	var getCsrfToken = function() {
