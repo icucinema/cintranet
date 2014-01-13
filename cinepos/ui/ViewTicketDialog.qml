@@ -19,6 +19,17 @@ Rectangle {
     function clearTicketNumberInput() {
         ticketNumberInput.text = "";
     }
+    function cleanAndOpenTicket(tn) {
+        var o = "";
+        var lower = '0'.charCodeAt(0);
+        var upper = '9'.charCodeAt(0);
+        for (var i = 0; i < tn.length; i++) {
+            var cc = tn.charCodeAt(i);
+            if (cc >= lower && cc <= upper) o += tn[i];
+        }
+        console.log(o, cc, parseInt(0, 10));
+        openTicket(parseInt(o, 10));
+    }
 
     Text {
         id: titleLabel
@@ -46,8 +57,8 @@ Rectangle {
         cursorVisible: true
 
         Keys.onEscapePressed: cancelClicked()
-        Keys.onReturnPressed: openTicket(ticketNumberInput.text)
-        Keys.onEnterPressed: openTicket(ticketNumberInput.text)
+        Keys.onReturnPressed: cleanAndOpenTicket(ticketNumberInput.text)
+        Keys.onEnterPressed: cleanAndOpenTicket(ticketNumberInput.text)
     }
 
     Text {

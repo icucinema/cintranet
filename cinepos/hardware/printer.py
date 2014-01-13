@@ -29,7 +29,7 @@ class TicketFormatter(object):
             'number': str(ticket.ticket_position_in_showing()).zfill(3),
             'website': 'www.imperialcinema.co.uk',
             'tagline': 'Sponsored by KPMG',
-            'ticket_uid': 'icucinema://ticket/%d' % (ticket.pk),
+            'ticket_uid': '%d' % (ticket.pk),
         }
 
     def format_report(self, events):
