@@ -17,4 +17,5 @@ class SerialCashDrawer(CashDrawer):
 
 class PrinterSerialCashDrawer(SerialCashDrawer):
     def __init__(self, printer, **kwargs):
-        super(PrinterSerialCashDrawer, self).__init__(serial=printer.serial, **kwargs)
+        kwargs['serial'] = printer.serial
+        super(PrinterSerialCashDrawer, self).__init__(**kwargs)

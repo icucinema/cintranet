@@ -38,7 +38,7 @@ def flatten_to_dict(pd):
     return d
 
 
-class CineposApplication(QtWidgets.QApplication):
+class CineposApplication(QtGui.QGuiApplication):
     def __init__(self, args, hw_interface,
                  view_location='ui/ui.qml', full_screen=False, window_title='CinePoS', window_icon=None):
         super(CineposApplication, self).__init__(args)

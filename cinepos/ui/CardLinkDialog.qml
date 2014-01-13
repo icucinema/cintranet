@@ -48,6 +48,15 @@ Rectangle {
         Keys.onEscapePressed: cancelClicked()
         Keys.onReturnPressed: linkClicked(cidInput.text)
         Keys.onEnterPressed: linkClicked(cidInput.text)
+        Keys.onPressed: {
+            if ((event.modifiers & Qt.ControlModifier)) {
+                event.accepted = true;
+                return;
+            } else if (event.keyCode < 0x30 || event.keyCode > 0x39) {
+                event.accepted = true;
+                return;
+            }
+        }
     }
 
     Text {

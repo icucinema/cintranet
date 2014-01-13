@@ -7,6 +7,7 @@ from django.utils.timezone import now
 class TicketFormatter(object):
     def __init__(self, template_name, template_dir):
         template_name = template_name
+        print "Loading template", template_name
         with open(os.path.join(template_dir, template_name), 'rb') as f:
             self.template = string.Template(f.read())
 
@@ -27,7 +28,8 @@ class TicketFormatter(object):
             'id': ticket.printed_id(),
             'number': str(ticket.ticket_position_in_showing()).zfill(3),
             'website': 'www.imperialcinema.co.uk',
-            'tagline': 'Sponsored by KPMG'
+            'tagline': 'Sponsored by KPMG',
+            'ticket_uid': 'icucinema://ticket/%d' % (ticket.pk),
         }
 
     def format_report(self, events):

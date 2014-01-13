@@ -111,6 +111,7 @@ Rectangle {
 
     property variant currentDialog;
 
+    property bool gotSwipeWaitingForEnter : false;
     Keys.onPressed: {
         if (event.key == Qt.Key_Backspace) {
             if (currentBuffer.length == 0) return;
@@ -121,19 +122,23 @@ Rectangle {
 
         if (event.key > 0x01000000) return; // ignore weird keys
         var keyChar = String.fromCharCode(event.key);
-        if ((event.modifiers & Qt.ShiftModifier) === 0) {
+        if ((event.modifiers & Qt.ControlModifier) !== 0) {
+            event.accepted = true;
+            return; // ignore Ctrl-*
+        } else if ((event.modifiers & Qt.ShiftModifier) === 0) {
             keyChar = keyChar.toLowerCase();
         } else {
             keyChar = keyChar.toUpperCase();
         }
 
-        if (keyChar == "?") {
-            currentBuffer = "";
-        }
         if (keyChar == ";") {
-            console.log("Read card data:", currentBuffer + keyChar);
-            gotPunterIdentifier("swipecard", currentBuffer + keyChar);
             currentBuffer = "";
+            gotSwipeWaitingForEnter = false;
+        }
+        if (keyChar == "?") {
+            console.log("Read card data:", currentBuffer + keyChar);
+            gotSwipeWaitingForEnter = true;
+            currentBuffer += keyChar;
             event.accepted = true;
             return;
         }
@@ -142,14 +147,20 @@ Rectangle {
         event.accepted = true;
     }
     Keys.onReturnPressed: {
-        if (currentBuffer.length > 0)
+        if (currentBuffer.length > 0 && gotSwipeWaitingForEnter) {
+            gotPunterIdentifier("swipecard", currentBuffer);
+        } else if (currentBuffer.length > 0)
             gotPunterIdentifier("unknown", currentBuffer);
+        gotSwipeWaitingForEnter = false;
         currentBuffer = "";
         event.accepted = true;
     }
     Keys.onEnterPressed: {
-        if (currentBuffer.length > 0)
+        if (currentBuffer.length > 0 && gotSwipeWaitingForEnter) {
+            gotPunterIdentifier("swipecard", currentBuffer);
+        } else if (currentBuffer.length > 0)
             gotPunterIdentifier("unknown", currentBuffer);
+        gotSwipeWaitingForEnter = false;
         currentBuffer = "";
         event.accepted = true;
     }
