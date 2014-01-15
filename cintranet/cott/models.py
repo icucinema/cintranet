@@ -36,4 +36,4 @@ class SKUEntitlement(models.Model):
     uses_remaining = models.PositiveSmallIntegerField(null=True, blank=True)
 
     def __unicode__(self):
-        return u"SKU {} to Entitlement {}".format(self.sku.name, self.entitlement.name)
+        return u"SKU {}: {} to Entitlement {}".format(self.sku.product.name, self.sku.name, self.entitlement.name)
