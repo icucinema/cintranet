@@ -11,8 +11,6 @@ from cott import models
 from icunion import collate, eactivities
 import ticketing.models
 
-eactivities.DEBUG = True
-
 class Command(BaseCommand):
     args = 'eactivities_session_key'
     help = 'Imports all data from eActivities using the specified session key'
@@ -37,37 +35,41 @@ class Command(BaseCommand):
 
     def update_available_products(self):
         products = collate.get_product_info(self.eac, "https://www.imperialcollegeunion.org/shop/club-society-project-products/cinema-products/", 411)
-        for product in products.values():
-            p, _ = models.Product.objects.get_or_create(
-                eactivities_id=product['eactivities_id'],
-                defaults={
-                    'name': product['name'],
-                    'sold': product['purchased_count'],
-                    'initial': product.get('total_count', None)
-                }
-            )
-            p.name = product['name']
-            p.sold = product['purchased_count']
-            if 'total_count' in product.keys():
-                p.initial = product['total_count']
-            p.save()
-
-            for sku in product['skus']:
-                s, _ = models.SKU.objects.get_or_create(
-                    product=p,
-                    eactivities_id=sku['eactivities_id'],
+        with transaction.atomic():
+            models.Product.objects.all().update(currently_available=False)
+            for product in products.values():
+                p, _ = models.Product.objects.get_or_create(
+                    eactivities_id=product['eactivities_id'],
                     defaults={
-                        'name': sku['name'],
-                        'sold': sku['purchased_count'],
-                        'initial': sku.get('total_count', None)
+                        'name': product['name'],
+                        'sold': product['purchased_count'],
+                        'initial': product.get('total_count', None)
                     }
                 )
-                s.name = sku['name']
-                s.sold = sku['purchased_count']
-                if 'total_count' in sku.keys():
-                    s.initial = sku['total_count']
-                s.dirty = True
-                s.save()
+                p.name = product['name']
+                p.sold = product['purchased_count']
+                if 'total_count' in product.keys():
+                    p.initial = product['total_count']
+                if 'org_id' in product.keys():
+                    p.currently_available = True
+                p.save()
+    
+                for sku in product['skus']:
+                    s, _ = models.SKU.objects.get_or_create(
+                        product=p,
+                        eactivities_id=sku['eactivities_id'],
+                        defaults={
+                            'name': sku['name'],
+                            'sold': sku['purchased_count'],
+                            'initial': sku.get('total_count', None)
+                        }
+                    )
+                    s.name = sku['name']
+                    s.sold = sku['purchased_count']
+                    if 'total_count' in sku.keys():
+                        s.initial = sku['total_count']
+                    s.dirty = True
+                    s.save()
 
     def rescrape_products(self):
         sku_entitlements = models.SKUEntitlement.objects.filter(

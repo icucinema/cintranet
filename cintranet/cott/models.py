@@ -15,6 +15,7 @@ class Product(models.Model):
     name = models.CharField(max_length=256, null=False, blank=True)
     sold = models.PositiveSmallIntegerField(null=True, blank=True)
     initial = models.PositiveSmallIntegerField(null=True, blank=True)
+    currently_available = models.BooleanField(default=False, null=False)
 
     def __unicode__(self):
         return self.name
