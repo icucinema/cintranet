@@ -20,6 +20,12 @@ class Product(models.Model):
     def __unicode__(self):
         return self.name
 
+    @property
+    def union_url(self):
+        if not self.currently_available:
+            return "https://eactivities.union.ic.ac.uk/finance/income/shop"
+        return "http://www.imperialcollegeunion.org/node/{}".format(self.org_id)
+
 class SKU(models.Model):
     product = models.ForeignKey(Product)
     eactivities_id = models.PositiveSmallIntegerField(null=True, blank=True)

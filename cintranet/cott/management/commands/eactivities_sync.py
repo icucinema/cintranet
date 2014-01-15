@@ -52,6 +52,7 @@ class Command(BaseCommand):
                     p.initial = product['total_count']
                 if 'org_id' in product.keys():
                     p.currently_available = True
+                    p.org_id = product['org_id']
                 p.save()
     
                 for sku in product['skus']:

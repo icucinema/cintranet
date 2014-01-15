@@ -42,7 +42,7 @@ class IndexView(TemplateView):
 
 
             my_context['stats'].append({
-                'link': 'javascript:;',
+                'link': product.union_url,
                 'title': '{} sold'.format(product.name),
                 'value': sold,
                 'class': btn_class
