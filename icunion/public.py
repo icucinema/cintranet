@@ -34,10 +34,11 @@ class ProductList(object):
 
 
 class Product(object):
-    def __init__(self, id, name=None, initial=100):
+    def __init__(self, id, name=None, initial=100, skus=None):
         self.id = id
         self.name = name
         self.initial = initial
+        self.skus = skus
 
         self.remaining = None
 
@@ -45,6 +46,26 @@ class Product(object):
         if self.name is None:
             self.update_from_page()
         return self.name
+
+    def get_skus(self):
+        if self.skus is None:
+            self.update_from_page()
+        return self.skus
+
+    def update_from_page(self):
+        r = requests.get(self.url)
+        r.raise_for_status()
+        s = BeautifulSoup(r.text)
+        self.name = s.find("h2").text
+
+        sku_select = s.find("select")
+        if sku_select:
+            sku_attr_id = sku_select.attrs['id']
+            sku_attr_id = sku_attr_id[sku_attr_id.rfind('-')+1:]
+
+            self.skus = skus = []
+            for sku_option in s.find("select").find_all("option"):
+                skus.append(SKU(self, sku_attr_id, sku_option.attrs['value'], sku_option.text))
 
     def get_remaining(self):
         if self.remaining is not None:
@@ -64,7 +85,7 @@ class Product(object):
         # parse the response
         try:
             rj = r.json()
-            self.remaining = int(rj[fid])
+            self.remaining = int(rj[fid]) if rj[fid] is not None else None
             return self.remaining
         except:
             raise UnionResponseException("Invalid response from ICU: {}".format(r.text))
@@ -75,6 +96,39 @@ class Product(object):
     @property
     def url(self):
         return "https://www.imperialcollegeunion.org/node/{}".format(self.id)
+
+class SKU(object):
+    def __init__(self, product, attr_id, id, name, remaining=None):
+        self.product = product
+        self.attr_id = attr_id
+        self.id = id
+        self.name = name
+        self.remaining = remaining
+
+    def get_remaining(self):
+        if self.remaining is not None:
+            return self.remaining
+
+        # build the request body
+        fid = 'uc-product-add-to-cart-form-{}'.format(self.product.id)
+        body = {
+            'form_ids[]': fid,
+            'node_ids[]': self.product.id,
+            'attr_ids[]': '{}:{}:{}'.format(self.product.id, self.attr_id, self.id)
+        }
+
+        # send the request
+        r = requests.post(UNION_STOCK_QUERY_URL, data=body)
+        r.raise_for_status()
+
+        # parse the response
+        try:
+            rj = r.json()
+            self.remaining = int(rj[fid]) if rj[fid] is not None else None
+            return self.remaining
+        except:
+            raise UnionResponseException("Invalid response from ICU: {}".format(r.text))
+
 
 class Club(object):
     def __init__(self, id):

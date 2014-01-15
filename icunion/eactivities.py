@@ -1,7 +1,39 @@
+# -*- coding: utf-8 -*-
+
+import re
+from decimal import Decimal
+from io import BytesIO
+
 import requests
 from bs4 import BeautifulSoup
 
-DEBUG = True
+from . import encoding_utils
+
+DEBUG = False
+
+class MemberListMunger(object):
+    def __init__(self, itera, associate_pairs):
+        self.itera = itera
+        self.associate_pairs = associate_pairs
+
+    def __iter__(self):
+        return self
+
+    def munge(self, record):
+        rr = [record['First Name'], record['Last Name']]
+        record['Status'] = 'full'
+        naps = list(self.associate_pairs)
+        for rb in self.associate_pairs:
+            if rb[0] == rr[0] and rb[1] == rr[1]:
+                record['Status'] = 'life'
+                naps.remove(rb)
+                break
+        if len(self.associate_pairs) != len(naps):
+            self.associate_pairs = naps
+        return record
+
+    def next(self, *args, **kwargs):
+        return self.munge(self.itera.next(*args, **kwargs))
 
 class EActivities(object):
     def __init__(self, session_cookie, base_domain='eactivities.union.ic.ac.uk'):
@@ -44,13 +76,14 @@ class EActivities(object):
             new_kwargs[k] = v
         return new_kwargs
 
-    def _ajax_handler(self, **kwargs):
+    def _ajax_handler(self, stream=False, **kwargs):
         new_kwargs = self._munge_params(kwargs)
 
         if DEBUG:
             print "Fetching", self._ajax_handler_url, "with", new_kwargs
 
-        resp = self.r.post(self._ajax_handler_url, data=new_kwargs)
+        resp = self.r.post(self._ajax_handler_url, data=new_kwargs, stream=stream)
+        resp.encoding = 'utf8'
 
         if DEBUG:
             print "Got status code", resp.status_code, "with text", resp.text
@@ -61,18 +94,33 @@ class EActivities(object):
     def _data_handler_url(self):
         return "https://{}/common/data_handler.php".format(self.base_domain)
 
-    def _data_handler(self, **kwargs):
+    def _data_handler(self, stream=False, **kwargs):
         new_kwargs = self._munge_params(kwargs)
 
         if DEBUG:
             print "Fetching", self._data_handler_url, "with", new_kwargs
 
-        resp = self.r.get(self._data_handler_url, params=new_kwargs)
+        resp = self.r.get(self._data_handler_url, params=new_kwargs, stream=stream)
+        resp.encoding = 'utf8'
 
         if DEBUG:
             print "Got status code", resp.status_code
 
         return resp
+
+    def read_associate_members_list(self, mlxml):
+        s = BeautifulSoup(mlxml)
+        people = s.find_all(id=re.compile('^1083-'), alias='Name')
+        associates = []
+        for p in people:
+            p = p.text
+            if p.endswith(' - Life / Associate'):
+                z = p.find(' (')
+                if z == -1:
+                    z = p.find(' -')
+                pers = p[0:z].strip().split(', ')[::-1]
+                associates.append(pers)
+        return associates
 
     def fetch_members_report(self, club_id):
         # preselect the correct club
@@ -83,13 +131,14 @@ class EActivities(object):
 
         # click on the members tab...
         r = self._ajax_handler(ajax='activatetabs', navigate='395')
-        # todo: parse this to create a "proper" list of life/associate members
+        associates = self.read_associate_members_list(r.text)
         
         # and download the report
-        r = self._data_handler(id_='1700', type_='csv', name='Members_Report')
-        return r
+        r = self._data_handler(id_='1700', type_='csv', name='Members_Report', stream=True)
 
-    def fetch_purchase_report(self, club_id, product_id, product_type='product'):
+        return MemberListMunger(self.parse_report_csv(r.raw, flo=True), associates)
+
+    def _open_purchases_summary(self, club_id):
         # preselect the correct club
         self.r.get(self._purchase_report_start_url(club_id))
 
@@ -97,14 +146,57 @@ class EActivities(object):
         self._ajax_handler(ajax='setup', navigate='847')
 
         # click on 'purchases summary'
-        self._ajax_handler(ajax='activatetabs', navigate='1725')
+        return self._ajax_handler(ajax='activatetabs', navigate='1725')
+
+    def fetch_available_products(self, club_id):
+        ps = self._open_purchases_summary(club_id)
+
+        bs = BeautifulSoup(ps.content)
+        bs_prs = bs.find("enclosure", label="Purchase Reports").find_all("infotable")
+
+        prs = []
+        for bs_pr in bs_prs:
+            skus = []
+            pr = {
+                'name': bs_pr.attrs['title'],
+                'eactivities_id': int(bs_pr.attrs['event'].split("', '")[-1][:-3]),
+                'skus': skus,
+                'purchased_count': 0,
+                'total': Decimal(0),
+            }
+            bs_skus = bs_pr.find_all("infotablerow")
+            for bs_sku in bs_skus:
+                sku = {
+                    'name': bs_sku.find('infotablecell', alias="Product SKU Name").text,
+                    'eactivities_id': int(bs_sku.find('infotablecell', alias="Download").attrs['event'].split("', '")[-1][:-3]),
+                    'purchased_count': int(bs_sku.find('infotablecell', alias="Number Purchased").text),
+                    'total': Decimal(bs_sku.find('infotablecell', alias="Total Net Sale (£)").text),
+                    'per_item': Decimal(bs_sku.find('infotablecell', alias="Price inc. VAT/Unit (£)").text),
+                }
+                pr['purchased_count'] += sku['purchased_count']
+                pr['total'] += sku['total']
+                skus.append(sku)
+            prs.append(pr)
+        return prs
+
+    def fetch_purchase_report(self, club_id, product_id, product_type='product'):
+        self._open_purchases_summary(club_id)
 
         # and download the report
         if product_type == 'product':
-            r = self._data_handler(id_='1774', type_='csv', name='Purchase_Report', searchstr='ProductGroup', searchvalue=str(product_id))
+            r = self._data_handler(id_='1774', type_='csv', name='Purchase_Report', searchstr='ProductGroup', searchvalue=str(product_id), stream=True)
         elif product_type == 'sku':
-            r = self._data_handler(id_='1766', type_='csv', name='Purchase_Report', searchstr='ProductID', searchvalue=str(product_id))
-        return r
+            r = self._data_handler(id_='1766', type_='csv', name='Purchase_Report', searchstr='ProductID', searchvalue=str(product_id), stream=True)
+
+        return self.parse_report_csv(r.content, flo=False)
+
+    def parse_report_csv(self, report_data, flo=False):
+        if not flo:  # file-like object
+            c = BytesIO(report_data)
+        else:
+            c = report_data
+        
+        return encoding_utils.EActivitiesDictCsvReader(c)
 
 if __name__ == '__main__':
     import sys
@@ -113,6 +205,9 @@ if __name__ == '__main__':
         print "{} <eActivities session cookie>".format(sys.argv[0])
         sys.exit(1)
 
+    DEBUG = True
     e = EActivities(sys.argv[1])
-    print e.fetch_members_report(411).text
-    print e.fetch_purchase_report(411, 5219).text
+    #print list(e.fetch_members_report(411))
+    #print list(e.fetch_purchase_report(411, 21725, 'sku'))
+    from pprint import pprint
+    pprint(e.fetch_available_products(411))

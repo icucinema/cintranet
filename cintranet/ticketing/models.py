@@ -73,6 +73,50 @@ class Punter(models.Model):
             )
         )
 
+    @classmethod
+    def create_from_eactivities_csv(cls, csv_row, entitlements, note, write_to=lambda x: None):
+        # massage the data set
+        cid = csv_row['CID/Card Number']
+        name = u"{} {}".format(csv_row['First Name'], csv_row['Last Name'])
+        email = csv_row['Email']
+        username = csv_row['Login']
+        punter_type = csv_row.get('Status', 'full' if cid != '' else 'associate')
+
+        filter_on = {}
+        if cid != '' and not cid.startswith('AM-'):
+            filter_on = {'cid': cid}
+            write_to(u'Handling {} (CID: {}, username: {})'.format(name, cid, username))
+        else:
+            filter_on = {'name': name}
+            write_to(u'Handling {} (associate/life member)'.format(name))
+
+        obj, created = cls.objects.get_or_create(
+            defaults={
+                'cid': cid,
+                'name': name,
+                'comment': note,
+                'email': email,
+                'login': username,
+                'punter_type': punter_type
+            },
+            **filter_on
+        )
+
+        entitlements_created = 0
+        # check if entitlements already exist
+        for ent_id, ent_kwargs in entitlements.iteritems():
+            eobj, c = EntitlementDetail.objects.get_or_create(
+                punter=obj,
+                entitlement_id=ent_id,
+                defaults=ent_kwargs
+            )
+            if c:
+                entitlements_created += 1
+            if c and not created:
+                obj.comment += '\n' + note
+
+        return obj, created, entitlements_created
+
 
 class Film(models.Model):
     tmdb_id = models.PositiveIntegerField(null=True, blank=True)
