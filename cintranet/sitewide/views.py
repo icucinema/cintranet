@@ -23,7 +23,7 @@ class IndexView(TemplateView):
         }
         cm = cm.exclude(name__startswith='Cinema Membership ')
 
-        for product in products:
+        for product in cm:
             sold = product.sold
             initial = product.initial
 
