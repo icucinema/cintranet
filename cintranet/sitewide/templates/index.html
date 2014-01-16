@@ -101,7 +101,7 @@
 <div class="four columns">
   <div class="panel panel-primary">
     <div class="panel-heading">
-      <h3 class="panel-title">eCraptivities</h3>
+      <h3 class="panel-title">{% if user.is_authenticated %}eCraptivities{% else %}eActivities{% endif %}</h3>
     </div>
     <div class="panel-body">
       <p>The dreaded place where all things financial and bureaucratic happen...</p>
