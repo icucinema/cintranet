@@ -1,6 +1,6 @@
 from .base import *
 
-DEBUG = TEMPLATE_DEBUG = True#False
+DEBUG = TEMPLATE_DEBUG = False
 
 SECRET_KEY = get_env_variable("CINTRANET_SECRET_KEY")
 DATABASES['default'] = {
