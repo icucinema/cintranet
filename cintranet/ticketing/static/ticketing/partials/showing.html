@@ -1,11 +1,32 @@
 <div ng-show="loading"><h2>Loading...</h2></div>
 <div ng-hide="loading">
 	<h2><div class="btn primary large" ng-click="hBack()"><a href><i class="icon-arrow-left"></i></a></div> {{ data.film_title }}</span></h2>
-	<h3>Information</h3>
-	<dl>
-		<dt>Film</dt>
-			<dd><a href="{{ filmUrl(data.film) }}">{{ data.film_title }}</a></dd>
-		<dt>Start time</dt>
-			<dd>{{ data.start_time | date:"short" }}</dd>
-	</dl>
+	<tabs>
+		<tab tab-title="Information">
+			<dl>
+				<dt>Film</dt>
+					<dd><a href="{{ filmUrl(data.film) }}">{{ data.film_title }}</a></dd>
+				<dt>Start time</dt>
+					<dd>{{ data.start_time | date:"short" }}</dd>
+			</dl>
+		</tab>
+		<tab tab-title="Tickets ({{ tickets.length }})">
+			<table class="striped">
+				<thead>
+					<tr>
+						<th>Punter</th>
+						<th>Ticket type</th>
+						<th>Status</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="ticket in tickets">
+						<td><a ng-if="ticket.punter" href="{{ punterUrl(ticket.punter) }}">{{ ticket.punter.name }}</a><span ng-show="!ticket.punter">Guest</span></td>
+						<td>{{ ticket.ticket_type.name }}</td>
+						<td>{{ ticket.status }}</td>
+					</tr>
+				</tbody>
+			</table>
+		</tab>
+	</tabs>
 </div>

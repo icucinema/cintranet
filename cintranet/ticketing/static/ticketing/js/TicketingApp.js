@@ -352,10 +352,16 @@ app.controller('ShowingCtrl', function($rootScope, $scope, $routeParams, $locati
 		$scope.loading = false;
 		$scope.data = res;
 	});
+	showing.getList('tickets').then(function(res) {
+		$scope.tickets = res;
+	});
 
 	$scope.filmUrl = function(film) {
                 var filmId = film.split('/').reverse()[1];
 		return '#/films/' + filmId;
+	};
+	$scope.punterUrl = function(punter) {
+		return '#/punters/' + punter.id;
 	};
 });
 app.controller('FilmsCtrl', function($rootScope, $scope, $routeParams, $location, Restangular) {

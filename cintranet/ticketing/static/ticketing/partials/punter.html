@@ -83,19 +83,19 @@
 			</ul>
 		</tab>
 		<tab tab-title="Tickets ({{ tickets.length }})">
-            <ul class="bulleted-list">
-                <li ng-repeat="ticket in tickets">
-                    <h5 style="display: inline"><em>{{ ticket.ticket_type.name }}</em> for <em>{{ ticket.ticket_type.event.name }}</em> ({{ ticket.ticket_type.event.start_time|date:'EEE MMM d' }})</h5>
-                    <dl>
-                        <dt ng-show="ticket.entitlement">using entitlement:</dt>
-                            <dd ng-show="ticket.entitlement">{{ ticket.entitlement.name }}</dd>
-                        <dt>status:</dt>
-                            <dd>{{ ticket.status }}</dd>
-                        <dt>issued:</dt>
-                            <dd>{{ ticket.timestamp|date:'EEE MMM d @ H:mm:ss' }}</dd>
-                    </dl>
-                </li>
-            </ul>
+			<ul class="bulleted-list">
+				<li ng-repeat="ticket in tickets">
+				<h5 style="display: inline"><em>{{ ticket.ticket_type.name }}</em> for <em>{{ ticket.ticket_type.event.name }}</em> ({{ ticket.ticket_type.event.start_time|date:'EEE MMM d' }})</h5>
+					<dl>
+						<dt ng-show="ticket.entitlement">using entitlement:</dt>
+							<dd ng-show="ticket.entitlement">{{ ticket.entitlement.name }}</dd>
+						<dt>status:</dt>
+							<dd>{{ ticket.status }}</dd>
+						<dt>issued:</dt>
+							<dd>{{ ticket.timestamp|date:'EEE MMM d @ H:mm:ss' }}</dd>
+					</dl>
+				</li>
+			</ul>
 		</tab>
 	</tabs>
 </div>

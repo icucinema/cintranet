@@ -35,6 +35,8 @@ class TicketTypeViewSet(viewsets.ModelViewSet):
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = models.Ticket.objects.all()
     serializer_class = api_serializers.TicketSerializer
+    filter_fields = ('event',)
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
 
 class EventTypeViewSet(viewsets.ModelViewSet):
     queryset = models.EventType.objects.all()
@@ -44,7 +46,7 @@ class PunterViewSet(viewsets.ModelViewSet):
     queryset = models.Punter.objects.all()
     serializer_class = api_serializers.PunterSerializer
     filter_fields = ('punter_type',)
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('name', 'cid', 'login', 'email')
 
     def list(self, request, *args, **kwargs):
@@ -71,7 +73,7 @@ class EntitlementDetailViewSet(viewsets.ModelViewSet):
 class FilmViewSet(viewsets.ModelViewSet):
     queryset = models.Film.objects.all()
     serializer_class = api_serializers.FilmSerializer
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('name', 'description')
 
     @action()
@@ -93,15 +95,29 @@ class FilmViewSet(viewsets.ModelViewSet):
         return serialize_queryset(self, api_serializers.GroupedShowingSerializer, film.showings.all())
 
 class ShowingViewSet(viewsets.ModelViewSet):
-    queryset = models.Showing.objects.all()
+    queryset = models.Showing.objects.all().extra(select={'sorting_distance': '''
+CASE
+  WHEN
+      start_time > NOW()
+    THEN
+      start_time - NOW()
+    ELSE
+      INTERVAL '@ 1 year' + (NOW() - start_time)
+  END
+    '''}).order_by('sorting_distance')
     serializer_class = api_serializers.ShowingSerializer
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('film__name',)
+
+    @action(methods=['GET'])
+    def tickets(self, request, pk=None):
+        showing = self.get_object()
+        return serialize_queryset(self, api_serializers.ComprehensiveTicketSerializer, showing.tickets())
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset = models.Event.objects.all()
     serializer_class = api_serializers.EventSerializer
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('name',)
 
     @action(methods=['GET'])
