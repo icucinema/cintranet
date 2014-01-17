@@ -15,7 +15,7 @@
 }
 .fixed-nav {
 	position: fixed;
-	width: 300px;
+	width: 224px;
 }
 @media only screen and (max-width: 767px) {
 	/** unstick! **/
