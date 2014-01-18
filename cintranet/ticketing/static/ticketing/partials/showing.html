@@ -1,5 +1,5 @@
 <div ng-show="loading"><h2>Loading...</h2></div>
-<div ng-hide="loading">
+<div ng-if="!loading">
 	<h2><div class="btn primary large" ng-click="hBack()"><a href><i class="icon-arrow-left"></i></a></div> {{ data.film_title }}</span></h2>
 	<tabs>
 		<tab tab-title="Information">
@@ -11,6 +11,9 @@
 			</dl>
 		</tab>
 		<tab tab-title="Tickets ({{ tickets.length }})">
+			<input type="checkbox" ng-model="ticketsAutoRefresh" id="autorefresh" ng-change="ticketsAutoRefreshChange(ticketsAutoRefresh)">
+				<label for="autorefresh">Autorefresh?</label>
+
 			<table class="striped">
 				<thead>
 					<tr>

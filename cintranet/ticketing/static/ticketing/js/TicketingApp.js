@@ -340,7 +340,7 @@ app.controller('ShowingsCtrl', function($rootScope, $scope, $routeParams, $locat
 		return '#/showings/' + showing.id;
 	};
 });
-app.controller('ShowingCtrl', function($rootScope, $scope, $routeParams, $location, Restangular) {
+app.controller('ShowingCtrl', function($rootScope, $scope, $routeParams, $location, Restangular, $timeout) {
 	$rootScope.navName = 'showings';
 
 	$scope.loading = true;
@@ -363,6 +363,33 @@ app.controller('ShowingCtrl', function($rootScope, $scope, $routeParams, $locati
 	$scope.punterUrl = function(punter) {
 		return '#/punters/' + punter.id;
 	};
+
+	var ticketsAutoRefreshPromise;
+	var ticketsAutoRefresh;
+	var autoRefreshTickets = function() {
+		showing.getList('tickets').then(function(res) {
+			if (!ticketsAutoRefresh) return;
+			$scope.tickets = res;
+		}).then(function() {
+			if (!ticketsAutoRefresh) return;
+			ticketsAutoRefreshPromise = $timeout(autoRefreshTickets, 10000);
+		});
+	};
+
+	$scope.ticketsAutoRefreshChange = function(tar) {
+		ticketsAutoRefresh = tar;
+		if (!tar) {
+			$timeout.cancel(ticketsAutoRefreshPromise);
+		} else {
+			autoRefreshTickets();
+		}
+	};
+	ticketsAutoRefresh = $scope.ticketsAutoRefresh = false;
+
+	$scope.$on('$destroy', function() {
+		ticketsAutoRefresh = false;
+		$timeout.cancel(ticketsAutoRefreshPromise);
+	});
 });
 app.controller('FilmsCtrl', function($rootScope, $scope, $routeParams, $location, Restangular) {
 	$rootScope.navName = 'films';
@@ -495,6 +522,9 @@ app.controller('FilmCtrl', function($rootScope, $scope, $routeParams, $location,
 
 	$scope.createBorUrl = function(film, show_week_date) {
 		return '#/films/' + film.id + '/createBor/' + show_week_date;
+	};
+	$scope.borUrl = function(bor) {
+		return $scope.mediaify(bor.pdf_file+"/__fn/"+bor.fake_filename);
 	};
 });
 app.controller('PuntersCtrl', function($rootScope, $scope, $routeParams, $location, Restangular) {

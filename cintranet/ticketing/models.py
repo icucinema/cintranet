@@ -16,6 +16,7 @@ from model_utils import Choices
 from tmdbsimple import TMDB
 import requests
 
+ACCEPTABLE_CHARACTERS_RE = re.compile(r'[^abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\' \-_]+')
 Q = models.Q
 F = models.F
 tmdb = TMDB(settings.TMDB_API_KEY)
@@ -254,6 +255,16 @@ class BoxOfficeReturn(models.Model):
     pdf_file = models.FileField(upload_to='box_office_returns', null=False, blank=False)
     film = models.ForeignKey(Film, related_name='box_office_returns')
     start_time = models.DateField(null=False, blank=False)
+
+    @property
+    def fake_filename(self):
+        import bor_generator
+        show_week = self.start_time
+        show_week_str = show_week.strftime('%Y-%m-%d')
+
+        cleaned_film_name = ACCEPTABLE_CHARACTERS_RE.sub('', self.film.name)
+
+        return "{} {}.pdf".format(show_week_str, cleaned_film_name)
 
 
 class EventType(models.Model):

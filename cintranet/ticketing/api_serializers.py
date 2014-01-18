@@ -120,10 +120,12 @@ class ShowingSerializer(ModelSerializer):
         )
 
 class BoxOfficeReturnSerializer(ModelSerializer):
+    fake_filename = serializers.CharField()
+
     class Meta:
         model = models.BoxOfficeReturn
         fields = (
-            'id', 'film', 'start_time', 'pdf_file'
+            'id', 'film', 'start_time', 'pdf_file', 'fake_filename'
         )
 
 class GroupedShowing(object):

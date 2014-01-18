@@ -4,7 +4,7 @@ import json
 import pickle
 from io import BytesIO
 
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.conf import settings
 from django.views.generic import TemplateView
 from django.core.files import File
@@ -51,7 +51,7 @@ def generate_bor_draft_pdf(request, film_id, show_week):
 
     try:
         bor = models.BoxOfficeReturn.objects.get(film=film, start_time=start_date)
-        return HttpResponseRedirect(bor.pdf_file.url)
+        return HttpResponseRedirect(bor.pdf_file.url + "/__fn/" + bor.fake_filename)
     except models.BoxOfficeReturn.DoesNotExist:
         pass
 
@@ -84,11 +84,15 @@ def generate_bor_draft_pdf(request, film_id, show_week):
 
     bor_generator.generate_pdf(iobuf, film, show_week, request.user.get_full_name(), now(), data_data, watermark)
 
-
     if request.GET.get('save', None) == 'true':
         bor = models.BoxOfficeReturn(raw_data=request.POST['jsondata'], film=film, start_time=start_date)
         iobuf_djfile = File(iobuf)
         bor.pdf_file.save('BOR_{}-{}.pdf'.format(show_week_str, film.id), iobuf_djfile)  # FieldFile.save saves the model too
+        return render(request, "ticketing/bor_created.html", {
+            'bor': bor,
+            'film': film,
+            'bor_url': bor.pdf_file.url + "/__fn/" + bor.fake_filename
+        })
 
     pdf = iobuf.getvalue()
     iobuf.close()
