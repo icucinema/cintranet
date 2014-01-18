@@ -20,7 +20,12 @@ class IndexView(TemplateView):
     template_name = 'ticketing/index.html'
 
 def angular_partial_view(request, partial):
-    return HttpResponseRedirect(staticfiles_storage.url('ticketing/' + partial))
+
+    exit_url = staticfiles_storage.url('ticketing/' + partial)
+    if exit_url.startswith('http:'):
+        exit_url = 'https:' + exit_url[5:]
+
+    return HttpResponseRedirect(exit_url)
 
 def generate_bor_information(request, film_id, show_week):
     film = get_object_or_404(models.Film, pk=film_id)
