@@ -756,7 +756,7 @@ app.controller('BorWizardCtrl', function($rootScope, $scope, Restangular, $route
 
 	var sendIframeToUrl = function(target_url) {
 		var iframe = document.getElementById('draft_bor_iframe');
-		iframe.setAttribute('srcdoc', '<!DOCTYPE html><html><body><script type="text/json">' + JSON.stringify($scope.bor_data) + '</script><script>var s = document.querySelector("script[type=\'text/json\']");document.addEventListener("DOMContentLoaded", function() { var data = s.innerText, f = document.getElementById("getpdfform"), inp = document.getElementById("getpdfjson"); inp.value = data; f.submit(); });</script><form style="visibility: hidden;" action="' + target_url + '" id="getpdfform" method="POST"><input type="hidden" name="csrfmiddlewaretoken" value="' + csrftoken + '"><input type="hidden" id="getpdfjson" name="jsondata"></form></body></html>');
+		iframe.setAttribute('srcdoc', '<!DOCTYPE html><html><body><script type="text/json">' + JSON.stringify($scope.bor_data) + '</script><script>document.addEventListener("DOMContentLoaded", function() { var s = document.querySelector("script[type=\\\"text/json\\\"]");console.log(s, s.innerText);var data = s.textContent, f = document.getElementById("getpdfform"), inp = document.getElementById("getpdfjson"); inp.value = data; f.submit(); });</script><form style="visibility: hidden;" action="' + target_url + '" id="getpdfform" method="POST"><input type="hidden" name="csrfmiddlewaretoken" value="' + csrftoken + '"><input type="hidden" id="getpdfjson" name="jsondata"></form></body></html>');
 	};
 	var fullScreenIframe = function() {
 		var iframeWrapper = document.getElementById('draft_bor_iframe_wrapper');
