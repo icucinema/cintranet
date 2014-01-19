@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^$', sitewide.views.IndexView.as_view()),
+    url(r'remoteheader/^$', sitewide.views.RemoteHeaderView.as_view()),
 
     url(r'^user/', include('auth.urls', app_name='auth', namespace='auth')),
     url(r'^admin/', include(admin.site.urls)),

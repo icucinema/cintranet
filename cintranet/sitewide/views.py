@@ -52,3 +52,6 @@ class IndexView(TemplateView):
             kwargs['view'] = self
         kwargs.update(my_context)
         return kwargs
+
+class RemoteHeaderView(TemplateView):
+    template_name = 'remoteheader.html'
