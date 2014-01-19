@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+(function() {
 	var xhr = new XMLHttpRequest();
 	xhr.onload = function() {
 		// add the header markup
@@ -9,14 +9,15 @@ document.addEventListener('DOMContentLoaded', function() {
 			document.body.insertBefore(headerEl, f);
 		else
 			document.body.appendChild(f);
-	
-		// add the header CSS
-		var cssEl = document.createElement('link');
-		cssEl.type = 'text/css';
-		cssEl.rel = 'stylesheet';
-		cssEl.href = '//staff.wide.icucinema.co.uk/static/css/remote_header.css';
-		document.head.appendChild(cssEl);
 	};
+	xhr.withCredentials = true;
 	xhr.open("GET", "https://staff.wide.icucinema.co.uk/remoteheader/", true);
 	xhr.send();
-});
+
+	// add the header CSS
+	var cssEl = document.createElement('link');
+	cssEl.type = 'text/css';
+	cssEl.rel = 'stylesheet';
+	cssEl.href = '//staff.wide.icucinema.co.uk/static/css/remote_header.css';
+	document.head.appendChild(cssEl);
+})();

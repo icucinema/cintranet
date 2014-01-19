@@ -55,3 +55,11 @@ class IndexView(TemplateView):
 
 class RemoteHeaderView(TemplateView):
     template_name = 'remoteheader.html'
+
+    def get(self, *args, **kwargs):
+        resp = super(RemoteHeaderView, self).get(*args, **kwargs)
+        resp['Access-Control-Allow-Origin'] = '*'
+        resp['Access-Control-Allow-Credentials'] = 'true'
+        resp['Access-Control-Allow-Methods'] = 'GET'
+        resp['Access-Control-Max-Age'] = '600'
+        return resp
