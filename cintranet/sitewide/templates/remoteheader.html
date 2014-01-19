@@ -19,7 +19,7 @@
 		<li><a href="{% url 'auth:login' %}">Log in</a></li>
 		{% else %}
 		<li>
-			<a href="{% url 'auth:logout' %}?token={{ request.session.log
+			<a href="{% url 'auth:logout' %}?token={{ request.session.logout_token }}">Log out ({{ user.username }})</a>
 		</li>
 		{% endif %}
 	</ul>
