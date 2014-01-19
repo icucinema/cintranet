@@ -4,6 +4,8 @@
 html {
     position: absolute;
     top: 60px;
+    left: 0;
+    width: 100%;
 }
 
 .icu-header-row {
