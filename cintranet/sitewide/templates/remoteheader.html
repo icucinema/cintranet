@@ -15,5 +15,12 @@
 		<li><a href="http://trac.wide.imperialcinema.co.uk">Trac</a></li>
 		<li><a href="http://cloud.wide.imperialcinema.co.uk">Cloud</a></li>
 		<li><a href="https://staff.wide.icucinema.co.uk/user/login/">Log in</a></li>
+		{% if not user.is_authenticated %}
+		<li><a href="{% url 'auth:login' %}">Log in</a></li>
+		{% else %}
+		<li>
+			<a href="{% url 'auth:logout' %}?token={{ request.session.log
+		</li>
+		{% endif %}
 	</ul>
 </div></header>
