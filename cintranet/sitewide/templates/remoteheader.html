@@ -11,15 +11,14 @@
 		</li>
 		<li><a href="https://www.union.ic.ac.uk/arts/cinema/">Web</a></li>
 		<li><a href="https://eactivities.union.ic.ac.uk/">eHarmonies</a></li>
-		<li><a href="http://wiki.wide.imperialcinema.co.uk">Wiki</a></li>
-		<li><a href="http://trac.wide.imperialcinema.co.uk">Trac</a></li>
-		<li><a href="http://cloud.wide.imperialcinema.co.uk">Cloud</a></li>
-		<li><a href="https://staff.wide.icucinema.co.uk/user/login/">Log in</a></li>
+		<li><a href="http://wiki.wide.icucinema.co.uk">Wiki</a></li>
+		<li><a href="http://trac.wide.icucinema.co.uk">Trac</a></li>
+		<li><a href="http://cloud.wide.icucinema.co.uk">Cloud</a></li>
 		{% if not user.is_authenticated %}
-		<li><a href="{% url 'auth:login' %}">Log in</a></li>
+		<li><a href="https://staff.wide.icucinema.co.uk{% url 'auth:login' %}">Log in</a></li>
 		{% else %}
 		<li>
-			<a href="{% url 'auth:logout' %}?token={{ request.session.logout_token }}">Log out ({{ user.username }})</a>
+			<a href="https://staff.wide.icucinema.co.uk{% url 'auth:logout' %}?token={{ request.session.logout_token }}">Log out ({{ user.username }})</a>
 		</li>
 		{% endif %}
 	</ul>
