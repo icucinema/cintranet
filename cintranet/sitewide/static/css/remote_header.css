@@ -83,6 +83,12 @@ html {
     outline: 0;
 }
 
+.icu-header-eight-nav li:hover > a {
+    position: relative;
+    background: #868d92;
+    z-index: 1000;
+}
+
 #icu-header {
     font-family: "Open Sans";
     position: absolute;
