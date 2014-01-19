@@ -1,0 +1,98 @@
+@charset "UTF-8";
+@import url(//fonts.googleapis.com/css?family=Open+Sans:400,300,600,700);
+
+html {
+    position: absolute;
+    top: 60px;
+}
+
+.icu-header-row {
+    width: 100%;
+    max-width: 980px;
+    min-width: 320px;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.icu-header-column {
+    margin-left: 2.12766%;
+    float: left;
+    min-height: 1px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.icu-header-four-logo {
+    display: inline-block;
+    margin: 0 2.12766% 0 0;
+    padding: 0;
+    height: 60px;
+    line-height: 58px;
+    width: 31.91489%;
+    border: none;
+}
+
+.icu-header-four-logo a {
+    display: block;
+    padding: 0;
+    overflow: hidden;
+    height: 60px;
+    line-height: 58px;
+    text-decoration: none;
+    outline: 0;
+}
+
+.icu-header-four-logo img {
+    max-height: 95%;
+    vertical-align: top;
+}
+
+.icu-header-eight-nav {
+    width: 65.95745%;
+    display: table;
+    vertical-align: middle;
+    margin: 0;
+    float: none;
+    list-style-type: none;
+}
+
+.icu-header-eight-nav li {
+    display: table-cell;
+    text-align: center;
+    padding-bottom: 0;
+    margin: 0;
+    height: 60px;
+    line-height: 58px;
+}
+
+.icu-header-eight-nav li > a {
+    display: block;
+    padding: 0 16px;
+    white-space: nowrap;
+    color: white;
+    text-shadow: 0 1px 2px black, 0 1px 0 black;
+    height: 60px;
+    line-height: 58px;
+    font-size: 16px;
+    font-size: 1rem;
+    text-decoration: none;
+    outline: 0;
+}
+
+#icu-header {
+    font-family: "Open Sans";
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-top: -60px;
+    width: 100%;
+    height: 60px;
+    background: #052443;
+    z-index: 10000;
+}
+
+#icu-header, #icu-header * {
+    box-sizing: border-box;
+}
