@@ -565,3 +565,6 @@ class Ticket(models.Model):
         # voiding means we neither give the money back nor return any entitlements
         self.status = 'void'
         self.save()
+
+    class Meta:
+        ordering = ['-id']
