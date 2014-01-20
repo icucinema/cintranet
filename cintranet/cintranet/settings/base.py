@@ -157,7 +157,12 @@ REST_FRAMEWORK = {
 }
 
 LOGIN_URL = '/user/login/'
-LOGIN_EXEMPT_URLS = ('^$','^ticketing/api/', '^remoteheader/$')
+LOGIN_EXEMPT_URLS = (
+    '^$',
+    '^ticketing/api/',
+    '^remoteheader/$',
+    '^ticketing/events/ical/$',
+)
 
 ### ticketing settings
 TICKETING_MEMBERSHIP_ENTITLEMENT = 1
