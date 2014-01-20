@@ -13,6 +13,7 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.timezone import now
 
 import dateutil.parser
+from django_ical.views import ICalFeed
 
 from . import models, bor_generator
 
@@ -103,3 +104,19 @@ def generate_bor_draft_pdf(request, film_id, show_week):
     iobuf.close()
 
     return HttpResponse(pdf, content_type='application/pdf')
+
+class EventCalendar(ICalFeed):
+    product_id = "-//icucinema.co.uk//TicketedEvents/EN"
+    timezone = "UTC"
+
+    def items(self):
+        return models.Event.objects.all().order_by('-start_time')
+ 
+    def item_title(self, item):
+        return item.name
+
+    def item_description(self, item):
+        return item.name
+
+    def item_start_datetime(self, item):
+        return item.start_time

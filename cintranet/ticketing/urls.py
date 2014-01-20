@@ -17,6 +17,7 @@ api_router.register(r'events', api_views.EventViewSet)
 urlpatterns = patterns('',
     url(r'^$', views.IndexView.as_view(), name='root'),
     url(r'^(?P<partial>partials/[a-z]+\.html)$', views.angular_partial_view),
+    url(r'^events/ical/$', views.EventCalendar(), name='event_calendar'),
     url(r'^api/films/(?P<film_id>[0-9]+)/bor-data/(?P<show_week>20[0-9]{2}\-[0-9]{1,2}\-[0-9]{1,2})/$', views.generate_bor_information),
     url(r'^api/films/(?P<film_id>[0-9]+)/generate-bor-pdf/(?P<show_week>20[0-9]{2}\-[0-9]{1,2}\-[0-9]{1,2})/$', views.generate_bor_draft_pdf),
     #url(r'^api/', include(api_router.urls)),
