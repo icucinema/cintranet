@@ -120,3 +120,6 @@ class EventCalendar(ICalFeed):
 
     def item_start_datetime(self, item):
         return item.start_time
+
+    def item_link(self, item):
+        return "https://staff.wide.imperialcinema.co.uk/ticketing/#/events/{}".format(item.id)
