@@ -118,6 +118,9 @@ class Punter(models.Model):
 
         return obj, created, entitlements_created
 
+    class Meta:
+        ordering = ['name']
+
 
 class Film(models.Model):
     tmdb_id = models.PositiveIntegerField(null=True, blank=True)
