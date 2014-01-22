@@ -84,7 +84,9 @@ Ticket Sales Report for %(today)s""" % {'today': now().strftime('%x')}
 # This is vaguely what a TicketPrinter should look like
 class TicketPrinter(object):
     def __init__(self, template_dir, template_name='basic.txt', **kwargs):
-        self.formatter = TicketFormatter(template_name=template_name, template_dir=template_dir)
+        self.template_name = template_name
+        self.template_dir = template_dir
+        self.formatters = {}
 
     def do_print(self, data):
         print data
@@ -92,8 +94,23 @@ class TicketPrinter(object):
     def print_ticket(self, ticket, prefix):
         self.do_print(self.format_ticket(ticket, prefix))
 
+    def formatter_for(self, template_name):
+        formatter = self.formatters.get(template_name, None)
+        if formatter is None:
+            formatter = TicketFormatter(template_name=template_name, template_dir=self.template_dir)
+            self.formatters[template_name] = formatter
+        return formatter
+
     def format_ticket(self, ticket, prefix):
-        return self.formatter.format_ticket(ticket, prefix)
+        template_name = self.template_name
+
+        if ticket.ticket_type.print_template_extension != '':
+            tn, dot, txt = template_name.rpartition('.')
+            txt = ticket.ticket_type.print_template_extension + '.' + txt
+            template_name = tn + dot + txt
+
+        formatter = self.formatter_for(template_name)
+        return formatter.format_ticket(ticket, prefix)
 
     def print_report(self, events):
         self.do_print(self.format_report(events))
