@@ -9,7 +9,7 @@ class TicketFormatter(object):
         template_name = template_name
         print "Loading template", template_name
         with open(os.path.join(template_dir, template_name), 'rb') as f:
-            self.template = string.Template(f.read())
+            self.template = string.Template(f.read().decode('cp858'))
 
     def format_ticket(self, ticket, prefix):
         return self.template.substitute(self.build_dictionary(ticket, prefix))
@@ -28,7 +28,7 @@ class TicketFormatter(object):
             'id': ticket.printed_id(),
             'number': str(ticket.ticket_position_in_showing()).zfill(3),
             'website': 'www.imperialcinema.co.uk',
-            'tagline': 'Sponsored by KPMG',
+            'tagline': 'Sponsored by',
             'ticket_uid': '%d' % (ticket.pk),
         }
 
@@ -114,7 +114,7 @@ class SerialTicketPrinter(TicketPrinter):
         self.after_report = after_report.decode('hex')
 
     def do_print(self, data):
-        self.serial.write(data)
+        self.serial.write(data.encode('cp858'))
 
     def print_report(self, events):
         self.do_print(self.before_report)

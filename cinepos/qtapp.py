@@ -50,6 +50,7 @@ class CineposApplication(QtGui.QGuiApplication):
         self.event_ids = models.Event.objects.filter(
             start_time__gt=min_between, start_time__lt=max_between
         ).values_list('id', flat=True)
+        self.event_ids = []
         self.event_ids_to_char = {}
         self.hw_interface = hw_interface
         self.view_location = view_location
