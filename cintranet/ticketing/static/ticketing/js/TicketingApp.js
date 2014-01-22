@@ -243,7 +243,7 @@ app.controller('EventsCtrl', function($rootScope, $scope, $routeParams, $locatio
 		return '#/events/' + event.id;
 	};
 });
-app.controller('EventCtrl', function($rootScope, $scope, $routeParams, $location, Restangular) {
+app.controller('EventCtrl', function($rootScope, $scope, $routeParams, $location, Restangular, $timeout) {
 	$rootScope.navName = 'events';
 
 	$scope.loading = true;
