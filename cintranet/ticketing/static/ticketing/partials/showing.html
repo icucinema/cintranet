@@ -10,26 +10,5 @@
 					<dd>{{ data.start_time | date:"short" }}</dd>
 			</dl>
 		</tab>
-		<tab tab-title="Tickets ({{ tickets.length }})">
-			<input type="checkbox" ng-model="ticketsAutoRefresh" id="autorefresh" ng-change="ticketsAutoRefreshChange(ticketsAutoRefresh)">
-				<label for="autorefresh">Autorefresh?</label>
-
-			<table class="striped">
-				<thead>
-					<tr>
-						<th>Punter</th>
-						<th>Ticket type</th>
-						<th>Status</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-repeat="ticket in tickets">
-						<td><a ng-if="ticket.punter" href="{{ punterUrl(ticket.punter) }}">{{ ticket.punter.name }}</a><span ng-show="!ticket.punter">Guest</span></td>
-						<td>{{ ticket.ticket_type.name }}</td>
-						<td>{{ ticket.status }}</td>
-					</tr>
-				</tbody>
-			</table>
-		</tab>
 	</tabs>
 </div>

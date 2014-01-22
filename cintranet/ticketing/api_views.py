@@ -130,6 +130,11 @@ class EventViewSet(viewsets.ModelViewSet):
         event = self.get_object()
         return serialize_queryset(self, api_serializers.TicketTypeSerializer, event.tickettype_set.all())
 
+    @action(methods=['GET'])
+    def tickets(self, request, pk=None):
+        event = self.get_object()
+        return serialize_queryset(self, api_serializers.ComprehensiveTicketSerializer, event.tickets.all())
+
     @action(methods=['POST'])
     def reset_ticket_types_by_event_type(self, request, pk=None):
         event = self.get_object()

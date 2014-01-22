@@ -289,6 +289,10 @@ class Event(models.Model):
         ticket_templates = itertools.chain.from_iterable(ticket_templates)
         for ticket_template in ticket_templates:
             TicketType.from_template(ticket_template, self).save()
+            
+    @property
+    def tickets(self):
+        return Ticket.objects.filter(ticket_type__event=self)
 
     def __unicode__(self):
         return u"{} ({})".format(self.name, self.start_time)
