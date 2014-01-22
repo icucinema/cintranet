@@ -24,14 +24,14 @@ class Command(BaseCommand):
             .filter(cid__count__gt=1).exclude(cid__exact='') \
             .values_list('cid', flat=True)
 
-        self.stdout.write("-- CID DEDUPLICATION: {} DUPLICATES --".format(len(dupes))
+        self.stdout.write("-- CID DEDUPLICATION: {} DUPLICATES --".format(len(dupes)))
 
         for cid in dupes:
             pn = list(ticketing.models.Punter.objects.filter(cid=cid))
             self.stdout.write("Deduplicating CID: {} - {} dupes".format(cid, len(pn)))
             self.deduplicate(pn)
 
-        self.stdout.write("-- CID DEDUPLICATION COMPLETE: {} DUPLICATES --".format(len(dupes))
+        self.stdout.write("-- CID DEDUPLICATION COMPLETE: {} DUPLICATES --".format(len(dupes)))
 
     def dedup_score(self, punter):
         score = 0
