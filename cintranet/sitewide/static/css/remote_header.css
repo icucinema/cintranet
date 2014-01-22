@@ -108,3 +108,8 @@ html {
 .icu-header-column {
     padding: 0;
 }
+
+:link:hover, :visited:hover {
+    background-color: inherit;
+    color: inherit;
+}
