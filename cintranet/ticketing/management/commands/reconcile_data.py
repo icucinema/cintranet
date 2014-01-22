@@ -60,8 +60,8 @@ class Command(BaseCommand):
             if main_p_data == '' and p_data != '':
                 setattr(main_punter, field, p_data)
 
-        if punter.description != '':
-            main_punter.description += '\r\n\r\nMERGED DATA:\r\n' + punter.description
+        if punter.comment != '':
+            main_punter.comment += '\r\n\r\nMERGED DATA:\r\n' + punter.comment
 
     def deduplicate(self, punters):
         main_punter = None
