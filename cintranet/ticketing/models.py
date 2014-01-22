@@ -308,6 +308,7 @@ class BaseTicketInfo(models.Model):
         help_text="""This is the inc-VAT (gross) price reported on the BOR for *each* film"""
     )
     name = models.CharField(max_length=128, null=False, blank=False)
+    print_template_extension = models.CharField(max_length=64, null=False, blank=True, default='')
 
     objects = InheritanceManager()
 
@@ -336,6 +337,7 @@ class TicketType(BaseTicketInfo):
             'general_availability',
             'sale_price',
             'name',
+            'print_template_extension',
             'box_office_return_price'
         )
         tt = cls(
