@@ -45,8 +45,8 @@ class Command(BaseCommand):
             score += 15
         if punter.login != '':
             score += 15
-        if punter.description != '':
-            score += 20 + len(punter.description)
+        if punter.comment != '':
+            score += 20 + len(punter.comment)
         score += punter.tickets.count()
         score += (10 * punter.entitlements.count())
 
