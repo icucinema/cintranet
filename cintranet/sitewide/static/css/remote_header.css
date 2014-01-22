@@ -104,3 +104,7 @@ html {
 #icu-header, #icu-header * {
     box-sizing: border-box;
 }
+
+.icu-header-column {
+    padding: 0;
+}
