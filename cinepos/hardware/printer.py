@@ -87,6 +87,7 @@ class TicketPrinter(object):
         self.template_name = template_name
         self.template_dir = template_dir
         self.formatters = {}
+        self.report_formatter = TicketFormatter(template_name, template_dir)
 
     def do_print(self, data):
         print data
@@ -116,7 +117,7 @@ class TicketPrinter(object):
         self.do_print(self.format_report(events))
 
     def format_report(self, events):
-        return self.formatter.format_report(events)
+        return self.report_formatter.format_report(events)
 
 
 class SerialTicketPrinter(TicketPrinter):
