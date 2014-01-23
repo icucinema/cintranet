@@ -14,6 +14,7 @@
 	<div class="twelve columns">
 		<form method="POST" action="">
 			{% csrf_token %}
+			<input type="hidden" name="next" value="{{ next }}">
 			<fieldset>
 				<legend>Log in</legend>
 				{% form form using "floppy_gumby_forms/layouts/gumby.html" %}
