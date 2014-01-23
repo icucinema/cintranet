@@ -3,6 +3,23 @@ from django.views.generic import TemplateView
 
 import cott.models
 
+def get_button_class(sold, initial):
+    btn_class = 'info'
+
+    danger_max = initial * 0.2
+    warning_max = initial * 0.4
+    success_max = initial * 0.75
+
+    if sold < danger_max:
+        btn_class = 'danger'
+    elif sold < warning_max:
+        btn_class = 'warning'
+    elif sold < success_max:
+        btn_class = 'success'
+        
+    return btn_class
+    
+
 class IndexView(TemplateView):
     template_name = 'index.html'
 
@@ -26,27 +43,24 @@ class IndexView(TemplateView):
         for product in cm:
             sold = product.sold
             initial = product.initial
-
-            btn_class = 'info'
-
-            danger_max = initial * 0.2
-            warning_max = initial * 0.4
-            success_max = initial * 0.75
-
-            if sold < danger_max:
-                btn_class = 'danger'
-            elif sold < warning_max:
-                btn_class = 'warning'
-            elif sold < success_max:
-                btn_class = 'success'
-
+            
+            btn_class = get_button_class(sold, initial)
 
             my_context['stats'].append({
                 'link': product.union_url,
-                'title': '{} sold'.format(product.name),
+                'title': '{} sold on shop'.format(product.name),
                 'value': sold,
                 'class': btn_class
             })
+                
+            sku_entitlements = cott.models.SKUEntitlement.objects.filter(sku__product=product).select_related('entitlement')
+            for sku_entitlement in sku_entitlements:
+                my_context['stats'].append({
+                    'link': product.union_url,
+                    'title': '{} in DB'.format(sku_entitlement.entitlement.name),
+                    'value': sku_entitlement.entitlement.all().count(),
+                    'class': 'default'
+                })
 
         if 'view' not in kwargs:
             kwargs['view'] = self
