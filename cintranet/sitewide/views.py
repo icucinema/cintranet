@@ -58,7 +58,7 @@ class IndexView(TemplateView):
                 my_context['stats'].append({
                     'link': product.union_url,
                     'title': '{} in DB'.format(sku_entitlement.entitlement.name),
-                    'value': sku_entitlement.entitlement.all().count(),
+                    'value': sku_entitlement.entitlement.entitlement_details.all().count(),
                     'class': 'default'
                 })
 
