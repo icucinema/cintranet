@@ -23,8 +23,15 @@ class LogoutView(RedirectView):
 
 class LoginView(FormView):
     template_name = 'auth/login.html'
-    success_url = '/'
     form_class = forms.LoginForm
+    
+    def get_success_url(self):
+        return self.request.POST.get('next', self.request.GET.get('next', '/'))
+        
+    def get_context_data(self, **kwargs):
+        cd = super(LoginView, self).get_context_data(**kwargs)
+        cd.setdefault('next', self.get_success_url())
+        return cd
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated():
