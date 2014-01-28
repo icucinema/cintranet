@@ -391,6 +391,33 @@ app.controller('ShowingCtrl', function($rootScope, $scope, $routeParams, $locati
 	$scope.punterUrl = function(punter) {
 		return '#/punters/' + punter.id;
 	};
+
+	var ticketsAutoRefreshPromise;
+	var ticketsAutoRefresh;
+	var autoRefreshTickets = function() {
+		event.getList('tickets').then(function(res) {
+			if (!ticketsAutoRefresh) return;
+			$scope.tickets = res;
+		}).then(function() {
+			if (!ticketsAutoRefresh) return;
+			ticketsAutoRefreshPromise = $timeout(autoRefreshTickets, 10000);
+		});
+	};
+
+	$scope.ticketsAutoRefreshChange = function(tar) {
+		ticketsAutoRefresh = tar;
+		if (!tar) {
+			$timeout.cancel(ticketsAutoRefreshPromise);
+		} else {
+			autoRefreshTickets();
+		}
+	};
+	ticketsAutoRefresh = $scope.ticketsAutoRefresh = false;
+
+	$scope.$on('$destroy', function() {
+		ticketsAutoRefresh = false;
+		$timeout.cancel(ticketsAutoRefreshPromise);
+	});
 });
 app.controller('FilmsCtrl', function($rootScope, $scope, $routeParams, $location, Restangular) {
 	$rootScope.navName = 'films';
