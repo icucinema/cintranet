@@ -115,6 +115,8 @@ class Punter(models.Model):
                 entitlements_created += 1
             if c and not created:
                 obj.comment += '\n' + note
+                
+        obj.save() # in case comment has changed
 
         return obj, created, entitlements_created
 
