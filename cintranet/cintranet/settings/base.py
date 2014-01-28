@@ -92,10 +92,14 @@ WSGI_APPLICATION = 'cintranet.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'cintranet',
+        'USER': get_env_variable('CINTRANET_DB_USER'),
+        'PASSWORD': get_env_variable('CINTRANET_DB_PASSWORD'),
+        'HOST': get_env_variable('CINTRANET_DB_HOST')
     }
 }
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
