@@ -41,7 +41,7 @@
 			</ul>
 		</tab>
 		<tab tab-title="Showings ({{ showing_weeks.expanded_length }})">
-			<ul class="bulleted-list">
+			<ul class="bulleted-list" ng-if="data">
 				<li ng-repeat="showing_week in showing_weeks">
 					Week beginning: {{ showing_week.start_time|date:"EEE d MMM yyyy" }} (<span ng-if="showing_week.box_office_return"><a ng-href="{{ borUrl(showing_week.box_office_return) }}">download BOR</a></span><a ng-href="{{ createBorUrl(data, showing_week.start_time) }}" ng-hide="showing_week.box_office_return">create BOR</a>)
 					<ul class="bulleted-list">
