@@ -166,11 +166,13 @@ class EActivities(object):
             }
             bs_skus = bs_pr.find_all("infotablerow")
             for bs_sku in bs_skus:
+                tns = bs_sku.find('infotablecell', alias="Total Net Sale (£)").text
+                if tns == u'\xa0': tns = '0'
                 sku = {
                     'name': bs_sku.find('infotablecell', alias="Product SKU Name").text,
                     'eactivities_id': int(bs_sku.find('infotablecell', alias="Download").attrs['event'].split("', '")[-1][:-3]),
                     'purchased_count': int(bs_sku.find('infotablecell', alias="Number Purchased").text),
-                    'total': Decimal(bs_sku.find('infotablecell', alias="Total Net Sale (£)").text),
+                    'total': Decimal(tns),
                     'per_item': Decimal(bs_sku.find('infotablecell', alias="Price inc. VAT/Unit (£)").text),
                 }
                 pr['purchased_count'] += sku['purchased_count']

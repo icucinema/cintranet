@@ -3,6 +3,8 @@ var DOUBLEBILL_EVENT_TYPE = 2;
 
 var app = angular.module('TicketingApp', [
 	'ngRoute',
+	'ngAnimate',
+	'ngAnimate-animate.css',
 	'restangular'
 ]);
 
@@ -395,7 +397,7 @@ app.controller('ShowingCtrl', function($rootScope, $scope, $routeParams, $locati
 	var ticketsAutoRefreshPromise;
 	var ticketsAutoRefresh;
 	var autoRefreshTickets = function() {
-		event.getList('tickets').then(function(res) {
+		showing.getList('tickets').then(function(res) {
 			if (!ticketsAutoRefresh) return;
 			$scope.tickets = res;
 		}).then(function() {

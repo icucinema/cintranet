@@ -44,8 +44,8 @@ class Punter(models.Model):
 
     punter_type = StatusField(db_index=True)
     name = models.CharField(max_length=256, default="", null=False, blank=True)
-    cid = models.CharField(max_length=16, default="", null=False, blank=True)
-    login = models.CharField(max_length=16, default="", null=False, blank=True)
+    cid = models.CharField(max_length=64, default="", null=False, blank=True)
+    login = models.CharField(max_length=64, default="", null=False, blank=True)
     swipecard = models.CharField(max_length=64, default="", null=False, blank=True)
     email = models.EmailField(max_length=256, default="", null=False, blank=True)
     comment = models.TextField(null=False, default="", blank=True)
