@@ -103,11 +103,6 @@ class Punter(models.Model):
             **filter_on
         )
 
-        if created and cid != '' and not cid.startswith('AM-'):
-            more_write_to(u'Created new punter: {} (CID: {}, username: {})'.format(name, cid, username))
-        elif created:
-            more_write_to(u'Created new punter: {} (associate/life member)'.format(name))
-
         entitlements_created = 0
         # check if entitlements already exist
         for ent_id, ent_kwargs in entitlements.iteritems():
@@ -118,7 +113,7 @@ class Punter(models.Model):
             )
             if c:
                 entitlements_created += 1
-                more_write_to(u'Added new entitlement to {}: {}'.format(obj.name, eobj.entitlement.name))
+                more_write_to(u'Added {} to https://staff.wide.icucinema.co.uk/ticketing/#/punters/{}'.format(eobj.entitlement.name, obj.id))
             if c and not created:
                 obj.comment += '\n' + note
                 
