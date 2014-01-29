@@ -24,7 +24,7 @@
 				</thead>
 				<tbody>
 					<tr ng-repeat="ticket in tickets track by ticket.id" class="dn-bounce">
-						<td><a ng-show="ticket.punter" href="{{ punterUrl(ticket.punter) }}">{{ ticket.punter.name }}</a><span ng-show="!ticket.punter">Guest</span></td>
+						<td><span ng-if="ticket.punter"><a href="{{ punterUrl(ticket.punter) }}">{{ ticket.punter.name }}</a></span><span ng-show="!ticket.punter">Guest</span></td>
 						<td>{{ ticket.ticket_type.name }}</td>
 						<td>{{ ticket.status }}</td>
 					</tr>
