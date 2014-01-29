@@ -10,6 +10,7 @@ from django.utils.timezone import utc
 from cott import models
 from icunion import collate, eactivities
 import ticketing.models
+from cintranet.utils import IRCCatPinger
 
 class Command(BaseCommand):
     args = 'eactivities_session_key'
@@ -28,10 +29,16 @@ class Command(BaseCommand):
 
         self.club_id = getattr(settings, 'EACTIVITIES_CLUB_ID', 411)
 
-        self.eac = eactivities.EActivities(session)
+        self.irc_pinger = IRCCatPinger('localhost', 22222)
 
-        self.update_available_products()
-        self.rescrape_products()
+        try:
+            self.eac = eactivities.EActivities(session)
+    
+            self.update_available_products()
+            self.rescrape_products()
+        except Exception as ex:
+            traceback.print_exc()
+            self.irc_pinger.say('#icucinema', 'SOMETHING WENT WRONG WHILE PARSING EACTIVITIES: {}: {} ({})'.format(type(ex), ex, ex.args))
 
     def update_available_products(self):
         products = collate.get_product_info(self.eac, "https://www.imperialcollegeunion.org/shop/club-society-project-products/cinema-products/", 411)
@@ -47,6 +54,8 @@ class Command(BaseCommand):
                     }
                 )
                 p.name = product['name']
+                if p.sold != product['purchased_count']:
+                    self.irc_pinger.say('#icucinema', '{} purchase count changed! {} -> {}'.format(p.name, p.sold, product['purchased_count']))
                 p.sold = product['purchased_count']
                 if 'total_count' in product.keys():
                     p.initial = product['total_count']
@@ -105,7 +114,7 @@ class Command(BaseCommand):
             sku_e.sku.save()
             for member in pr:
                 try:
-                    _, created, ents_created = ticketing.models.Punter.create_from_eactivities_csv(member, automatic_entitlements, "Purchased {} (order no {})".format(member['Date'], member['Order No']), self.stdout.write)
+                    _, created, ents_created = ticketing.models.Punter.create_from_eactivities_csv(member, automatic_entitlements, "Purchased {} (order no {})".format(member['Date'], member['Order No']), self.stdout.write, lambda x: self.irc_pinger.say('#icucinema', x))
                 except Exception, ex:
                     count_total += 1
                     count_errored += 1
