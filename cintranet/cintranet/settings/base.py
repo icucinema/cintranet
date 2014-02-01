@@ -19,6 +19,7 @@ def get_env_variable(var_name):
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'at94$edi+y2c5-p2p+rl&kex@krdi4$4_-5_8blv2%^3qsydiw'
+SSO_SHARED_SECRET_KEY = '5b0G50yVw53zLYiG8o04OjQqWglm7E1U'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
