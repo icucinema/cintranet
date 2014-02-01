@@ -17,3 +17,5 @@ SSO_COOKIE_SETTINGS = {
 	'httponly': True,
 	'secure': True
 }
+
+SESSION_COOKIE_DOMAIN='.icucinema.co.uk'
