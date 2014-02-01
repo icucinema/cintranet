@@ -110,6 +110,10 @@ html {
     padding: 0;
 }
 
+:link, :visited {
+    border: none;
+}
+
 :link:hover, :visited:hover {
     background-color: inherit;
     color: inherit;
