@@ -118,3 +118,9 @@ html {
     background-color: inherit;
     color: inherit;
 }
+
+@media (max-width: 990px) {
+    .icu-header-eight-nav .hidable {
+        display: none;
+    }
+}
