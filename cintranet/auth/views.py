@@ -74,7 +74,9 @@ class LoginView(SetAuthCookieMixin, FormView):
             login(self.request, user)
             self.request.session['logout_token'] = ''.join([random.choice(string.ascii_letters) for n in range(32)])
             messages.success(self.request, u"Welcome back, {}!".format(user.first_name))
-            return super(LoginView, self).form_valid(form)
+            resp = super(LoginView, self).form_valid(form)
+            self.set_cookie(resp)
+            return resp
         else:
             form._errors['username'] = [u'Your username or password were incorrect.']
             return super(LoginView, self).form_invalid(form)
