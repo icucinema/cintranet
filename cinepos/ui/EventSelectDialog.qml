@@ -119,18 +119,35 @@ Rectangle {
         model: ListModel {}
         delegate: Item {
             x: 5
-            height: 40
+            height: 50
             Row {
                 id: searchListRow
                 spacing: 10
 
-                Text {
-                    renderType: Text.NativeRendering
-                    text: name
-                    anchors.verticalCenter: parent.verticalCenter
-                    font.bold: true
-                    wrapMode: Text.WordWrap
-                    width: selectListView.width
+                Rectangle {
+                    width: selectListView.width - 10
+                    radius: 5
+                    height: 40
+
+                    border {
+                        color: "#eeeeee"
+                        width: 5
+                    }
+                    color: "#cccccc"
+
+                    Text {
+                        x: 5
+                        id: searchListText
+                        renderType: Text.NativeRendering
+                        text: name
+                        anchors.verticalCenter: parent.verticalCenter
+                        font.bold: true
+                        wrapMode: Text.WordWrap
+                        anchors.left: parent.left
+                        anchors.leftMargin: 10
+                        anchors.right: parent.right
+                        anchors.rightMargin: 10
+                    }
 
                     MouseArea {
                         anchors.fill: parent
@@ -157,18 +174,35 @@ Rectangle {
         model: ListModel {}
         delegate: Item {
             x: 5
-            height: 40
+            height: 50
             Row {
                 id: selectListRow
                 spacing: 10
 
-                Text {
-                    renderType: Text.NativeRendering
-                    text: name
-                    anchors.verticalCenter: parent.verticalCenter
-                    font.bold: true
-                    wrapMode: Text.WordWrap
-                    width: selectListView.width
+                Rectangle {
+                    width: selectListView.width - 10
+                    radius: 5
+                    height: 40
+
+                    border {
+                        color: "#eeeeee"
+                        width: 5
+                    }
+                    color: "#cccccc"
+
+                    Text {
+                        x: 5
+                        id: selectListText
+                        renderType: Text.NativeRendering
+                        text: name
+                        anchors.verticalCenter: parent.verticalCenter
+                        font.bold: true
+                        wrapMode: Text.WordWrap
+                        anchors.left: parent.left
+                        anchors.leftMargin: 10
+                        anchors.right: parent.right
+                        anchors.rightMargin: 10
+                    }
 
                     MouseArea {
                         anchors.fill: parent

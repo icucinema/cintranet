@@ -3,6 +3,8 @@ from ticketing import models
 
 __author__ = 'lukegb'
 
+def punter_name(punter):
+    return models.Punter.pretty_name(punter)
 
 class EventsModel(QtCore.QAbstractListModel):
     NAME_ROLE = QtCore.Qt.UserRole + 1
@@ -237,7 +239,7 @@ class FilterableTicketTypesModel(TicketTypesModel):
 
     def filter(self, event_id):
         p = QtCore.QModelIndex()
-        self.beginRemoveRows(p, 0, len(self._data))
+        self.beginRemoveRows(p, 0, len(self._data) - 1)
         self._data = []
         self.endRemoveRows()
         new_data = [d for d in self._core_data if str(d.event.id) == event_id]
@@ -268,7 +270,7 @@ class EditableTicketTypesModel(TicketTypesModel):
 
     def empty(self):
         p = QtCore.QModelIndex()
-        self.beginRemoveRows(p, 0, len(self._data))
+        self.beginRemoveRows(p, 0, len(self._data) - 1)
         d = self._data
         self._data = []
         self.update_cheapest_items()
@@ -278,3 +280,64 @@ class EditableTicketTypesModel(TicketTypesModel):
     @QtCore.pyqtSlot(result=int)
     def totalPrice(self):
         return int(sum([z.sale_price * 100 for z in self._data]))
+
+
+class TicketsModel(QtCore.QAbstractListModel):
+    ID_ROLE = QtCore.Qt.UserRole + 1
+    PUNTER_NAME_ROLE = QtCore.Qt.UserRole + 2
+    TIMESTAMP_ROLE = QtCore.Qt.UserRole + 3
+    TICKET_TYPE_NAME_ROLE = QtCore.Qt.UserRole + 4
+
+    def __init__(self, parent=None):
+        super(TicketsModel, self).__init__(parent)
+        self._data = []
+
+        # register keys
+        keys = {
+            TicketsModel.ID_ROLE: 'id',
+            TicketsModel.PUNTER_NAME_ROLE: 'punter_name',
+            TicketsModel.TIMESTAMP_ROLE: 'timestamp',
+            TicketsModel.TICKET_TYPE_NAME_ROLE: 'ticket_type_name'
+        }
+        self._role_names = keys
+
+    def roleNames(self):
+        return self._role_names
+
+    def rowCount(self, index):
+        return len(self._data)
+
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+
+        if index.row() > len(self._data):
+            return None
+
+        ticket = self._data[index.row()]
+
+        if role == TicketsModel.ID_ROLE:
+            return ticket.id
+        elif role == TicketsModel.PUNTER_NAME_ROLE:
+            return punter_name(ticket.punter)
+        elif role == TicketsModel.TIMESTAMP_ROLE:
+            return ticket.timestamp.isoformat()
+        elif role == TicketsModel.TICKET_TYPE_NAME_ROLE:
+            return ticket.ticket_type.name
+        else:
+            return None
+
+    def refresh(self):
+        p = QtCore.QModelIndex()
+        self.beginRemoveRows(p, 0, len(self._data) - 1)
+        self.endRemoveRows()
+        self.beginInsertRows(p, 0, len(self._data) - 1)
+        self.endInsertRows()
+
+    def load(self, **kwargs):
+        p = QtCore.QModelIndex()
+        self.beginRemoveRows(p, 0, len(self._data) - 1)
+        self.endRemoveRows()
+        self._data = models.Ticket.objects.filter(**kwargs).order_by('-pk')
+        self.beginInsertRows(p, 0, len(self._data) - 1)
+        self.endInsertRows()

@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.utils.timezone import now
 
 from .qtmodels import EventsModel, FilterableTicketTypesModel, EditableTicketTypesModel, SearchingEventsModel, \
-    EditableEventsModel
+    EditableEventsModel, TicketsModel, punter_name
 
 __author__ = 'lukegb'
 
@@ -100,6 +100,7 @@ class CineposApplication(QtGui.QGuiApplication):
         )
         self.tickettypes_model = FilterableTicketTypesModel(self.tickettypes)
         self.cart_model = EditableTicketTypesModel()
+        self.tickets_listing_model = TicketsModel()
 
     def setup_view(self):
         self.view = QtQuick.QQuickView()
@@ -112,6 +113,7 @@ class CineposApplication(QtGui.QGuiApplication):
     def wire_view(self):
         # wire context properties
         self.context.setContextProperty('ticketSelectionModel', self.tickettypes_model)
+        self.context.setContextProperty('ticketsListingModel', self.tickets_listing_model)
         self.context.setContextProperty('eventsModel', self.events_model)
         self.context.setContextProperty('cartModel', self.cart_model)
         self.context.setContextProperty('eventSearchModel', self.event_search_model)
@@ -137,6 +139,8 @@ class CineposApplication(QtGui.QGuiApplication):
         self.rootObj.refundTicketRequested.connect(self.on_refund_ticket)
         self.rootObj.reprintTicketRequested.connect(self.on_reprint_ticket)
         self.rootObj.salesReportRequested.connect(self.on_sales_report_requested)
+        self.rootObj.ticketsForPunterRequested.connect(self.on_tickets_for_punter_requested)
+        self.rootObj.lastSoldTicketsRequested.connect(self.on_last_sold_tickets_requested)
 
         # final init!
         if len(self.event_ids) > 0:
@@ -153,13 +157,7 @@ class CineposApplication(QtGui.QGuiApplication):
 
     def set_punter(self, punter):
         self.current_punter = punter
-        if punter is None:
-            punter_name = 'Guest'
-        elif len(punter.name) == 0:
-            punter_name = 'Unknown (ID: %d)' % (punter.id,)
-        else:
-            punter_name = punter.name
-        self.context.setContextProperty('punterName', punter_name)
+        self.context.setContextProperty('punterName', punter_name(punter))
 
         if punter is None:
             available_items = []
@@ -376,3 +374,14 @@ class CineposApplication(QtGui.QGuiApplication):
         events = models.Event.objects.filter(id__in=self.event_ids)
 
         self.hw_interface.printer.print_report(events)
+
+    def on_tickets_for_punter_requested(self):
+        self.tickets_listing_model.load(punter=self.current_punter)
+        self.loaded_ticket_listing("Tickets for: {}".format(punter_name(self.current_punter)))
+
+    def on_last_sold_tickets_requested(self):
+        self.tickets_listing_model.load(ticket_type__event__in=self.events)
+        self.loaded_ticket_listing("Last Sold Tickets")
+
+    def loaded_ticket_listing(self, title=None):
+        self.rootObj.ticketListRetrieved(title)

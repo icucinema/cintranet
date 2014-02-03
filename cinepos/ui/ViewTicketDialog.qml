@@ -48,10 +48,10 @@ Rectangle {
         id: ticketNumberInput
         height: 20
         text: qsTr("")
-        anchors.top: parent.top
-        anchors.topMargin: 69
-        anchors.left: parent.left
-        anchors.leftMargin: 145
+        anchors.top: ticketNumberLabel.top
+        anchors.topMargin: 0
+        anchors.left: ticketNumberLabel.right
+        anchors.leftMargin: 10
         anchors.right: parent.right
         anchors.rightMargin: 20
         font.pixelSize: 16

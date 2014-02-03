@@ -13,6 +13,8 @@ Rectangle {
     signal closeClicked
     signal viewTicketClicked
     signal printReportClicked
+    signal viewTicketsForPunterClicked
+    signal viewLastSoldTicketsClicked
 
     Text {
         renderType: Text.NativeRendering
@@ -64,10 +66,44 @@ Rectangle {
         anchors.rightMargin: 20
         anchors.left: parent.left
         anchors.leftMargin: 20
-        anchors.top: viewTicketButton.bottom
+        anchors.top: viewLastSoldTicketsButton.bottom
         anchors.topMargin: 10
         onClicked: {
             printReportClicked()
+        }
+    }
+
+    Button {
+        id: viewTicketsForPunterButton
+        x: -2
+        y: 1
+        text: "View tickets for customer"
+        anchors.topMargin: 10
+        anchors.right: parent.right
+        anchors.leftMargin: 20
+        heightPadding: 5
+        anchors.left: parent.left
+        anchors.top: viewTicketButton.bottom
+        anchors.rightMargin: 20
+        onClicked: {
+            viewTicketsForPunterClicked();
+        }
+    }
+
+    Button {
+        id: viewLastSoldTicketsButton
+        x: 7
+        y: 5
+        text: "View recently sold tickets"
+        anchors.topMargin: 10
+        anchors.right: parent.right
+        anchors.leftMargin: 20
+        heightPadding: 5
+        anchors.left: parent.left
+        anchors.top: viewTicketsForPunterButton.bottom
+        anchors.rightMargin: 20
+        onClicked: {
+            viewLastSoldTicketsClicked();
         }
     }
 }

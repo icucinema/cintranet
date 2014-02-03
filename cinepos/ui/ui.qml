@@ -8,6 +8,8 @@ Rectangle {
     focus: true
 
     property string currentBuffer: "";
+    property string lastDialog: "";
+    property var lastDialogObj: null;
     signal gotPunterIdentifier(string identifierType, string identifier);
     signal addedToCart(string ticketId);
     signal removedFromCart(int index);
@@ -24,6 +26,8 @@ Rectangle {
     signal refundTicketRequested(string ticketId);
     signal reprintTicketRequested(string ticketId);
     signal salesReportRequested();
+    signal ticketsForPunterRequested();
+    signal lastSoldTicketsRequested();
 
     function doCardLink() {
         openDialog('cardlink', cardLinkDialog);
@@ -36,6 +40,10 @@ Rectangle {
     function ticketDetailsRetrieved(ticketDetails) {
         openDialog('ticketdetails', ticketDetailsDialog);
         ticketDetailsDialog.ticketDetails = ticketDetails;
+    }
+    function ticketListRetrieved(title) {
+        openDialog('ticketselection', ticketSelectionDialog);
+        ticketSelectionDialog.title = title || "Ticket Selection";
     }
 
     function unknownPunterQueried() {
@@ -677,6 +685,18 @@ Rectangle {
                 target: genericDialog
                 opacity: 1
             }
+        },
+        State {
+            name: "ticketselection"
+
+            PropertyChanges {
+                target: shadeRectangle
+                opacity: 0.7
+            }
+            PropertyChanges {
+                target: ticketSelectionDialog
+                opacity: 1
+            }
         }
     ]
 
@@ -748,8 +768,16 @@ Rectangle {
             viewTicketDialog.clearTicketNumberInput();
         }
         onPrintReportClicked: {
+            console.log("BOOMTING REPORT");
             closeOpenDialogs();
             salesReportRequested();
+        }
+        onViewTicketsForPunterClicked: {
+            console.log("BOOMTING");
+            ticketsForPunterRequested();
+        }
+        onViewLastSoldTicketsClicked: {
+            lastSoldTicketsRequested();
         }
 
         enabled: false
@@ -766,6 +794,8 @@ Rectangle {
             closeOpenDialogs();
         }
         onOpenTicket: {
+            lastDialog = "viewticket";
+            lastDialogObj = viewTicketDialog;
             ticketDetailsRequested(ticketNumber);
         }
         enabled: false
@@ -782,9 +812,11 @@ Rectangle {
             closeOpenDialogs();
         }
         onBackClicked: {
-            openDialog('viewticket', viewTicketDialog);
-            viewTicketDialog.focusTicketNumberInput();
-            viewTicketDialog.clearTicketNumberInput();
+            openDialog(lastDialog, lastDialogObj);
+            if (lastDialogObj == viewTicketDialog) {
+                viewTicketDialog.focusTicketNumberInput();
+                viewTicketDialog.clearTicketNumberInput();
+            }
         }
         onVoidTicket: voidTicketRequested(ticketId)
         onRefundTicket: refundTicketRequested(ticketId)
@@ -801,5 +833,27 @@ Rectangle {
         opacity: 0
         enabled: false
         onButtonClicked: openDialog(nextState)
+    }
+
+    TicketSelectionDialog {
+        id: ticketSelectionDialog
+        x: 0
+        y: 0
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
+        opacity: 0
+        onCloseClicked: {
+            closeOpenDialogs();
+        }
+        onBackClicked: {
+            openDialog('managementmenu', managementMenuDialog);
+        }
+        onTicketClicked: {
+            lastDialog = "ticketselection";
+            lastDialogObj = ticketSelectionDialog;
+            ticketDetailsRequested(ticketNumber);
+        }
+        enabled: false
+        ticketsModel: ticketsListingModel
     }
 }

@@ -53,6 +53,16 @@ class Punter(models.Model):
     def __unicode__(self):
         return self.name
 
+    @staticmethod
+    def pretty_name(punter):
+        if punter is None:
+            punter_name = 'Guest'
+        elif len(punter.name) == 0:
+            punter_name = 'Unknown (ID: %d)' % (punter.id,)
+        else:
+            punter_name = punter.name
+        return punter_name
+
     def available_tickets(self, events, at_time=None, on_door=True, online=False):
         return TicketType.objects.filter(
             Q(event__in=events) &
