@@ -11,12 +11,12 @@ class TicketFormatter(object):
         with open(os.path.join(template_dir, template_name), 'rb') as f:
             self.template = string.Template(f.read().decode('cp858'))
 
-    def format_ticket(self, ticket, prefix):
-        return self.template.substitute(self.build_dictionary(ticket, prefix))
+    def format_ticket(self, ticket):
+        return self.template.substitute(self.build_dictionary(ticket))
 
-    def build_dictionary(self, ticket, prefix):
+    def build_dictionary(self, ticket):
         return {
-            'header': prefix + str(ticket.ticket_position_in_showing()).zfill(3),
+            'header': str(ticket.ticket_position_in_showing()).zfill(3),
             'ticket_head': 'Imperial Cinema Presents',
             'film_title': ticket.ticket_type.event.name,
             'film_line2': '',
@@ -92,8 +92,8 @@ class TicketPrinter(object):
     def do_print(self, data):
         print data
 
-    def print_ticket(self, ticket, prefix):
-        self.do_print(self.format_ticket(ticket, prefix))
+    def print_ticket(self, ticket):
+        self.do_print(self.format_ticket(ticket))
 
     def formatter_for(self, template_name):
         formatter = self.formatters.get(template_name, None)
@@ -102,7 +102,7 @@ class TicketPrinter(object):
             self.formatters[template_name] = formatter
         return formatter
 
-    def format_ticket(self, ticket, prefix):
+    def format_ticket(self, ticket):
         template_name = self.template_name
 
         if ticket.ticket_type.print_template_extension != '':
@@ -111,7 +111,7 @@ class TicketPrinter(object):
             template_name = tn + dot + txt
 
         formatter = self.formatter_for(template_name)
-        return formatter.format_ticket(ticket, prefix)
+        return formatter.format_ticket(ticket)
 
     def print_report(self, events):
         self.do_print(self.format_report(events))
@@ -147,14 +147,13 @@ class LoggingTicketPrinter(TicketPrinter):
 
         super(LoggingTicketPrinter, self).__init__(**kwargs)
 
-    def print_ticket(self, ticket, prefix):
-        self.wrapped_printer.print_ticket(ticket, prefix)
+    def print_ticket(self, ticket):
+        self.wrapped_printer.print_ticket(ticket)
 
-        super(LoggingTicketPrinter, self).print_ticket(ticket, prefix)
+        super(LoggingTicketPrinter, self).print_ticket(ticket)
 
-    def format_ticket(self, ticket, prefix):
+    def format_ticket(self, ticket):
         output = ','.join(map(str, [
-            prefix + str(ticket.ticket_position_in_showing()).zfill(3),
             ticket.ticket_type.event.name,
             ticket.ticket_type.event.start_time.strftime('%X'),
             ticket.ticket_type.name,

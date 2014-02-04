@@ -51,7 +51,6 @@ class CineposApplication(QtGui.QGuiApplication):
             start_time__gt=min_between, start_time__lt=max_between
         ).values_list('id', flat=True)
         self.event_ids = []
-        self.event_ids_to_char = {}
         self.hw_interface = hw_interface
         self.view_location = view_location
         self.current_punter = None
@@ -59,7 +58,6 @@ class CineposApplication(QtGui.QGuiApplication):
         self.window_title = window_title
         self.window_icon = window_icon
 
-        self.reassign_event_chars()
         self.setup_event_select_models()
         self.setup_models()
         self.setup_view()
@@ -67,17 +65,8 @@ class CineposApplication(QtGui.QGuiApplication):
         self.set_punter(None)
         self.prepare_view()
 
-    def reassign_event_chars(self):
-        self.event_ids_to_char = {}
-        cur_char = ord('A')
-        for evi in self.event_ids:
-            self.event_ids_to_char[evi] = chr(cur_char)
-            cur_char += 1
-
     def set_event_ids(self, event_ids):
         self.event_ids = event_ids
-
-        self.reassign_event_chars()
 
         self.setup_models()
         self.wire_view()
@@ -312,8 +301,7 @@ class CineposApplication(QtGui.QGuiApplication):
     def on_reprint_ticket(self, ticket_id):
         try:
             ticket = models.Ticket.objects.get(pk=ticket_id)
-            ec = self.event_ids_to_char[ticket.ticket_type.event_id]
-            self.hw_interface.printer.print_ticket(ticket, ec)
+            self.hw_interface.printer.print_ticket(ticket)
         except models.Ticket.DoesNotExist:
             self.show_dialog(
                 type_='error',
