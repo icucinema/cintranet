@@ -114,6 +114,7 @@ class Punter(models.Model):
         )
 
         entitlements_created = 0
+        should_save = False
         # check if entitlements already exist
         for ent_id, ent_kwargs in entitlements.iteritems():
             eobj, c = EntitlementDetail.objects.get_or_create(
@@ -126,8 +127,10 @@ class Punter(models.Model):
                 more_write_to(u'Added {} to https://staff.wide.icucinema.co.uk/ticketing/#/punters/{}'.format(eobj.entitlement.name, obj.id))
             if c and not created:
                 obj.comment += '\n' + note
+                should_save = True
                 
-        obj.save() # in case comment has changed
+        if should_save:
+            obj.save() # in case comment has changed
 
         return obj, created, entitlements_created
 

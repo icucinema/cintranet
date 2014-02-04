@@ -23,8 +23,9 @@ class SetAuthCookieMixin(object):
 
     def generate_session_data(self):
         u = self.request.user
+        self.request.session['has_session'] = True
         sess_cookie = settings.SESSION_COOKIE_NAME
-        sess_id = self.request.COOKIES[sess_cookie]
+        sess_id = self.request.session.session_key
         return {
             'session_cookie': sess_cookie,
             'session_id': sess_id,
@@ -45,7 +46,7 @@ class LogoutView(RedirectView):
         else:
             messages.error(request, u"Security token error.")
         resp = super(LogoutView, self).get(request, *args, **kwargs)
-        resp.delete_cookie('icuc_auth', domain=settings.SSO_COOKIE_SETTINGS.get('domain', None), path=settings.SSO_COOKIE_SETTINGS.get('path', None))
+        resp.delete_cookie('icuc_auth', domain=settings.SSO_COOKIE_SETTINGS.get('domain', None), path=settings.SSO_COOKIE_SETTINGS.get('path', '/'))
         return resp
 
 class LoginView(SetAuthCookieMixin, FormView):
