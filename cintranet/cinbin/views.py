@@ -13,8 +13,8 @@ class IndexView(RedirectView):
 class RecentPastesMixin(object):
     def get_context_data(self, **kwargs):
         context = {}
-        context['recent_text_pastes'] = models.TextPaste.objects.all()[0:5]
-        context['recent_image_pastes'] = models.ImagePaste.objects.all()[0:5]
+        context['recent_text_pastes'] = models.TextPaste.objects.all().order_by('-id')[0:5]
+        context['recent_image_pastes'] = models.ImagePaste.objects.all().order_by('-id')[0:5]
         context.update(kwargs)
         return super(RecentPastesMixin, self).get_context_data(**context)
 
