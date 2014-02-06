@@ -1,0 +1,19 @@
+{% extends "cinbin/base.html" %}
+
+{% load floppyforms %}
+
+{% block title %}CinBin{% endblock %}
+
+{% block pagecontent %}
+<h3>Image {{ object.id }}{% if request.user.is_authenticated %} by {{ object.user.username }}{% endif %}</h3>
+<h5>{{ object.posted }}</h5>
+<hr>
+<img src="{{ object.content.url }}" alt="Image Paste {{ object.id }}">
+{% if request.user.is_superuser %}
+<hr>
+<form method="POST" action="delete/">
+	{% csrf_token %}
+	<div class="medium danger btn"><input type="submit" value="Delete"></div>
+</form>
+{% endif %}
+{% endblock %}

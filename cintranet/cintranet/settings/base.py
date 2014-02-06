@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'auth',
     'ticketing',
     'cott',
+    'cinbin',
 
     'south',
 ]
@@ -165,6 +166,9 @@ LOGIN_EXEMPT_URLS = (
     '^ticketing/api/',
     '^remoteheader/$',
     '^ticketing/events/ical/$',
+    '^cinbin/i/([a-z0-9\-]+)/$',
+    '^cinbin/t/([a-z0-9\-]+)/$',
+    '^media/',
 )
 
 ### ticketing settings

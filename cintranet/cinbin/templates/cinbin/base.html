@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+{% if request.user.is_authenticated %}
+	<div class="three columns">
+		<p><a href="{% url 'cinbin:cinbin_imagepaste_create' %}">New Image Paste</a></p>
+		<p><a href="{% url 'cinbin:cinbin_textpaste_create' %}">New Text Paste</a></p>
+		<h4>Recent Text Pastes</h4>
+		<ol>
+			{% for p in recent_text_pastes %}
+				<li><a href="{{ p.get_absolute_url }}">{{ p.posted }}</a></li>
+			{% endfor %}
+		</ol>
+		<h4>Recent Image Pastes</h4>
+		<ol>
+			{% for p in recent_image_pastes %}
+				<li><a href="{{ p.get_absolute_url }}">{{ p.posted }}</a></li>
+			{% endfor %}
+		</ol>
+	</div>
+	<div class="nine columns">
+{% else %}
+	<div class="twelve columns">
+{% endif %}
+		{% block pagecontent %}{% endblock %}
+	</div>
+</div>
+{% endblock %}

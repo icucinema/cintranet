@@ -1,0 +1,26 @@
+{% extends "cinbin/base.html" %}
+
+{% load floppyforms %}
+
+{% block title %}CinBin{% endblock %}
+
+{% block pagecontent %}
+<h2>New Text Paste</h2>
+<form action="" method="POST">
+	{% csrf_token %}
+	<ul>
+		<li class="field">
+			<textarea name="content" class="textarea input" id="content" style="height: 250px; width: 100%;" autofocus></textarea>
+		</li>
+		<li class="field">
+			<label class="checkbox">
+				<input type="checkbox" name="public" id="public" value="public">
+				<span></span> Public?
+			</label>
+		</li>
+		<li>
+			<div class="medium primary btn"><input type="submit" value="Create" /></div>
+		</li>
+	</ul>
+</form>
+{% endblock %}

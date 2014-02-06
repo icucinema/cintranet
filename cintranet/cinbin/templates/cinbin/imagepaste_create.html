@@ -1,0 +1,28 @@
+{% extends "cinbin/base.html" %}
+
+{% load floppyforms %}
+
+{% block title %}CinBin{% endblock %}
+
+{% block pagecontent %}
+<h2>New Image Paste</h2>
+<form action="" method="POST" enctype="multipart/form-data">
+	{% csrf_token %}
+	{{ form.non_field_errors }}
+	<ul>
+		<li class="field">
+			{{ form.content.errors }}
+			<input type="file" name="content" required>
+		</li>
+		<li class="field">
+			<label class="checkbox">
+				<input type="checkbox" name="public" id="public" value="public">
+				<span></span> Public?
+			</label>
+		</li>
+		<li>
+			<div class="medium primary btn"><input type="submit" value="Create" /></div>
+		</li>
+	</ul>
+</form>
+{% endblock %}

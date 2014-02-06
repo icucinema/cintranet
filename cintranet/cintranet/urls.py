@@ -20,6 +20,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^ticketing/api/', include('ticketing.api_urls')),
     url(r'^ticketing/', include('ticketing.urls', app_name='ticketing', namespace='ticketing')),
+    url(r'^cinbin/', include('cinbin.urls', app_name='cinbin', namespace='cinbin')),
 )
 
 if settings.DEBUG:
