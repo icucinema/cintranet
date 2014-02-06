@@ -20,4 +20,10 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^ticketing/api/', include('ticketing.api_urls')),
     url(r'^ticketing/', include('ticketing.urls', app_name='ticketing', namespace='ticketing')),
-) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+)
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += patterns('',
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

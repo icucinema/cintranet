@@ -20,11 +20,8 @@ def get_env_variable(var_name):
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'at94$edi+y2c5-p2p+rl&kex@krdi4$4_-5_8blv2%^3qsydiw'
 SSO_SHARED_SECRET_KEY = '5b0G50yVw53zLYiG8o04OjQqWglm7E1U'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-TEMPLATE_DEBUG = True
+DEBUG = False
+TEMPLATE_DEBUG = False
 
 ALLOWED_HOSTS = [
     'staff.wide.icucinema.co.uk',
@@ -36,7 +33,7 @@ ALLOWED_HOSTS = [
 
 # Application definition
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -56,7 +53,7 @@ INSTALLED_APPS = (
     'cott',
 
     'south',
-)
+]
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -66,6 +63,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'sitewide.middleware.LoginRequiredMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -175,3 +173,12 @@ TICKETING_SEASON_ENTITLEMENT = 2
 TICKETING_STANDARD_EVENT_TYPE = 1
 TICKETING_DOUBLEBILL_EVENT_TYPE = 2
 TMDB_API_KEY = "91555fc0d844a9ff2177850a87a88294"
+
+INTERNAL_IPS = [
+	'127.0.0.1',
+	'::1',
+	'155.198.243.16', # su-cinema04
+	'155.198.243.25', # su-cinema
+]
+
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
