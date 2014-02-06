@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'sitewide',
     'auth',
     'ticketing',
-    'cott',
+    'icusync',
     'cinbin',
 
     'south',

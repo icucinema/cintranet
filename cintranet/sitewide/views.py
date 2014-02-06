@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
 
-import cott.models
+import icusync.models
 
 def get_button_class(sold, initial):
     btn_class = 'info'
@@ -26,7 +26,7 @@ class IndexView(TemplateView):
     def get_context_data(self, **kwargs):
         # we're looking for:
         # Membership count
-        cm = cott.models.Product.objects.filter(currently_available=True)
+        cm = icusync.models.Product.objects.filter(currently_available=True)
 
         my_context = {
             'stats': [
@@ -53,7 +53,7 @@ class IndexView(TemplateView):
                 'class': btn_class
             })
                 
-            sku_entitlements = cott.models.SKUEntitlement.objects.filter(sku__product=product).select_related('entitlement')
+            sku_entitlements = icusync.models.SKUEntitlement.objects.filter(sku__product=product).select_related('entitlement')
             for sku_entitlement in sku_entitlements:
                 my_context['stats'].append({
                     'link': product.union_url,

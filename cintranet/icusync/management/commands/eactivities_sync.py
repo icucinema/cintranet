@@ -7,7 +7,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils.timezone import utc
 
-from cott import models
+from icusync import models
 from icunion import collate, eactivities
 import ticketing.models
 from cintranet.utils import IRCCatPinger
