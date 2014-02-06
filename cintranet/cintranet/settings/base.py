@@ -136,8 +136,8 @@ AUTH_LDAP_USER_ATTR_MAP = {
     "email": "roomNumber"   
 }
 AUTH_LDAP_USER_FLAGS_BY_GROUP = {
-    "is_superuser": "cn=staff,ou=groups,dc=icucinema,dc=co,dc=uk",
-    "is_staff": "cn=staff,ou=groups,dc=icucinema,dc=co,dc=uk",
+    "is_superuser": "cn=sysadmin,ou=groups,dc=icucinema,dc=co,dc=uk",
+    "is_staff": "cn=sysadmin,ou=groups,dc=icucinema,dc=co,dc=uk",
     "is_active": "cn=staff,ou=groups,dc=icucinema,dc=co,dc=uk"
 }
 AUTH_LDAP_GROUP_SEARCH = LDAPSearch("ou=groups,dc=icucinema,dc=co,dc=uk",
