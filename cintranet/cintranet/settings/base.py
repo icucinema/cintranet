@@ -129,7 +129,7 @@ AUTH_LDAP_START_TLS = True
 AUTH_LDAP_BIND_DN = ""
 AUTH_LDAP_BIND_PASSWORD = ""
 AUTH_LDAP_USER_DN_TEMPLATE = "uid=%(user)s,ou=people,dc=icucinema,dc=co,dc=uk"
-AUTH_LDAP_REQUIRE_GROUP = "cn=staff,ou=groups,dc=icucinema,dc=co,dc=uk"
+AUTH_LDAP_REQUIRE_GROUP = "cn=humans,ou=groups,dc=icucinema,dc=co,dc=uk"
 AUTH_LDAP_USER_ATTR_MAP = {
     "first_name": "givenName",
     "last_name": "sn",
