@@ -1,3 +1,8 @@
+/* apply a natural box layout model to all elements */
+*, *:before, *:after {
+  -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+ }
+
 .alert { padding: 0 10px; font-family: "Open Sans"; font-weight: 600; list-style-type: none; word-wrap: break-word; margin-bottom: 8px; font-size: 14px; font-size: 0.875rem; -webkit-border-radius: 4px; -moz-border-radius: 4px; -ms-border-radius: 4px; -o-border-radius: 4px; border-radius: 4px; }
 .alert.default { background: white; border: 1px solid #f2f2f2; color: #bfbfbf; color: #555555; border: 1px solid #f2f2f2; }
 .alert.primary { background: #85b7e7; border: 1px solid #3085d6; color: #1a5186; }
@@ -37,4 +42,26 @@
 	overflow: hidden;
 	padding: 1px 6px;
 	margin: 0 0 20px;
+}
+
+.vertical-nav li a {
+	display: block;
+	padding: 12px 17px;
+	color: #052443;
+	background-color: #fff;
+}
+.vertical-nav li.active a {
+	background-color: #052443;
+	color: #fff;
+}
+.fixed-nav {
+	position: fixed;
+	width: 224px;
+}
+@media only screen and (max-width: 767px) {
+	/** unstick! **/
+	.fixed-nav {
+		position: relative;
+		width: auto;
+	}
 }

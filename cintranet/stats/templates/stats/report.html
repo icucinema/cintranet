@@ -1,0 +1,56 @@
+{% extends "stats/base.html" %}
+
+{% block stats %}
+	<h2>{{ title }}</h2>
+	<table>
+		{% if head %}
+		<thead>
+			<tr>
+				{% for headdata in head %}
+					<th>{{ headdata }}</th>
+				{% endfor %}
+			</tr>
+		</thead>
+		{% endif %}
+		<tbody>
+		{% if grouped %}
+			{% for group in dataset %}
+				<tr class="titlerow">
+					{% for ghead in group.headings %}
+						<td style="background-color: black; color: white;">{{ ghead }}</td>
+					{% endfor %}
+				</tr>
+				{% for data in group.data %}
+					<tr>
+						{% for datum in data %}
+							<td>{{ datum }}</td>
+						{% endfor %}
+					</tr>
+				{% endfor %}
+			{% endfor %}
+		{% else %}
+			{% for data in dataset %}
+				<tr>
+					{% for datum in data %}
+						<td>{{ datum }}</td>
+					{% endfor %}
+				</tr>
+			{% endfor %}
+		{% endif %}
+		</tbody>
+		{% if foot %}
+		<tfoot>
+			<tr> 
+				{% for footdata in foot %}
+					{% if footdata %}
+						<td style="font-style: italic; font-weight: bold;">{{ footdata }}</td>
+					{% else %}
+						<td>&nbsp;</td>
+					{% endif %}
+				{% endfor %}
+			</tr>
+		</tfoot>
+		{% endif %}
+	</table>
+{% endblock %}
+

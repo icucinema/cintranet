@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Statistics and Reporting{% endblock %}
+
+{% block content %}
+<div class="row">
+	<div class="three columns">
+		<ul class="vertical-nav fixed-nav">
+			<li>Overview</li>
+			<li><a href="{% url 'stats:overview-audience-playweek' %}">Audience by Playweek</a></li>
+			<li><a href="{% url 'stats:overview-audience-film' %}">Audience by Film</a></li>
+			<li><a href="{% url 'stats:overview-money' %}">Money</a></li>
+		</ul>
+	</div>
+	<div class="nine columns">
+		{% block stats %}{% endblock %}
+	</div>
+</div>
+{% endblock content %}

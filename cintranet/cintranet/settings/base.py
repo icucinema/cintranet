@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'ticketing',
     'icusync',
     'cinbin',
+    'stats',
 
     'south',
 ]

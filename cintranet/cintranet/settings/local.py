@@ -12,3 +12,7 @@ STATIC_ROOT = "static"
 MEDIA_ROOT = "media"
 
 SSO_COOKIE_SETTINGS = {}
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': lambda req: DEBUG and not req.is_ajax()
+}
