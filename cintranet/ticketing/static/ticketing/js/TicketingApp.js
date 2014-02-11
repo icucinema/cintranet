@@ -391,6 +391,7 @@ app.controller('ShowingCtrl', function($rootScope, $scope, $routeParams, $locati
 		return '#/films/' + filmId;
 	};
 	$scope.punterUrl = function(punter) {
+		if (!punter.id) return '';
 		return '#/punters/' + punter.id;
 	};
 
@@ -614,6 +615,7 @@ app.controller('PuntersCtrl', function($rootScope, $scope, $routeParams, $locati
 	};
 
 	$scope.punterUrl = function(punter) {
+		if (!punter.id) return '';
 		return '#/punters/' + punter.id;
 	};
 });
