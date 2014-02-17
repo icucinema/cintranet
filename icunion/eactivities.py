@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 
 from . import encoding_utils
 
-DEBUG = False
+DEBUG = True#False
 
 class MemberListMunger(object):
     def __init__(self, itera, associate_pairs):
@@ -108,6 +108,21 @@ class EActivities(object):
 
         return resp
 
+    def _request_page(self, url, stream=False):
+        if DEBUG:
+            print "Fetching", url, "(as GET)"
+
+        if not url.startswith('http'):
+            url = 'https://{}{}'.format(self.base_domain, url)
+
+        resp = self.r.get(url, stream=stream)
+        resp.encoding = 'utf8'
+
+        if DEBUG:
+            print "Got status code", resp.status_code
+
+        return resp
+
     def read_associate_members_list(self, mlxml):
         s = BeautifulSoup(mlxml)
         people = s.find_all(id=re.compile('^1083-'), alias='Name')
@@ -159,7 +174,7 @@ class EActivities(object):
             skus = []
             pr = {
                 'name': bs_pr.attrs['title'],
-                'eactivities_id': int(bs_pr.attrs['event'].split("', '")[-1][:-3]),
+                'eactivities_id': int(bs_pr.attrs['linkobj'].rpartition('/')[-1]),
                 'skus': skus,
                 'purchased_count': 0,
                 'total': Decimal(0),
@@ -170,7 +185,7 @@ class EActivities(object):
                 if tns == u'\xa0': tns = '0'
                 sku = {
                     'name': bs_sku.find('infotablecell', alias="Product SKU Name").text,
-                    'eactivities_id': int(bs_sku.find('infotablecell', alias="Download").attrs['event'].split("', '")[-1][:-3]),
+                    'eactivities_id': int(bs_sku.find('infotablecell', alias="Download").attrs['linkobj'].rpartition('/')[-1]),
                     'purchased_count': int(bs_sku.find('infotablecell', alias="Number Purchased").text),
                     'total': Decimal(tns),
                     'per_item': Decimal(bs_sku.find('infotablecell', alias="Price inc. VAT/Unit (£)").text),
@@ -182,13 +197,11 @@ class EActivities(object):
         return prs
 
     def fetch_purchase_report(self, club_id, product_id, product_type='product'):
-        self._open_purchases_summary(club_id)
-
         # and download the report
         if product_type == 'product':
-            r = self._data_handler(id_='1774', type_='csv', name='Purchase_Report', searchstr='ProductGroup', searchvalue=str(product_id), stream=True)
+            r = self._request_page('/finance/income/shop/group/csv/{}'.format(product_id))
         elif product_type == 'sku':
-            r = self._data_handler(id_='1766', type_='csv', name='Purchase_Report', searchstr='ProductID', searchvalue=str(product_id), stream=True)
+            r = self._request_page('/finance/income/shop/product/csv/{}'.format(product_id))
 
         return self.parse_report_csv(r.content, flo=False)
 
