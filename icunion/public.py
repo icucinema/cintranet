@@ -65,7 +65,18 @@ class Product(object):
 
             self.skus = skus = []
             for sku_option in s.find("select").find_all("option"):
-                skus.append(SKU(self, sku_attr_id, sku_option.attrs['value'], sku_option.text))
+                skus.append(SKU(self, sku_attr_id, unicode(sku_option.attrs['value']), unicode(sku_option.text)))
+
+        sku_radios = s.find("div", class_="form-type-radios")
+        if sku_radios:
+            sku_attr_id = sku_radios.attrs['class'][-1]
+            sku_attr_id = sku_attr_id[sku_attr_id.rfind('-')+1:]
+
+            self.skus = skus = []
+            for sku_option in s.find("div", class_="form-type-radios").find_all("input", type="radio"):
+                txt = unicode(sku_option.find_next_sibling("label").text)
+                txt = txt[:txt.rfind(', ')]
+                skus.append(SKU(self, sku_attr_id, unicode(sku_option.attrs['value']), txt))
 
     def get_remaining(self):
         if self.remaining is not None:

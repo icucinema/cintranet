@@ -28,6 +28,7 @@ class Product(models.Model):
 
 class SKU(models.Model):
     product = models.ForeignKey(Product)
+    org_id = models.PositiveSmallIntegerField(null=True, blank=True)
     eactivities_id = models.PositiveSmallIntegerField(null=True, blank=True)
     name = models.CharField(max_length=256, null=False, blank=False)
     sold = models.PositiveSmallIntegerField(null=True, blank=True)

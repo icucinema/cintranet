@@ -5,6 +5,7 @@ import traceback
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.db.models import Q
 from django.utils.timezone import utc
 
 from icusync import models
@@ -38,7 +39,7 @@ class Command(BaseCommand):
             self.rescrape_products()
         except Exception as ex:
             traceback.print_exc()
-            self.irc_pinger.say('#icucinema', 'SOMETHING WENT WRONG WHILE PARSING EACTIVITIES: {}: {} ({})'.format(type(ex), ex, ex.args))
+            self.irc_pinger.say('#botspam', 'SOMETHING WENT WRONG WHILE PARSING EACTIVITIES: {}: {} ({})'.format(type(ex), ex, ex.args))
 
     def update_available_products(self):
         products = collate.get_product_info(self.eac, "https://www.imperialcollegeunion.org/shop/club-society-project-products/cinema-products/", 411)
@@ -55,7 +56,7 @@ class Command(BaseCommand):
                 )
                 p.name = product['name']
                 if p.sold != product['purchased_count']:
-                    self.irc_pinger.say('#icucinema', '{} purchase count changed! {} -> {}'.format(p.name, p.sold, product['purchased_count']))
+                    self.irc_pinger.say('#botspam', '{} purchase count changed! {} -> {}'.format(p.name, p.sold, product['purchased_count']))
                 p.sold = product['purchased_count']
                 if 'total_count' in product.keys():
                     p.initial = product['total_count']
@@ -65,18 +66,51 @@ class Command(BaseCommand):
                 p.save()
     
                 for sku in product['skus']:
-                    s, _ = models.SKU.objects.get_or_create(
-                        product=p,
-                        eactivities_id=sku['eactivities_id'],
-                        defaults={
-                            'name': sku['name'],
-                            'sold': sku['purchased_count'],
-                            'initial': sku.get('total_count', None)
-                        }
-                    )
+                    try:
+                        qs = []
+                        if sku.get('eactivities_id') is not None:
+                            qs.append(Q(eactivities_id=sku['eactivities_id']))
+                        if sku.get('org_id') is not None:
+                            qs.append(Q(org_id=sku['org_id']))
+
+                        if len(qs) == 0:
+                            q = Q(id=-1)
+                        else:
+                            q = qs[0]
+                            for q_ in qs:
+                                q |= q_
+                        s = models.SKU.objects.get(q)
+                    except models.SKU.DoesNotExist:
+                        if sku.get('eactivities_id') is not None:
+                            s, _ = models.SKU.objects.get_or_create(
+                                product=p,
+                                eactivities_id=sku['eactivities_id'],
+                                defaults={
+                                    'name': sku['name'],
+                                    'sold': sku['purchased_count'],
+                                    'initial': sku.get('total_count', None)
+                                }
+                            )
+                        elif sku.get('org_id') is not None:
+                            s, _ = models.SKU.objects.get_or_create(
+                                product=p,
+                                org_id=sku['org_id'],
+                                defaults={
+                                    'name': sku['name'],
+                                    'sold': sku['purchased_count'],
+                                    'initial': sku.get('total_count', None)
+                                }
+                            )
+                        else:
+                            print "Failed to find anything useful on", sku['name'], sku.keys()
+                            continue
+                    if sku.get('eactivities_id'):
+                        s.eactivities_id = sku['eactivities_id']
+                    if sku.get('org_id'):
+                        s.org_id = sku['org_id']
                     s.name = sku['name']
                     s.sold = sku['purchased_count']
-                    if 'total_count' in sku.keys():
+                    if sku.get('total_count'):
                         s.initial = sku['total_count']
                     s.dirty = True
                     s.save()
@@ -114,7 +148,7 @@ class Command(BaseCommand):
             sku_e.sku.save()
             for member in pr:
                 try:
-                    _, created, ents_created = ticketing.models.Punter.create_from_eactivities_csv(member, automatic_entitlements, "Purchased {} (order no {})".format(member['Date'], member['Order No']), self.stdout.write, lambda x: self.irc_pinger.say('#icucinema', x))
+                    _, created, ents_created = ticketing.models.Punter.create_from_eactivities_csv(member, automatic_entitlements, "Purchased {} (order no {})".format(member['Date'], member['Order No']), self.stdout.write, lambda x: self.irc_pinger.say('#botspam', x))
                 except Exception, ex:
                     count_total += 1
                     count_errored += 1
