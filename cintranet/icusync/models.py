@@ -45,3 +45,10 @@ class SKUEntitlement(models.Model):
 
     def __unicode__(self):
         return u"SKU {}: {} to Entitlement {}".format(self.sku.product.name, self.sku.name, self.entitlement.name)
+
+class SKUTicketType(models.Model):
+    sku = models.ForeignKey(SKU)
+    ticket_type = models.ForeignKey(ticketing.models.TicketType)
+
+    def __unicode__(self):
+        return u"SKU {}: {} to TicketType {}".format(self.sku.product.name, self.sku.name, unicode(self.ticket_type))

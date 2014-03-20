@@ -116,23 +116,38 @@ class Command(BaseCommand):
                     s.save()
 
     def rescrape_products(self):
-        sku_entitlements = models.SKUEntitlement.objects.filter(
+        sku_entitlements = list(models.SKUEntitlement.objects.filter(
             sku__dirty=True
-        )
+        ))
+        sku_tickettypes = list(models.SKUTicketType.objects.filter(
+            sku__dirty=True
+        ))
         purchase_reports = {}
         for sku_e in sku_entitlements:
             # go get the purchase report!
             pr = self.eac.fetch_purchase_report(self.club_id, sku_e.sku.eactivities_id, 'sku')
-            self.update_from_purchase_report(sku_e, pr)
+            self.update_from_purchase_report(sku_e, pr, 'entitlement')
+        for sku_tt in sku_tickettypes:
+            pr = self.eac.fetch_purchase_report(self.club_id, sku_e.sku.eactivities_id, 'sku')
+            self.update_from_purchase_report(sku_tt, pr, 'tickettype')
 
-    def update_from_purchase_report(self, sku_e, pr):
-        self.stdout.write("Processing entitlements from SKU for {}".format(sku_e.entitlement.name))
+    def update_from_purchase_report(self, sku_e, pr, what):
+        self.stdout.write("Processing {}s from SKU for {}".format(what, str(sku_e)))
 
-        automatic_entitlements = {
-            sku_e.entitlement_id: {
-                'remaining_uses': sku_e.uses_remaining
+        if what == 'entitlement':
+            automatic_entitlements = {
+                what: {
+                    sku_e.entitlement_id: {
+                        'remaining_uses': sku_e.uses_remaining
+                    }
+                }
             }
-        }
+        elif what == 'tickettype':
+            automatic_entitlements = {
+                what: {
+                    sku_e.ticket_type_id: {}
+                }
+            }
 
         count_total = 0
         count_errored = 0
@@ -148,7 +163,7 @@ class Command(BaseCommand):
             sku_e.sku.save()
             for member in pr:
                 try:
-                    _, created, ents_created = ticketing.models.Punter.create_from_eactivities_csv(member, automatic_entitlements, "Purchased {} (order no {})".format(member['Date'], member['Order No']), self.stdout.write, lambda x: self.irc_pinger.say('#botspam', x))
+                    punter, created, ents_created = ticketing.models.Punter.create_from_eactivities_csv(member, automatic_entitlements, "Purchased {} (order no {})".format(member['Date'], member['Order No']), self.stdout.write, lambda x: self.irc_pinger.say('#botspam', x))
                 except Exception, ex:
                     count_total += 1
                     count_errored += 1

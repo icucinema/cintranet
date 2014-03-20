@@ -92,6 +92,8 @@ class Punter(models.Model):
         email = csv_row['Email']
         username = csv_row['Login']
         punter_type = csv_row.get('Status', 'full' if cid != '' else 'associate')
+        quantity_bought = int(csv_row.get('Quantity', 1))
+        order_num = csv_row.get('Order No', '')
 
         filter_on = {}
         if cid != '' and not cid.startswith('AM-'):
@@ -116,7 +118,7 @@ class Punter(models.Model):
         entitlements_created = 0
         should_save = False
         # check if entitlements already exist
-        for ent_id, ent_kwargs in entitlements.iteritems():
+        for ent_id, ent_kwargs in entitlements.get('entitlement', {}).iteritems():
             eobj, c = EntitlementDetail.objects.get_or_create(
                 punter=obj,
                 entitlement_id=ent_id,
@@ -128,6 +130,16 @@ class Punter(models.Model):
             if c and not created:
                 obj.comment += '\n' + note
                 should_save = True
+
+        for tt_id, tt_kwargs in entitlements.get('tickettype', {}).iteritems():
+            # how many tickets do they have of this type?
+            tt_count = Ticket.objects.filter(ticket_type_id=tt_id, punter=obj, transaction_id=order_num).count()
+            if tt_count < quantity_bought:
+                for x in range(quantity_bought - tt_count):
+                    ticket = Ticket(punter=obj, ticket_type_id=tt_id, status='pending_collection', transaction_id=order_num)
+                    ticket.save()
+                    entitlements_created += 1
+                more_write_to(u'[{}] Granted {} to https://staff.wide.icucinema.co.uk/ticketing/#/punters/{}'.format(quantity_bought - tt_count, ticket.ticket_type, obj.id))
                 
         if should_save:
             obj.save() # in case comment has changed
@@ -478,12 +490,14 @@ class Entitlement(models.Model):
 
 
 class Ticket(models.Model):
-    STATUS = Choices('live', 'void', 'refunded')
+    STATUS = Choices('pending_collection', 'live', 'void', 'refunded')
 
     ticket_type = models.ForeignKey(TicketType, related_name='tickets', null=False)
 
     punter = models.ForeignKey(Punter, related_name='tickets', null=True)
     entitlement = models.ForeignKey(Entitlement, related_name='tickets', null=True)
+
+    transaction_id = models.CharField(null=False, blank=True, default='', max_length=32)
 
     timestamp = models.DateTimeField(null=False, blank=False, auto_now_add=True)
     status = StatusField(db_index=True)
@@ -587,6 +601,14 @@ class Ticket(models.Model):
         # voiding means we neither give the money back nor return any entitlements
         self.status = 'void'
         self.save()
+
+    @transaction.atomic
+    def collect(self):
+        if self.status != 'pending_collection':
+            raise Exception("Can't collect a ticket that's not waiting to be collected!")
+        self.status = 'live'
+        self.save()
+        return self
 
     class Meta:
         ordering = ['-id']
