@@ -123,12 +123,14 @@ class Command(BaseCommand):
             sku__dirty=True
         ))
         purchase_reports = {}
+
         for sku_e in sku_entitlements:
             # go get the purchase report!
             pr = self.eac.fetch_purchase_report(self.club_id, sku_e.sku.eactivities_id, 'sku')
             self.update_from_purchase_report(sku_e, pr, 'entitlement')
+
         for sku_tt in sku_tickettypes:
-            pr = self.eac.fetch_purchase_report(self.club_id, sku_e.sku.eactivities_id, 'sku')
+            pr = self.eac.fetch_purchase_report(self.club_id, sku_tt.sku.eactivities_id, 'sku')
             self.update_from_purchase_report(sku_tt, pr, 'tickettype')
 
     def update_from_purchase_report(self, sku_e, pr, what):

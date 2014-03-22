@@ -99,9 +99,14 @@ class Punter(models.Model):
         if cid != '' and not cid.startswith('AM-'):
             filter_on = {'cid': cid}
             write_to(u'Handling {} (CID: {}, username: {})'.format(name, cid, username))
-        else:
+        elif cid.startswith('AM-'):
             filter_on = {'name': name}
-            write_to(u'Handling {} (associate/life member)'.format(name))
+            write_to(u'Handling {} (associate/life member) BY NAME!'.format(name))
+        else:
+            if email == '' and '@' in username:
+                email = username
+            filter_on = {'login': username}
+            write_to(u'Handling {} - {} (associate/life member) by email'.format(name, username))
 
         obj, created = cls.objects.get_or_create(
             defaults={
