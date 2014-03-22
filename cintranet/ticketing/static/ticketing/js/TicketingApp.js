@@ -276,6 +276,10 @@ app.controller('EventCtrl', function($rootScope, $scope, $routeParams, $location
 	$scope.showingUrl = function(showing) {
 		return '#/showings/' + showing.id;
 	};
+	$scope.punterUrl = function(punter) {
+		if (!punter) return '';
+		return '#/punters/' + punter.id;
+	};
 
 	$scope.editTicketType = function(tickettype) {
 		$scope.edit.tickettype.original = tickettype;
