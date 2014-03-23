@@ -145,6 +145,13 @@ class CineposApplication(QtGui.QGuiApplication):
             self.view.showMaximized()
 
     def set_punter(self, punter):
+        # check to see if the punter has got pending tickets for this event - if so, just print them
+        tickets = models.Ticket.objects.filter(ticket_type__event_id__in=self.event_ids, status='pending_collection', punter=punter)
+        if len(tickets) != 0:
+            for ticket in tickets:
+                self.print_ticket(ticket)
+            return
+
         self.current_punter = punter
         self.context.setContextProperty('punterName', punter_name(punter))
 
@@ -298,10 +305,16 @@ class CineposApplication(QtGui.QGuiApplication):
                 button='OK', button_target='viewticket'
             )
 
+    def print_ticket(self, ticket):
+        if ticket.status == 'pending_collection':
+            ticket.status = 'live'
+            ticket.save()
+        self.hw_interface.printer.print_ticket(ticket)
+
     def on_reprint_ticket(self, ticket_id):
         try:
             ticket = models.Ticket.objects.get(pk=ticket_id)
-            self.hw_interface.printer.print_ticket(ticket)
+            self.print_ticket(ticket)
         except models.Ticket.DoesNotExist:
             self.show_dialog(
                 type_='error',
@@ -354,8 +367,7 @@ class CineposApplication(QtGui.QGuiApplication):
         punter = self.current_punter
 
         ticket = models.Ticket.generate(ticket_type=tickettype, punter=punter)
-        ec = self.event_ids_to_char[tickettype.event_id]
-        self.hw_interface.printer.print_ticket(ticket, ec)
+        self.print_ticket(ticket)
 
     def generate_report(self):
         # this is going to be interesting...

@@ -263,7 +263,7 @@ Rectangle {
     Button {
         id: reprintButton
         x: 308
-        text: "Reprint"
+        text: (ticketDetails.status === 'pending_collection' ? "Print" : "Reprint")
         anchors.top: parent.top
         anchors.topMargin: 17
         anchors.right: parent.right
