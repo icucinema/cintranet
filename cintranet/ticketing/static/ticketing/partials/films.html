@@ -48,7 +48,7 @@ Showing <strong>{{ data.startAt }}</strong>-<strong>{{ data.endAt }}</strong> of
 						<img ng-src="{{ result.poster_url }}" style="max-height: 150px; width: auto">
 					</div>
 					<h5>{{ result.name }}</h5>
-					<div><div class="medium btn success icon-left entypo icon-plus" ng-click="addFilm.create(result)"><a href>Add</a></div></div>
+					<div><div class="medium btn success icon-left entypo icon-plus" ng-click="addFilm.setFrom(result)"><a href>Add</a></div></div>
 					<p>{{ result.description }}</p>
 					</div>
 				</li>

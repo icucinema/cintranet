@@ -122,6 +122,10 @@ app.directive('tabs', function() {
 				}
 				panes.push(pane);
 			};
+			$scope.$parent.panes = {
+				panes: $scope.panes,
+				select: $scope.select
+			};
 		}
 	}
 });
@@ -499,6 +503,11 @@ app.controller('FilmsCtrl', function($rootScope, $scope, $routeParams, $location
 			films.post(film).then(function() {
 				updateFilmData();
 			});
+		},
+		setFrom: function(film) {
+			$scope.addFilm.manualItem = film;
+			$scope.addFilm.addType = 'manual';
+			$scope.panes.select($scope.panes.panes[1]);
 		},
 		resultsFor: null,
 		results: [],
