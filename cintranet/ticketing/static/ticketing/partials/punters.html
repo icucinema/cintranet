@@ -20,7 +20,7 @@ Showing <strong>{{ data.startAt }}</strong>-<strong>{{ data.endAt }}</strong> of
 	</thead>
 	<tbody>
 		<tr ng-repeat="punter in data.results">
-			<td><a href="{{ punterUrl(punter) }}">{{ punter.name }}</a></td>
+			<td><a href="{{ punterUrl(punter) }}"><span ng-if="punter.name">{{ punter.name }}</span><span ng-if="!punter.name" style="font-style: italic">Unknown (ID: {{ punter.id }})</span></a></td>
 			<td>{{ punter.cid }}</td>
 		</tr>
 	</tbody>
