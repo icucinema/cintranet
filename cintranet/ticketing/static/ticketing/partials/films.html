@@ -68,6 +68,10 @@ Showing <strong>{{ data.startAt }}</strong>-<strong>{{ data.endAt }}</strong> of
 					<textarea class="xxwide textarea input" id="manual-description" ng-model="addFilm.manualItem.description"></textarea>
 				</li>
 				<li class="field">
+					<label class="inline" for="manual-certificate">Certificate/BBFC Rating</label>
+					<input class="xxwide text input" id="manual-certificate" ng-model="addFilm.manualItem.certificate" type="text">
+				</li>
+				<li class="field">
 					<label class="inline" for="manual-poster-url">Poster URL</label>
 					<input class="xxwide url input" id="manual-poster-url" ng-model="addFilm.manualItem.poster_url" type="url">
 				</li>
