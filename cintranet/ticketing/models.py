@@ -166,6 +166,9 @@ class Film(models.Model):
 
     poster_url = models.URLField(blank=True, null=False, default="")
 
+    royalties_percent = models.PositiveSmallIntegerField(null=True, blank=True)
+    royalties_minimum = models.PositiveSmallIntegerField(null=True, blank=True)
+
     def __unicode__(self):
         return self.name
 
@@ -499,8 +502,8 @@ class Ticket(models.Model):
 
     ticket_type = models.ForeignKey(TicketType, related_name='tickets', null=False)
 
-    punter = models.ForeignKey(Punter, related_name='tickets', null=True)
-    entitlement = models.ForeignKey(Entitlement, related_name='tickets', null=True)
+    punter = models.ForeignKey(Punter, related_name='tickets', null=True, blank=True)
+    entitlement = models.ForeignKey(Entitlement, related_name='tickets', null=True, blank=True)
 
     transaction_id = models.CharField(null=False, blank=True, default='', max_length=32)
 

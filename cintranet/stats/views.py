@@ -1,5 +1,6 @@
 import datetime
-from decimal import Decimal
+import decimal
+Decimal = decimal.Decimal
 
 from django.views.generic.base import TemplateView
 from django.db.models import Count, Sum
@@ -13,6 +14,8 @@ def get_default_date_bounds():
     end_at = my_now
     return start_at, end_at
 
+def quantize(d, **kwargs):
+    return d.quantize(Decimal('.01'), **kwargs)
 
 class IndexView(TemplateView):
     template_name = 'stats/index.html'
@@ -151,7 +154,7 @@ class OverviewMoneyView(ReportView):
     title = 'Money Overview'
     grouped = True 
     data = []
-    head = ['Date', 'Film', 'Take', 'Refunded', 'Paid (35/100)', 'Profit']
+    head = ['Date', 'Film', 'Take', 'Refunded', 'Paid', 'Profit']
 
     def get_raw_data(self):
         start_at, end_at = get_default_date_bounds()
@@ -178,6 +181,9 @@ class OverviewMoneyView(ReportView):
             }
             event_dicts.append(event_dict)
 
+            if len(event.showings.all()) == 0:
+                continue
+
             this_costing = dict(event_dict['costing'])
             this_costing['take'] = this_costing['take'] / len(event.showings.all())
 
@@ -189,7 +195,9 @@ class OverviewMoneyView(ReportView):
                     'start_time': showing.start_time,
                     'costing': {
                         'take': Decimal(0), 'bor_cost': Decimal(0), 'refunded': Decimal(0)
-                    }
+                    },
+                    'royalties_percent': showing.film.royalties_percent,
+                    'royalties_minimum': showing.film.royalties_minimum
                 })
                 for k, v in this_costing.items():
                     showing_dict['costing'][k] += v
@@ -200,7 +208,6 @@ class OverviewMoneyView(ReportView):
         }
 
     def get_data(self, raw_data):
-        quantize = lambda d: d.quantize(Decimal('.01'))
 
         playweek_showings = {}
         # we need to group into playweek-film
@@ -214,7 +221,10 @@ class OverviewMoneyView(ReportView):
             name = showings[0]['name']
             previous_playweek = playweek - datetime.timedelta(days=7)
             has_previous_playweek = '{}***{}'.format(previous_playweek, name) in playweek_showings.keys()
-            guarantee = Decimal(100) if not has_previous_playweek else Decimal(0)
+            if showings[0]['royalties_minimum'] is not None:
+                guarantee = Decimal(showings[0]['royalties_minimum']) if not has_previous_playweek else Decimal(0)
+            else:
+                guarantee = None
             out_data.append({
                 'headings': [playweek.strftime('%Y %m %d'), name, 0, 0, 0, 0],
                 'data': []
@@ -235,8 +245,15 @@ class OverviewMoneyView(ReportView):
                     running_totals[k] += v
             h[2] = quantize(running_totals['take'])
             h[3] = quantize(running_totals['refunded'])
-            h[4] = quantize(max(running_totals['bor_cost'] * Decimal(0.35), guarantee))
-            h[5] = quantize(running_totals['take'] - running_totals['refunded'] - h[4])
+            if showings[0]['royalties_percent'] is not None and guarantee is not None:
+                bor_cost_novat = quantize(running_totals['bor_cost'] / Decimal(1.2), rounding=decimal.ROUND_DOWN)
+                rental_cost_novat = quantize(max(bor_cost_novat * Decimal(showings[0]['royalties_percent']) / 100, guarantee))
+                rental_cost = rental_cost_novat * Decimal(1.2)
+                h[4] = quantize(rental_cost)
+                h[5] = quantize(running_totals['take'] - running_totals['refunded'] - h[4])
+            else:
+                h[4] = 0
+                h[5] = 0
         return out_data
 
     def get_foot(self, raw_data, data):
