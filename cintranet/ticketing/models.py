@@ -168,6 +168,7 @@ class Film(models.Model):
 
     royalties_percent = models.PositiveSmallIntegerField(null=True, blank=True)
     royalties_minimum = models.PositiveSmallIntegerField(null=True, blank=True)
+    royalties_troytastic = models.BooleanField(default=False, help_text=u'Use the magical Troy calculation?')
 
     def __unicode__(self):
         return self.name

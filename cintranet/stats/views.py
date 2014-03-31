@@ -154,7 +154,7 @@ class OverviewMoneyView(ReportView):
     title = 'Money Overview'
     grouped = True 
     data = []
-    head = ['Date', 'Film', 'Take', 'Refunded', 'Paid', 'Profit']
+    head = ['Date', 'Film', 'Take (gross)', 'Refunded (gross)', 'Paid (gross)', 'Profit (net)']
 
     def get_raw_data(self):
         start_at, end_at = get_default_date_bounds()
@@ -197,7 +197,8 @@ class OverviewMoneyView(ReportView):
                         'take': Decimal(0), 'bor_cost': Decimal(0), 'refunded': Decimal(0)
                     },
                     'royalties_percent': showing.film.royalties_percent,
-                    'royalties_minimum': showing.film.royalties_minimum
+                    'royalties_minimum': showing.film.royalties_minimum,
+                    'royalties_troytastic': 1.2 if showing.film.royalties_troytastic else 1.0
                 })
                 for k, v in this_costing.items():
                     showing_dict['costing'][k] += v
@@ -248,9 +249,10 @@ class OverviewMoneyView(ReportView):
             if showings[0]['royalties_percent'] is not None and guarantee is not None:
                 bor_cost_novat = quantize(running_totals['bor_cost'] / Decimal(1.2), rounding=decimal.ROUND_DOWN)
                 rental_cost_novat = quantize(max(bor_cost_novat * Decimal(showings[0]['royalties_percent']) / 100, guarantee))
+                rental_cost_novat = (max(0, rental_cost_novat - guarantee) * Decimal(showings[0]['royalties_troytastic'])) + guarantee
                 rental_cost = rental_cost_novat * Decimal(1.2)
                 h[4] = quantize(rental_cost)
-                h[5] = quantize(running_totals['take'] - running_totals['refunded'] - h[4])
+                h[5] = quantize((running_totals['take'] - running_totals['refunded'] - h[4]) / Decimal(1.2))
             else:
                 h[4] = 0
                 h[5] = 0
