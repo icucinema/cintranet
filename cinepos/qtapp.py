@@ -76,12 +76,18 @@ class CineposApplication(QtGui.QGuiApplication):
             self.rootObj.setCurrentEvent(str(self.event_ids[0]))
 
     def setup_event_select_models(self):
-        self.event_search_model = SearchingEventsModel(base_qs=models.Event.objects.all(), events=[])
+        self.event_search_model = SearchingEventsModel(base_qs=models.Event.objects.all().order_by('start_time'), events=[])
         self.event_select_model = EditableEventsModel(base_qs=models.Event.objects.all(), events=[])
         [self.event_select_model.add_item(n) for n in self.event_ids]
 
     def setup_models(self):
-        self.events = models.Event.objects.filter(id__in=self.event_ids)
+        events_tmp = models.Event.objects.filter(id__in=self.event_ids)
+        events_dict = {}
+        for event in events_tmp:
+            events_dict[event.pk] = event
+        self.events = []
+        for event_id in self.event_ids:
+            self.events.append(events_dict[event_id])
         self.events_model = EventsModel(self.events)
 
         self.tickettypes = models.TicketType.objects.filter(event__id__in=self.event_ids).order_by(
@@ -148,8 +154,15 @@ class CineposApplication(QtGui.QGuiApplication):
         # check to see if the punter has got pending tickets for this event - if so, just print them
         tickets = models.Ticket.objects.filter(ticket_type__event_id__in=self.event_ids, status='pending_collection', punter=punter)
         if len(tickets) != 0:
+            self.show_dialog(
+                type_='info',
+                title='Printing pending tickets...',
+                message='Printing {} pre-booked tickets.'.format(len(tickets)),
+                button='OK', button_target=''
+            )
             for ticket in tickets:
                 self.print_ticket(ticket)
+            self.events_model.refresh()
             return
 
         self.current_punter = punter

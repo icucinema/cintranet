@@ -43,7 +43,7 @@ class EventsModel(QtCore.QAbstractListModel):
         elif role == EventsModel.EVENT_ID_ROLE:
             return str(event.id)
         elif role == EventsModel.SOLD_TICKETS_ROLE:
-            return int(models.Ticket.objects.filter(ticket_type__event=event, status='live').count())
+            return int(models.Ticket.objects.filter(ticket_type__event=event, status__in=['live', 'pending_collection']).count())
         else:
             return None
 
@@ -189,7 +189,7 @@ class TicketTypesModel(QtCore.QAbstractListModel):
         elif role == TicketTypesModel.EVENT_NAME_ROLE:
             return ticketType.event.name
         elif role == TicketTypesModel.SOLD_TICKETS_ROLE:
-            return int(ticketType.tickets.filter(status='live').count())
+            return int(ticketType.tickets.filter(status__in=['live', 'pending_collection']).count())
         else:
             return None
 
