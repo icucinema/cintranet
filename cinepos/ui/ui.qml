@@ -120,6 +120,7 @@ Rectangle {
     property variant currentDialog;
 
     property bool gotSwipeWaitingForEnter : false;
+    property bool binningSwipe : false;
     Keys.onPressed: {
         if (event.key == Qt.Key_Backspace) {
             if (currentBuffer.length == 0) return;
@@ -130,6 +131,7 @@ Rectangle {
 
         if (event.key > 0x01000000) return; // ignore weird keys
         var keyChar = String.fromCharCode(event.key);
+
         if ((event.modifiers & Qt.ControlModifier) !== 0) {
             event.accepted = true;
             return; // ignore Ctrl-*
@@ -142,6 +144,7 @@ Rectangle {
         if (keyChar == ";") {
             currentBuffer = "";
             gotSwipeWaitingForEnter = false;
+            binningSwipe = false;
         }
         if (keyChar == "?") {
             console.log("Read card data:", currentBuffer + keyChar);
@@ -150,18 +153,28 @@ Rectangle {
             event.accepted = true;
             return;
         }
+        if (keyChar == "+" || keyChar == "%") {
+            console.log("Binning input...");
+            binningSwipe = true;
+            event.accepted = true;
+            return;
+        }
 
         currentBuffer += keyChar;
         event.accepted = true;
     }
     Keys.onReturnPressed: {
-        if (currentBuffer.length > 0 && gotSwipeWaitingForEnter) {
+        event.accepted = true;
+        if (binningSwipe) {
+            // nope
+            binningSwipe = false;
+        } else if (currentBuffer.length > 0 && gotSwipeWaitingForEnter) {
             gotPunterIdentifier("swipecard", currentBuffer);
-        } else if (currentBuffer.length > 0)
+        } else if (currentBuffer.length > 0) {
             gotPunterIdentifier("unknown", currentBuffer);
+        }
         gotSwipeWaitingForEnter = false;
         currentBuffer = "";
-        event.accepted = true;
     }
     Keys.onEnterPressed: {
         if (currentBuffer.length > 0 && gotSwipeWaitingForEnter) {

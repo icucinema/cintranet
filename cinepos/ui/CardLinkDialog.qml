@@ -19,6 +19,11 @@ Rectangle {
     function clearCidInput() {
         cidInput.text = "";
     }
+    function cleanAndLinkClicked() {
+        if (cidInput.text.length != 8) return clearCidInput();
+        if (cidInput.text.charAt(cidInput.text.length-1) == ';') return clearCidInput();
+        return linkClicked(cidInput.text);
+    }
 
     Text {
         renderType: Text.NativeRendering
@@ -48,8 +53,8 @@ Rectangle {
         cursorVisible: true
 
         Keys.onEscapePressed: cancelClicked()
-        Keys.onReturnPressed: linkClicked(cidInput.text)
-        Keys.onEnterPressed: linkClicked(cidInput.text)
+        Keys.onReturnPressed: cleanAndLinkClicked(cidInput.text)
+        Keys.onEnterPressed: cleanAndLinkClicked(cidInput.text)
         Keys.onPressed: {
             if ((event.modifiers & Qt.ControlModifier)) {
                 event.accepted = true;
