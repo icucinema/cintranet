@@ -28,6 +28,7 @@ class ReportView(TemplateView):
     data = []
     head = False
     foot = False
+    col_classes = []
 
     def get_head(self, raw_data, data):
         return self.head
@@ -37,6 +38,9 @@ class ReportView(TemplateView):
 
     def get_data(self, raw_data):
         return self.data
+
+    def get_col_classes(self, raw_data, data):
+        return self.col_classes
 
     def get_grouped(self, raw_data, data):
         return self.grouped
@@ -51,9 +55,10 @@ class ReportView(TemplateView):
         data = {}
         raw_data = self.get_raw_data()
         data['dataset'] = self.get_data(raw_data)
+        data['col_classes'] = self.get_col_classes(raw_data, data['dataset'])
         data['title'] = self.get_title(raw_data, data['dataset'])
         data['grouped'] = self.get_grouped(raw_data, data['dataset'])
-        data['head'] = self.get_head(raw_data, data['dataset'])
+        data['head'] = zip(self.get_head(raw_data, data['dataset']), data['col_classes'])
         data['foot'] = self.get_foot(raw_data, data['dataset'])
         data.update(super(ReportView, self).get_context_data(**kwargs))
         return data
@@ -155,6 +160,7 @@ class OverviewMoneyView(ReportView):
     grouped = True 
     data = []
     head = ['Date', 'Film', 'Take (gross)', 'Refunded (gross)', 'Paid (gross)', 'Profit (net)']
+    col_classes = ['col-date', None, None, None, None, None]
 
     def get_raw_data(self):
         start_at, end_at = get_default_date_bounds()

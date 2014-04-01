@@ -1,0 +1,23 @@
+.col-date {
+	width: 120px;
+}
+
+.titlerow td {
+	background-color: black;
+	color: white;
+}
+
+table.report.grouped tbody tr {
+	display: none;
+}
+table.report.grouped tbody tr.titlerow {
+	display: table-row;
+	cursor: pointer;
+}
+table.report.grouped tbody tr.visible{
+	display: table-row;
+}
+
+table.report tfoot td {
+	font-style: italic; font-weight: bold;
+}

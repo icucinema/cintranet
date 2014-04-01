@@ -2,12 +2,12 @@
 
 {% block stats %}
 	<h2>{{ title }}</h2>
-	<table>
+	<table class="{% if grouped %}grouped{% endif %} report">
 		{% if head %}
 		<thead>
 			<tr>
-				{% for headdata in head %}
-					<th>{{ headdata }}</th>
+				{% for headdata, headclass in head %}
+					<th class="{{ headclass }}">{{ headdata }}</th>
 				{% endfor %}
 			</tr>
 		</thead>
@@ -17,11 +17,11 @@
 			{% for group in dataset %}
 				<tr class="titlerow">
 					{% for ghead in group.headings %}
-						<td style="background-color: black; color: white;">{{ ghead }}</td>
+						<td>{{ ghead }}</td>
 					{% endfor %}
 				</tr>
 				{% for data in group.data %}
-					<tr>
+					<tr class="datarow">
 						{% for datum in data %}
 							<td>{{ datum }}</td>
 						{% endfor %}
@@ -43,7 +43,7 @@
 			<tr> 
 				{% for footdata in foot %}
 					{% if footdata %}
-						<td style="font-style: italic; font-weight: bold;">{{ footdata }}</td>
+						<td>{{ footdata }}</td>
 					{% else %}
 						<td>&nbsp;</td>
 					{% endif %}
@@ -54,3 +54,31 @@
 	</table>
 {% endblock %}
 
+{% block extrafootjs %}
+<script>
+(function() {
+	var titlerows = document.querySelectorAll("table.grouped tbody tr.titlerow");
+	console.log(titlerows);
+	for (var i = 0; i < titlerows.length; i++) {
+		var titlerow = titlerows[i];
+		titlerow.addEventListener('click', (function(titlerow) {
+			var applicableRows = [];
+			var elem = titlerow;
+			while (true) {
+				elem = elem.nextElementSibling;
+				if (!elem || !elem.classList.contains('datarow')) break;
+				applicableRows.push(elem);
+			}
+			console.log(titlerow, applicableRows);
+			return function() {
+				console.log("titlerow clicked!", titlerow);
+				for (var i = 0; i < applicableRows.length; i++) {
+					applicableRows[i].classList.toggle("visible");
+				}
+			};
+		})(titlerow));
+	}
+	var collapsees = document.querySelectorAll("table.grouped tbody tr.datarow");
+})();
+</script>
+{% endblock %}
