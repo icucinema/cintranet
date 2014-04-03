@@ -159,7 +159,7 @@ class OverviewMoneyView(ReportView):
     title = 'Money Overview'
     grouped = True 
     data = []
-    head = ['Date', 'Film', 'Take (gross)', 'Refunded (gross)', 'Paid (gross)', 'Profit (net)']
+    head = ['Date', 'Film', 'Take (gross)', 'Refunded (gross)', 'Paid (net)', 'Profit (net)']
     col_classes = ['col-date', None, None, None, None, None]
 
     def get_raw_data(self):
@@ -257,7 +257,7 @@ class OverviewMoneyView(ReportView):
                 rental_cost_novat = quantize(max(bor_cost_novat * Decimal(showings[0]['royalties_percent']) / 100, guarantee))
                 rental_cost_novat = (max(0, rental_cost_novat - guarantee) * Decimal(showings[0]['royalties_troytastic'])) + guarantee
                 rental_cost = rental_cost_novat * Decimal(1.2)
-                h[4] = quantize(rental_cost)
+                h[4] = quantize(rental_cost_novat)
                 h[5] = quantize((running_totals['take'] - running_totals['refunded'] - h[4]) / Decimal(1.2))
             else:
                 h[4] = 0
