@@ -85,13 +85,13 @@ class Punter(models.Model):
         )
 
     @classmethod
-    def create_from_eactivities_csv(cls, csv_row, entitlements, note, write_to=lambda x: None, more_write_to=lambda x: None):
+    def create_from_eactivities_csv(cls, csv_row, entitlements, note, write_to=lambda x: None, more_write_to=lambda x: None, membership_type=None):
         # massage the data set
-        cid = csv_row['CID/Card Number']
+        cid = csv_row['CID/Card Number'] if 'CID/Card Number' in csv_row else csv_row['CID']
         name = u"{} {}".format(csv_row['First Name'], csv_row['Last Name'])
         email = csv_row['Email']
         username = csv_row['Login']
-        punter_type = csv_row.get('Status', 'full' if cid != '' else 'associate')
+        punter_type = membership_type if membership_type is not None else csv_row.get('Status', 'full' if cid != '' else 'associate')
         quantity_bought = int(csv_row.get('Quantity', 1))
         order_num = csv_row.get('Order No', '')
 
