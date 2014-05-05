@@ -165,7 +165,7 @@ class Command(BaseCommand):
             sku_e.sku.save()
             for member in pr:
                 try:
-                    punter, created, ents_created = ticketing.models.Punter.create_from_eactivities_csv(member, automatic_entitlements, "Purchased {} (order no {})".format(member['Date'], member['Order No']), self.stdout.write, lambda x: self.irc_pinger.say('#botspam', x))
+                    punter, created, ents_created = ticketing.models.Punter.create_from_eactivities_csv(member, automatic_entitlements, "Purchased {} (order no {})".format(member['Date'], member['Order No']), lambda x: self.stdout.write(x.encode('utf-8')), lambda x: self.irc_pinger.say('#botspam', x))
                 except Exception, ex:
                     count_total += 1
                     count_errored += 1
