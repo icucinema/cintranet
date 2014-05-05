@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 
 from . import encoding_utils
 
-DEBUG = True#False
+DEBUG = False
 
 class MemberListMunger(object):
     def __init__(self, itera, associate_pairs):
