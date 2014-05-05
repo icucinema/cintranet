@@ -159,8 +159,8 @@ class OverviewMoneyView(ReportView):
     title = 'Money Overview'
     grouped = True 
     data = []
-    head = ['Date', 'Film', 'Take (gross)', 'Refunded (gross)', 'Paid (net)', 'Profit (net)']
-    col_classes = ['col-date', None, None, None, None, None]
+    head = ['Date', 'Film', 'Take (gross)', 'Refunded (gross)', 'Reported Take (net)', 'Paid (net)', 'Profit (net)']
+    col_classes = ['col-date', None, None, None, None, None, None]
 
     def get_raw_data(self):
         start_at, end_at = get_default_date_bounds()
@@ -223,7 +223,7 @@ class OverviewMoneyView(ReportView):
 
         # now we flatten it into output data
         out_data = []
-        for showings in sorted(playweek_showings.values(), key=lambda x: x[0]['playweek']):
+        for _, showings in sorted(playweek_showings.items(), key=lambda x: x[0] if len(x[1]) > 1 else '{}***{}'.format(x[1][0]['start_time'], x[1][0]['name'])):
             playweek = showings[0]['playweek']
             name = showings[0]['name']
             previous_playweek = playweek - datetime.timedelta(days=7)
@@ -233,7 +233,7 @@ class OverviewMoneyView(ReportView):
             else:
                 guarantee = None
             out_data.append({
-                'headings': [playweek.strftime('%Y %m %d'), name, 0, 0, 0, 0],
+                'headings': [playweek.strftime('%Y %m %d'), name, 0, 0, 0, 0, 0],
                 'data': []
             })
             d = out_data[-1]['data']
@@ -245,6 +245,7 @@ class OverviewMoneyView(ReportView):
                     '',
                     quantize(showing['costing']['take']),
                     quantize(showing['costing']['refunded']),
+                    quantize(showing['costing']['bor_cost'] / Decimal(1.2), rounding=decimal.ROUND_DOWN),
                     '',
                     ''
                 ])
@@ -257,15 +258,17 @@ class OverviewMoneyView(ReportView):
                 rental_cost_novat = quantize(max(bor_cost_novat * Decimal(showings[0]['royalties_percent']) / 100, guarantee))
                 rental_cost_novat = (max(0, rental_cost_novat - guarantee) * Decimal(showings[0]['royalties_troytastic'])) + guarantee
                 rental_cost = rental_cost_novat * Decimal(1.2)
-                h[4] = quantize(rental_cost_novat)
-                h[5] = quantize(((running_totals['take'] - running_totals['refunded']) / Decimal(1.2)) - h[4])
+                h[4] = quantize(bor_cost_novat)
+                h[5] = quantize(rental_cost_novat)
+                h[6] = quantize(((running_totals['take'] - running_totals['refunded']) / Decimal(1.2)) - h[5])
             else:
                 h[4] = 0
                 h[5] = 0
+                h[6] = 0
         return out_data
 
     def get_foot(self, raw_data, data):
-        foot = ['', '', Decimal(0), Decimal(0), Decimal(0), Decimal(0)]
+        foot = ['', '', Decimal(0), Decimal(0), Decimal(0), Decimal(0), Decimal(0)]
         for group in data:
             n = 2
             for v in group['headings'][2:]:
