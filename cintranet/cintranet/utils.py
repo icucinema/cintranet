@@ -8,7 +8,7 @@ class IRCCatPinger(object):
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect(self.address)
         except Exception, e:
-            print "Uhoh, Exception!", e
+            print "[irccat] Uhoh, Exception!", e
             self.failed = True
 
     def __del__(self):
