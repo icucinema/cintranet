@@ -11,6 +11,10 @@
 						<span ng-if="!data.punter">Guest</span>
 					</dd>
 				<dt>Ticket Type</dt>
-					<dd>{{ data.ticket_type.name }}</dd>
+					<dd>{{ data.ticket_type.name }} (sold @ £{{ data.ticket_type.sale_price}})</dd>
+				<dt>Status</dt>
+					<dd>{{ data.status }}</dd>
+				<dt>Issued at</dt>
+					<dd>{{ data.timestamp|date:'EEE MMM d @ H:mm:ss' }}</dd>
 			</dl>
 </div>
