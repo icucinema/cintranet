@@ -19,6 +19,13 @@
 						<dd ng-hide="editing"><a target="_blank" ng-href="{{ data.poster_url }}"><img ng-src="{{ data.poster_url }}" style="max-height:200px;width:auto;"></a></dd>
 						<dd ng-show="editing" class="field"><input type="url" class="xxwide url input" ng-model="edit_data.poster_url"></dd>
 				</div>
+				<dt>Distributor</dt>
+					<dd ng-hide="editing"><a ng-href="#/distributors/{{ data.distributor.id }}">{{ data.distributor.name }}</a></dd>
+					<dd ng-show="editing" class="field">
+						<select class="xxwide select input" ng-model="edit_data.distributor" ng-options="distributor.url as distributor.name for distributor in distributors">
+							<option value="">N/A or indie</option>
+						</select>
+					</dd>
 				<dt>Links</dt>
 					<dd ng-hide="editing"><a target="_blank" ng-show="data.imdb_id" href="http://www.imdb.com/title/{{ data.imdb_id }}/">IMDb</a> <a target="_blank" ng-show="data.tmdb_id" href="https://www.themoviedb.org/movie/{{ data.tmdb_id }}">TMDB</a></dd>
 					<dd ng-show="editing">

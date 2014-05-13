@@ -83,6 +83,11 @@ Showing <strong>{{ data.startAt }}</strong>-<strong>{{ data.endAt }}</strong> of
 					<label class="inline" for="manual-tmdb-id">TMDB ID (http://www.themoviedb.org/movie/<strong>000000</strong>-my-favourite-film-ever/)</label>
 					<input class="xxwide text input" id="manual-tmdb-id" ng-model="addFilm.manualItem.tmdb_id" type="text">
 				</li>
+				<li class="field">
+					<label class="inline" for="manual-distributor">Distributor</label>
+					<select ng-model="addFilm.manualItem.distributor" class="xxwide select input" id="manual-distributor" ng-options="distributor.url as distributor.name for distributor in distributors">
+						<option value="">N/A (indie)</option>
+					</select>
 				<li>
 					<div class="norm primary btn"><input type="submit" value="Add"></div>
 				</li>

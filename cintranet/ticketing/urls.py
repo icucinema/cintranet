@@ -13,6 +13,7 @@ api_router.register(r'ticket-templates', api_views.TicketTemplateViewSet)
 api_router.register(r'event-types', api_views.EventTypeViewSet)
 api_router.register(r'showings', api_views.ShowingViewSet)
 api_router.register(r'events', api_views.EventViewSet)
+api_router.register(r'distributors', api_views.DistributorViewSet)
 
 urlpatterns = patterns('',
     url(r'^$', views.IndexView.as_view(), name='root'),

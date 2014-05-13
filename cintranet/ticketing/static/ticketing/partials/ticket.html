@@ -1,0 +1,16 @@
+<div ng-show="loading"><h2>Loading...</h2></div>
+<div ng-if="!loading">
+	<h2><div class="btn primary large" ng-click="hBack()"><a href><i class="icon-arrow-left"></i></a></div> Ticket #{{ data.id }}</span></h2>
+			<dl>
+				<dt>Event</dt>
+					<dd><a ng-href="#/events/{{ data.ticket_type.event.id }}">{{ data.ticket_type.event.name }}</a></dd>
+				<dt>Punter</dt>
+					<dd>
+						<a ng-href="#/punters/{{ data.punter.id }}" ng-if="data.punter && data.punter.name">{{ data.punter.name }}</a>
+						<a ng-href="#/punters/{{ data.punter.id }}" ng-if="data.punter && !data.punter.name">Unknown (ID: {{ data.punter.id }})</a>
+						<span ng-if="!data.punter">Guest</span>
+					</dd>
+				<dt>Ticket Type</dt>
+					<dd>{{ data.ticket_type.name }}</dd>
+			</dl>
+</div>

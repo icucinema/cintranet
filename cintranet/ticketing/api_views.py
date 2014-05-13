@@ -34,7 +34,7 @@ class TicketTypeViewSet(viewsets.ModelViewSet):
 
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = models.Ticket.objects.all()
-    serializer_class = api_serializers.TicketSerializer
+    serializer_class = api_serializers.ComprehensiveTicketSerializer
     filter_fields = ('event',)
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
 
@@ -70,11 +70,26 @@ class EntitlementDetailViewSet(viewsets.ModelViewSet):
     queryset = models.EntitlementDetail.objects.all()
     serializer_class = api_serializers.EntitlementDetailSerializer
 
+class DistributorViewSet(viewsets.ModelViewSet):
+    queryset = models.Distributor.objects.all()
+    serializer_class = api_serializers.DistributorSerializer
+
+    @action(methods=['GET'])
+    def films(self, request, pk=None):
+        distributor = self.get_object()
+        return serialize_queryset(self, api_serializers.FilmSerializer, distributor.films.all())
+
 class FilmViewSet(viewsets.ModelViewSet):
     queryset = models.Film.objects.all()
-    serializer_class = api_serializers.FilmSerializer
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('name', 'description')
+
+    serializer_class = api_serializers.FilmSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return self.serializer_class
+        return api_serializers.FlatFilmSerializer
 
     @action()
     def update_remote(self, request, pk=None):
@@ -98,16 +113,16 @@ class ShowingViewSet(viewsets.ModelViewSet):
     queryset = models.Showing.objects.all().extra(select={'sorting_distance': '''
 CASE
   WHEN
-      start_time > NOW()
+      ticketing_showing.start_time > NOW()
     THEN
-      start_time - NOW()
+      ticketing_showing.start_time - NOW()
     ELSE
-      INTERVAL '@ 1 year' + (NOW() - start_time)
+      INTERVAL '@ 1 year' + (NOW() - ticketing_showing.start_time)
   END
     '''}).order_by('sorting_distance')
     serializer_class = api_serializers.ShowingSerializer
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
-    search_fields = ('film__name',)
+    search_fields = ('week__film__name',)
 
     @action(methods=['GET'])
     def tickets(self, request, pk=None):

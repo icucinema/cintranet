@@ -2,6 +2,7 @@ import itertools
 import re
 import string
 import random
+import datetime
 from decimal import Decimal
 
 from django.db import models, transaction
@@ -155,6 +156,21 @@ class Punter(models.Model):
         ordering = ['name']
 
 
+class Distributor(models.Model):
+    name = models.CharField(max_length=128)
+
+    via_troy = models.BooleanField(default=False)
+
+    royalties_percent = models.PositiveSmallIntegerField(null=True, blank=True)
+    royalties_minimum = models.PositiveSmallIntegerField(null=True, blank=True, help_text=u'Minimum Guarantee (net/no VAT)')
+
+    def __unicode__(self):
+        return u"{} ({}/{})".format(self.name, self.royalties_percent, self.royalties_minimum)
+
+    class Meta:
+        ordering = ['name']
+
+
 class Film(models.Model):
     tmdb_id = models.PositiveIntegerField(null=True, blank=True)
     imdb_id = models.CharField(max_length=20, null=False, blank=True, default="")
@@ -166,9 +182,7 @@ class Film(models.Model):
 
     poster_url = models.URLField(blank=True, null=False, default="")
 
-    royalties_percent = models.PositiveSmallIntegerField(null=True, blank=True)
-    royalties_minimum = models.PositiveSmallIntegerField(null=True, blank=True, help_text=u'Minimum Guarantee (net/no VAT)')
-    royalties_troytastic = models.BooleanField(default=False, help_text=u'Use the magical Troy calculation?')
+    distributor = models.ForeignKey(Distributor, null=True, blank=True, related_name='films')
 
     def __unicode__(self):
         return self.name
@@ -234,14 +248,28 @@ class Film(models.Model):
             self.update_imdb()
         self.save()
 
+    @property
+    def showings(self):
+        return Showing.objects.filter(week__film=self)
+
     class Meta:
         ordering = ['sorting_name']
 
 
+class ShowingsWeek(models.Model):
+    film = models.ForeignKey(Film, related_name='showing_weeks', null=False, blank=False)
+    start_time = models.DateTimeField(null=False, blank=False)
+
+    royalties_percent = models.PositiveSmallIntegerField(null=True, blank=True)
+    royalties_minimum = models.PositiveSmallIntegerField(null=True, blank=True, help_text=u'Minimum Guarantee (net/no VAT)')
+    royalties_troytastic = models.BooleanField(default=False, help_text=u'Use the magical Troy calculation?')
+
+
 class Showing(models.Model):
-    film = models.ForeignKey(Film, related_name='showings', null=False, blank=False)
     start_time = models.DateTimeField(null=False, blank=False)
     primary_event = models.OneToOneField('Event', related_name='primary_showing', null=True, blank=True)
+
+    week = models.ForeignKey(ShowingsWeek, related_name='showings')
 
     def __unicode__(self):
         return u"{} ({})".format(self.film.name, self.start_time)
@@ -263,6 +291,28 @@ class Showing(models.Model):
     def total_bor(self):
         return self.tickets().aggregate(models.Sum('ticket_type__box_office_return_price'))
 
+    @property
+    def film(self):
+        return self.week.film
+
+    @film.setter
+    def film(self, value):
+        self._film = value
+
+    @property
+    def name(self):
+        return self.film.name
+
+    @property
+    def show_week(self):
+        # go backwards until we find a Friday!
+        show_week = self.start_time.date()
+        # a Friday is weekday() 4
+        one_day = datetime.timedelta(days=1)
+        while show_week.weekday() != 4:
+            show_week -= one_day
+        return show_week
+
     def save(self, *args, **kwargs):
         doap = False
         try:
@@ -271,6 +321,9 @@ class Showing(models.Model):
         except Event.DoesNotExist:
             self.create_event()
             doap = True
+
+        if self.week is None:
+            self.week, _ = ShowingsWeek.objects.get_or_create(film=self._film, start_time=self.show_week)
 
         ret = super(Showing, self).save(*args, **kwargs)
 

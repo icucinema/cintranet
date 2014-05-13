@@ -1,0 +1,38 @@
+<div ng-show="loading"><h2>Loading...</h2></div>
+<div ng-hide="loading">
+	<h2><div class="btn primary large" ng-click="hBack()"><a href><i class="icon-arrow-left"></i></a></div> <span ng-hide="editing">{{ data.name }}</span><div class="field" ng-show="editing"><input ng-model="edit_data.name" class="wide text input"></div></h2>
+	<tabs>
+		<tab tab-title="Information">
+			<dl>
+				<dt>Via Troy?</dt>
+					<dd ng-hide="editing"><div ng-show="data.via_troy">Yes</div><div ng-show="!data.via_troy">No</div></dd>
+					<dd ng-show="editing" class="field">
+						<select class="xxwide select input" ng-options="x.value as x.text for x in [{text: 'No', value: false}, {text: 'Yes', value: true}]" ng-model="edit_data.via_troy" required></select>
+					</dd>
+
+
+				<dt>Minimum Guarantee (Net)</dt>
+					<dd ng-hide="editing">{{ data.royalties_minimum }}</dd>
+					<dd ng-show="editing" class="field"><input type="text" class="xxwide text input" ng-model="edit_data.royalties_minimum"></dd>
+				<dt>Royalties Percentage (%)</dt>
+					<dd ng-hide="editing">{{ data.royalties_percent }}%</dd>
+					<dd ng-show="editing" class="field"><input type="text" class="xxwide text input" ng-model="edit_data.royalties_percent"></dd>
+			</dl>
+			<h3>Actions</h3>
+			<ul ng-hide="editing">
+				<li><div class="btn primary norm" ng-click="edit()"><a href>Edit</a></div></li>
+			</ul>
+			<ul ng-show="editing">
+				<li><div class="btn primary norm" ng-click="saveEdit()"><a href>Save</a></div></li>
+				<li><div class="btn danger norm" ng-click="cancelEdit()"><a href>Cancel</a></div></li>
+			</ul>
+		</tab>
+		<tab tab-title="Films ({{ films.length }})">
+			<ul class="bulleted-list" ng-if="films">
+				<li ng-repeat="film in films">
+					<a href="#/films/{{ film.id }}">{{ film.name }}</a>
+				</li>
+			</ul>
+		</tab>
+	</tabs>
+</div>

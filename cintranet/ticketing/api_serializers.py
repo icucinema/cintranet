@@ -4,6 +4,13 @@ from . import models
 
 ModelSerializer = serializers.HyperlinkedModelSerializer
 
+class DistributorSerializer(ModelSerializer):
+    class Meta:
+        model = models.Distributor
+        fields = (
+            'url', 'id', 'name', 'via_troy', 'royalties_percent', 'royalties_minimum'
+        )
+
 class TicketTypeSerializer(ModelSerializer):
     class Meta:
         model = models.TicketType
@@ -103,15 +110,27 @@ class PunterSerializer(ModelSerializer):
         )
 
 class FilmSerializer(ModelSerializer):
+    distributor = DistributorSerializer()
+
     class Meta:
         model = models.Film
         fields = (
-            'url', 'id', 'name', 'description', 'tmdb_id', 'imdb_id', 'poster_url', 'certificate'
+            'url', 'id', 'name', 'description', 'tmdb_id', 'imdb_id', 'poster_url', 'certificate',
+            'distributor'
+        )
+
+class FlatFilmSerializer(ModelSerializer):
+    class Meta:
+        model = models.Film
+        fields = (
+            'url', 'id', 'name', 'description', 'tmdb_id', 'imdb_id', 'poster_url', 'certificate',
+            'distributor'
         )
 
 class ShowingSerializer(ModelSerializer):
     primary_event = serializers.HyperlinkedRelatedField(required=False, view_name='event-detail')
     film_title = serializers.SlugRelatedField(read_only=True, slug_field='name', source='film')
+    film = FilmSerializer(source='week.film')
 
     class Meta:
         model = models.Showing
@@ -181,3 +200,4 @@ class ComprehensiveTicketSerializer(ModelSerializer):
         fields = (
             'url', 'id', 'punter', 'entitlement', 'timestamp', 'status', 'ticket_type'
         )
+

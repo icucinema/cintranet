@@ -1,0 +1,67 @@
+<div class="field search-field">
+	<input type="search" class="search-input xxwide text input" ng-model="searchQuery" placeholder="Search" ng-change="search(searchQuery)">
+</div>
+<h2>Distributors</h2>
+Showing <strong>{{ data.startAt }}</strong>-<strong>{{ data.endAt }}</strong> of <strong>{{ data.count }}</strong>
+<div style="height: 36px; margin-bottom: 20px">
+	<div class="medium btn icon-left entypo icon-arrow-left" ng-class="buttonClass(data.previous)">
+		<a href ng-click="goTo(data.previous)">Prev</a>
+	</div>
+	<div class="medium btn icon-right entypo icon-arrow-right" style="float: right;" ng-class="buttonClass(data.next)">
+		<a href ng-click="goTo(data.next)">Next</a>
+	</div>
+</div>
+<table class="striped">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Troy?</th>
+			<th>Terms</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr ng-repeat="distributor in data.results">
+			<td><a href="#/distributors/{{ distributor.id }}">{{ distributor.name }}</a></td>
+			<td><span ng-show="distributor.via_troy">&#x2713;</span><span ng-show="!distributor.via_troy">&#x2717;</span></td>
+			<td>
+				<span ng-if="distributor.royalties_minimum && distributor.royalties_percent">{{ distributor.royalties_percent }}/{{ distributor.royalties_minimum }}</span>
+				<span ng-if="distributor.royalties_minimum && !distributor.royalties_percent">flat £{{ distributor.royalties_minimum }}</span>
+				<span ng-if="!distributor.royalties_minimum && distributor.royalties_percent">flat {{ distributor.royalties_percent }}%</span>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<div style="height: 36px; margin-bottom: 20px">
+	<div class="medium btn icon-left entypo icon-arrow-left" ng-class="buttonClass(data.previous)">
+		<a href ng-click="goTo(data.previous)">Prev</a>
+	</div>
+	<div class="medium btn icon-right entypo icon-arrow-right" style="float: right;" ng-class="buttonClass(data.next)">
+		<a href ng-click="goTo(data.next)">Next</a>
+	</div>
+</div>
+
+		<h3>Add Distributor</h3>
+		<form ng-submit="addDistributor(newDistributor)">
+			<ul>
+				<li class="field">
+					<label class="inline" for="manual-name">Name</label>
+					<input class="xxwide text input" id="manual-name" ng-model="newDistributor.name" type="text">
+				</li>
+				<li class="field">
+					<label class="inline" for="manual-via-troy">Via Troy?</label>
+					<select class="xxwide select input" ng-options="x.value as x.text for x in [{text: 'No', value: false}, {text: 'Yes', value: true}]" ng-model="newDistributor.via_troy" required></select>
+				</li>
+				<li class="field">
+					<label class="inline" for="manual-royalties-minimum">Royalties Minimum Guarantee (Net)</label>
+					<input class="xxwide text input" id="manual-royalties-minimum" ng-model="newDistributor.royalties_minimum" type="text">
+				</li>
+				<li class="field">
+					<label class="inline" for="manual-royalties-percent">Royalties Percent (%)</label>
+					<input class="xxwide text input" id="manual-royalties-percent" ng-model="newDistributor.royalties_percent" type="text">
+				</li>
+					<div class="norm primary btn"><input type="submit" value="Add"></div>
+				</li>
+			</ul>
+		</form>
+	</tab>
+</tabs>

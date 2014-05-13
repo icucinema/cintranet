@@ -77,6 +77,18 @@ app.config(['djurl', '$routeProvider', '$httpProvider', 'RestangularProvider', f
 			templateUrl: djurl.partial_root + 'punter.html',
 			controller: 'PunterCtrl'
 		}).
+		when('/distributors', {
+			templateUrl: djurl.partial_root + 'distributors.html',
+			controller: 'DistributorsCtrl'
+		}).
+		when('/distributors/:id', {
+			templateUrl: djurl.partial_root + 'distributor.html',
+			controller: 'DistributorCtrl'
+		}).
+		when('/tickets/:id', {
+			templateUrl: djurl.partial_root + 'ticket.html',
+			controller: 'TicketCtrl'
+		}).
 		otherwise({
 			redirectTo: '/'
 		});
@@ -162,6 +174,11 @@ app.controller('NavCtrl', function($scope) {
 			'name': 'punters',
 			'url': '/punters',
 			'text': 'Punters'
+		},
+		{
+			'name': 'distributors',
+			'url': '/distributors',
+			'text': 'Distributors'
 		},
 		{
 			'name': 'films',
@@ -467,6 +484,11 @@ app.controller('FilmsCtrl', function($rootScope, $scope, $routeParams, $location
 	};
 	updateFilmData();
 
+	var distributors = Restangular.all('distributors');
+	distributors.getList().then(function(res) {
+		$scope.distributors = res;
+	});
+
 	$scope.search = function(q) {
 		sobj.search = q;
 		updateFilmData();
@@ -542,6 +564,11 @@ app.controller('FilmCtrl', function($rootScope, $scope, $routeParams, $location,
 		res.expanded_length = cnt;
 	});
 
+	var distributors = Restangular.all('distributors');
+	distributors.getList().then(function(res) {
+		$scope.distributors = res;
+	});
+
 	$scope.remoteUpdate = function() {
 		$scope.loading = true;
 		film.customPOST({}, "update_remote", {}).then(function(res) {
@@ -552,6 +579,7 @@ app.controller('FilmCtrl', function($rootScope, $scope, $routeParams, $location,
 
 	$scope.edit = function() {
 		$scope.edit_data = Restangular.copy($scope.data);
+		$scope.edit_data.distributor = $scope.edit_data.distributor.url;
 		$scope.editing = true;
 	};
 
@@ -1031,4 +1059,113 @@ app.controller('ShowingWizardCtrl', function($rootScope, $scope, Restangular, $q
 			});
 		}
 	};
+});
+app.controller('DistributorsCtrl', function($rootScope, $scope, $routeParams, $location, Restangular) {
+	$rootScope.navName = 'distributors';
+
+	var thisPage = parseInt($routeParams.page, 10);
+	if (thisPage != $routeParams.page) {
+		$location.search('page', 1);
+		return;
+	}
+
+	var perPage = parseInt($routeParams.perPage, 10);
+	if (isNaN(perPage) || perPage < 5) {
+		perPage = 10;
+	}
+
+	var sobj = {
+	       page: thisPage,
+	       per_page: perPage
+	};
+	$scope.retrieve = sobj;
+
+	var distributors = Restangular.all('distributors');
+	var updateData = function() {
+        	distributors.getList(sobj).then(function(res) {
+			var startRecord = ((thisPage-1) * perPage) + 1;
+			var endRecord = (startRecord + res.length) - 1;
+			$scope.data = {
+				'startAt': startRecord,
+				'endAt': endRecord,
+				'results': res,
+				'next': (res._resultmeta.next ? thisPage+1 : null),
+				'previous': (res._resultmeta.previous ? thisPage-1 : null),
+				'count': res._resultmeta.count
+			}
+		});
+	};
+	updateData();
+
+	$scope.search = function(q) {
+		sobj.search = q;
+		updateFilmData();
+	};
+
+	$scope.goTo = function(where) {
+		if (!where) return;
+		$location.search('page', where);
+	};
+
+	$scope.buttonClass = function(pageNum) {
+		if (!pageNum) return 'default';
+		return 'secondary';
+	};
+
+	$scope.addDistributor = function(distributor) {
+		distributors.post(distributor).then(function() {
+			updateData();
+		});
+	};
+});
+app.controller('DistributorCtrl', function($rootScope, $scope, $routeParams, $location, Restangular, djurl) {
+	$rootScope.navName = 'distributors';
+
+	$scope.mediaify = function(url) {
+		if (!url) return;
+		if (url.length > 1 && url[0] == '/') url = url.substring(1);
+		return djurl.media_root + url;
+	}
+
+	$scope.editing = false;
+	$scope.loading = true;
+
+	var distributorId = parseInt($routeParams.id, 10);
+
+	var distributor = Restangular.one('distributors', distributorId);
+	distributor.get().then(function(res) {
+		$scope.loading = false;
+		$scope.data = res;
+	});
+	distributor.getList('films').then(function(res) {
+		$scope.films = res;
+	});
+
+	$scope.edit = function() {
+		$scope.edit_data = Restangular.copy($scope.data);
+		$scope.editing = true;
+	};
+
+	$scope.cancelEdit = function() {
+		$scope.editing = false;
+	};
+	$scope.saveEdit = function() {
+		$scope.data = $scope.edit_data;
+		$scope.data.put();
+		$scope.editing = false;
+	};
+});
+
+app.controller('TicketCtrl', function($rootScope, $scope, $routeParams, $location, Restangular, $timeout) {
+	$rootScope.navName = 'tickets';
+
+	$scope.loading = true;
+
+	var ticketId = parseInt($routeParams.id, 10);
+
+	var ticket = Restangular.one('tickets', ticketId);
+	ticket.get().then(function(res) {
+		$scope.loading = false;
+		$scope.data = res;
+	});
 });

@@ -9,6 +9,8 @@ class FilmAdmin(admin.ModelAdmin):
     list_display = ('name',)
 admin.site.register(models.Film, FilmAdmin)
 
+admin.site.register(models.ShowingsWeek)
+admin.site.register(models.Distributor)
 admin.site.register(models.Showing)
 admin.site.register(models.EventType)
 admin.site.register(models.Event)

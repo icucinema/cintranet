@@ -71,7 +71,7 @@ class OverviewAudiencePlayweekView(ReportView):
 
     def get_queryset(self):
         start_at, end_at = get_default_date_bounds()
-        return models.Event.objects.all().extra({"playweek": "date_trunc('week', start_time - '4 days'::interval) + '4 days'::interval"}).order_by('playweek').filter(start_time__gt=start_at, start_time__lte=end_at).prefetch_related('showings', 'showings__film')
+        return models.Event.objects.all().extra({"playweek": "date_trunc('week', start_time - '4 days'::interval) + '4 days'::interval"}).order_by('playweek').filter(start_time__gt=start_at, start_time__lte=end_at).prefetch_related('showings', 'showings__week', 'showings__week__film')
 
     def get_raw_data(self):
         events = self.get_queryset()
@@ -164,7 +164,7 @@ class OverviewMoneyView(ReportView):
 
     def get_raw_data(self):
         start_at, end_at = get_default_date_bounds()
-        events = models.Event.objects.all().extra({"playweek": "date_trunc('week', start_time - '4 days'::interval) + '4 days'::interval"}).order_by('playweek').filter(start_time__gt=start_at, start_time__lte=end_at).prefetch_related('showings', 'showings__film')
+        events = models.Event.objects.all().extra({"playweek": "date_trunc('week', start_time - '4 days'::interval) + '4 days'::interval"}).order_by('playweek').filter(start_time__gt=start_at, start_time__lte=end_at).prefetch_related('showings', 'showings__week__film')
 
         event_dicts = []
         showings = {}
@@ -197,14 +197,14 @@ class OverviewMoneyView(ReportView):
                 showing_dict = showings.setdefault(showing.id, {
                     'playweek': event.playweek,
                     'name': showing.film.name,
-                    'film_id': showing.film_id,
+                    'film_id': showing.week.film_id,
                     'start_time': showing.start_time,
                     'costing': {
                         'take': Decimal(0), 'bor_cost': Decimal(0), 'refunded': Decimal(0)
                     },
-                    'royalties_percent': showing.film.royalties_percent,
-                    'royalties_minimum': showing.film.royalties_minimum,
-                    'royalties_troytastic': 1.2 if showing.film.royalties_troytastic else 1.0
+                    'royalties_percent': showing.week.royalties_percent,
+                    'royalties_minimum': showing.week.royalties_minimum,
+                    'royalties_troytastic': 1.2 if showing.week.royalties_troytastic else 1.0
                 })
                 for k, v in this_costing.items():
                     showing_dict['costing'][k] += v
