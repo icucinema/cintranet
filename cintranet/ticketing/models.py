@@ -264,6 +264,9 @@ class ShowingsWeek(models.Model):
     royalties_minimum = models.PositiveSmallIntegerField(null=True, blank=True, help_text=u'Minimum Guarantee (net/no VAT)')
     royalties_troytastic = models.BooleanField(default=False, help_text=u'Use the magical Troy calculation?')
 
+    def __unicode__(self):
+        return u'{} ({})'.format(self.film.name, self.start_time)
+
 
 class Showing(models.Model):
     start_time = models.DateTimeField(null=False, blank=False)
@@ -372,6 +375,8 @@ class Event(models.Model):
     start_time = models.DateTimeField(null=False, blank=False)
     showings = models.ManyToManyField(Showing, null=False, related_name='events')
     event_types = models.ManyToManyField(EventType, null=True, related_name='event_types')
+
+    additional_audience = models.PositiveSmallIntegerField(null=False, default=0, help_text=u'Number to add to audience figures in stats (e.g. for additionally sold tickets not recorded by PoS)')
 
     def create_ticket_types_by_event_types(self):
         event_types = self.event_types.prefetch_related('ticket_templates').all()

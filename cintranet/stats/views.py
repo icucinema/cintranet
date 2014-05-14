@@ -28,7 +28,7 @@ class ReportView(TemplateView):
     data = []
     head = False
     foot = False
-    col_classes = []
+    col_classes = None
 
     def get_head(self, raw_data, data):
         return self.head
@@ -40,6 +40,8 @@ class ReportView(TemplateView):
         return self.data
 
     def get_col_classes(self, raw_data, data):
+        if self.col_classes is None:
+            return [None] * len(data)
         return self.col_classes
 
     def get_grouped(self, raw_data, data):
@@ -67,7 +69,7 @@ class OverviewAudiencePlayweekView(ReportView):
     title = 'Audience Overview by Playweek'
     grouped = True
     data = []
-    head = ['Film', 'Turnout']
+    head = ['Film', 'Tickets Sold', 'Total Audience']
 
     def get_queryset(self):
         start_at, end_at = get_default_date_bounds()
@@ -80,7 +82,7 @@ class OverviewAudiencePlayweekView(ReportView):
         data = []
 
         for event in events:
-            my_turnout = ticket_counts.get(event.id, 0)
+            my_turnout = ticket_counts.get(event.id, 0) + event.additional_audience
             my_data = {
                 'turnout': my_turnout,
                 'playweek': event.playweek,
@@ -100,11 +102,20 @@ class OverviewAudiencePlayweekView(ReportView):
         for name, turnout in current_playweek_data['data'].iteritems():
             cpd.append([
                 name,
-                turnout
+                turnout,
+                turnout,
+            ])
+
+        adjustment = -(current_playweek_data['audience'] - current_playweek_data['turnout'])
+        if adjustment != 0:
+            cpd.append([
+                '<Multi-Film Ticket Adjustment>',
+                adjustment,
+                ''
             ])
 
         return {
-            'headings': [current_playweek.strftime('%b. %d %Y'), current_playweek_data['turnout']],
+            'headings': [current_playweek.strftime('%b. %d %Y'), current_playweek_data['turnout'], current_playweek_data['audience']],
             'data': cpd
         }
 
@@ -119,8 +130,9 @@ class OverviewAudiencePlayweekView(ReportView):
                 if current_playweek_data is not None:
                     playweeks_data.append(self.process_raw_playweek(current_playweek, current_playweek_data))
                 current_playweek = raw_datum['playweek']
-                current_playweek_data = {'turnout': 0, 'data': {}}
+                current_playweek_data = {'turnout': 0, 'audience': 0, 'data': {}}
             current_playweek_data['turnout'] += raw_datum['turnout']
+            current_playweek_data['audience'] += raw_datum['turnout'] * len(raw_datum['showings'])
             for showing in raw_datum['showings']:
                 current_playweek_data['data'][showing['name']] = raw_datum['turnout'] + current_playweek_data['data'].get(showing['name'], 0)
         playweeks_data.append(self.process_raw_playweek(current_playweek, current_playweek_data))
@@ -128,14 +140,16 @@ class OverviewAudiencePlayweekView(ReportView):
 
     def get_foot(self, raw_data, data):
         # sum everything
-        total = 0
+        x = ['{} playweeks'.format(len(data)), 0, 0]
         for d in data:
-            total += d['headings'][-1]
-        return ['{} playweeks'.format(len(data)), total]
+            x[1] += d['headings'][1]
+            x[2] += d['headings'][2]
+        return x
 
 class OverviewAudienceFilmView(OverviewAudiencePlayweekView):
     grouped = False
     title = 'Audience Overview by Film'
+    head = ['Film', 'Total Audience']
 
     def get_data(self, raw_data):
         # now group by film
@@ -152,7 +166,7 @@ class OverviewAudienceFilmView(OverviewAudiencePlayweekView):
     def get_foot(self, raw_data, data):
         total = 0
         for raw_datum in raw_data:
-            total += raw_datum['turnout']
+            total += raw_datum['turnout'] * len(raw_datum['showings'])
         return [None, total]
 
 class OverviewMoneyView(ReportView):
