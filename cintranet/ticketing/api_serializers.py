@@ -138,6 +138,16 @@ class ShowingSerializer(ModelSerializer):
             'url', 'id', 'film', 'primary_event', 'start_time', 'film_title'
         )
 
+class FlatShowingSerializer(ModelSerializer):
+    primary_event = serializers.HyperlinkedRelatedField(required=False, view_name='event-detail')
+    film = serializers.HyperlinkedRelatedField(required=True, source='film', view_name='film-detail', queryset=models.Film.objects.all())
+
+    class Meta:
+        model = models.Showing
+        fields = (
+            'url', 'id', 'film', 'primary_event', 'start_time'
+        )
+
 class BoxOfficeReturnSerializer(ModelSerializer):
     fake_filename = serializers.CharField()
 

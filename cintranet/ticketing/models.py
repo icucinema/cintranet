@@ -317,6 +317,12 @@ class Showing(models.Model):
         return show_week
 
     def save(self, *args, **kwargs):
+        try:
+            if self.week is None:
+                raise ShowingsWeek.DoesNotExist
+        except ShowingsWeek.DoesNotExist:
+            self.week, _ = ShowingsWeek.objects.get_or_create(film=self._film, start_time=self.show_week)
+
         doap = False
         try:
             if self.primary_event is None:
@@ -324,9 +330,6 @@ class Showing(models.Model):
         except Event.DoesNotExist:
             self.create_event()
             doap = True
-
-        if self.week is None:
-            self.week, _ = ShowingsWeek.objects.get_or_create(film=self._film, start_time=self.show_week)
 
         ret = super(Showing, self).save(*args, **kwargs)
 

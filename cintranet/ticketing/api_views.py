@@ -124,6 +124,11 @@ CASE
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('week__film__name',)
 
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return self.serializer_class
+        return api_serializers.FlatShowingSerializer
+
     @action(methods=['GET'])
     def tickets(self, request, pk=None):
         showing = self.get_object()
