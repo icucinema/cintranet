@@ -42,6 +42,10 @@ class EventTypeViewSet(viewsets.ModelViewSet):
     queryset = models.EventType.objects.all()
     serializer_class = api_serializers.EventTypeSerializer
 
+class ShowingsWeekViewSet(viewsets.ModelViewSet):
+    queryset = models.ShowingsWeek.objects.all()
+    serializer_class = api_serializers.ShowingsWeekSerializer
+
 class PunterViewSet(viewsets.ModelViewSet):
     queryset = models.Punter.objects.all()
     serializer_class = api_serializers.PunterSerializer
@@ -107,7 +111,7 @@ class FilmViewSet(viewsets.ModelViewSet):
     @action(methods=['GET'])
     def showings(self, request, pk=None):
         film = self.get_object()
-        return serialize_queryset(self, api_serializers.GroupedShowingSerializer, film.showings.all())
+        return serialize_queryset(self, api_serializers.ShowingsWeekSerializer, film.showing_weeks.all())
 
 class ShowingViewSet(viewsets.ModelViewSet):
     queryset = models.Showing.objects.all().extra(select={'sorting_distance': '''

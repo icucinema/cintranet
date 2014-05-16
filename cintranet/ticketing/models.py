@@ -264,6 +264,12 @@ class ShowingsWeek(models.Model):
     royalties_minimum = models.PositiveSmallIntegerField(null=True, blank=True, help_text=u'Minimum Guarantee (net/no VAT)')
     royalties_troytastic = models.BooleanField(default=False, help_text=u'Use the magical Troy calculation?')
 
+    @property
+    def box_office_return(self):
+        if self.showings.count() == 0:
+            return None
+        return self.film.box_office_returns.filter(start_time=self.start_time).first()
+
     def __unicode__(self):
         return u'{} ({})'.format(self.film.name, self.start_time)
 

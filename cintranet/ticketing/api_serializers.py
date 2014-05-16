@@ -182,6 +182,18 @@ class GroupedShowingSerializer(serializers.Serializer):
 
         super(GroupedShowingSerializer, self).__init__(munged_dataset, *args, **kwargs)
 
+class ShowingsWeekSerializer(ModelSerializer):
+    start_time = serializers.DateField(format='%Y-%m-%d')
+    showings = ShowingSerializer(many=True)
+    box_office_return = BoxOfficeReturnSerializer()
+
+    class Meta:
+        model = models.ShowingsWeek
+        fields = (
+            'url', 'id', 'start_time', 'showings', 'box_office_return',
+            'film', 'royalties_percent', 'royalties_minimum', 'royalties_troytastic'
+        )
+
 class EventSerializer(ModelSerializer):
     class Meta:
         model = models.Event

@@ -51,9 +51,8 @@ def update_showing_agg_data(showing_agg_data, tt_name, bor_price, update_vals):
 
 def build_agg_data_for_show_week(film, show_week):
     show_week = get_show_week(show_week)
-    show_week_end = get_show_week_end(show_week)
 
-    showings = film.showings.filter(start_time__gte=show_week, start_time__lt=show_week_end)
+    showings = film.showing_weeks.get(start_time=show_week).showings.all()
 
     agg_data = {}
     

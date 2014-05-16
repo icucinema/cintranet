@@ -5,7 +5,7 @@
 		<tab tab-title="Information">
 			<dl>
 				<dt>Film</dt>
-					<dd><a href="{{ filmUrl(data.film) }}">{{ data.film_title }}</a></dd>
+					<dd><a ng-href="#/films/{{ data.film.id }}">{{ data.film_title }}</a></dd>
 				<dt>Start time</dt>
 					<dd>{{ data.start_time | date:"short" }}</dd>
 			</dl>
