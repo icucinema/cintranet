@@ -196,7 +196,15 @@ class EActivities(object):
             prs.append(pr)
         return prs
 
-    def fetch_purchase_report(self, club_id, product_id, product_type='product'):
+    def fetch_purchase_report(self, club_id, product_id, product_type='product', year=None):
+        if year is not None:
+            # fml
+            ps = self._open_purchases_summary(club_id)
+            bs = BeautifulSoup(ps.content)
+            year_tab = bs.find("tabenclosure", label=year)
+            if year_tab.attrs.get('active', 'false') != 'true':
+                self.r.post('https://{}{}'.format(self.base_domain, '/common/ajax_handler.php'), data={'ajax': 'activatetabs', 'navigate': year_tab.attrs['id']})
+
         # and download the report
         if product_type == 'product':
             r = self._request_page('/finance/income/shop/group/csv/{}'.format(product_id))

@@ -1,0 +1,629 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="{% static "ticketing/css/animate.css" %}">
+<link rel="stylesheet" href="{% static "stats/vendor/xcharts/xcharts.css" %}">
+<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="{% static "stats/vendor/d3/d3.min.js" %}"></script>
+<script src="{% static "stats/vendor/xcharts/xcharts.js" %}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.8/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.8/angular-animate.min.js"></script>
+<script src="{% static "ticketing/js/animate-animate.css.js" %}"></script>
+<style>
+html, body {
+	margin: 0;
+	padding: 0;
+
+	background-color: #0f0f0f;
+
+	height: 100%;
+	width: 100%;
+
+	color: #f0f0f0;
+	font-family: Helvetica, Arial;
+}
+* {
+	box-sizing: border-box;
+}
+.box {
+	float: left;
+	background-color: #2f2f2f;
+	border-left: 10px solid #0f0f0f;
+	border-top: 10px solid #0f0f0f;
+	width: 50%;
+	overflow: hidden;
+}
+.bbr {
+	border-right: 10px solid #0f0f0f;
+}
+.bbb {
+	border-bottom: 10px solid #0f0f0f;
+}
+.today {
+	height: 100%;
+}
+.membership {
+	height: 40%;
+}
+.products {
+	height: 40%;
+}
+.finance {
+	height: 20%;
+}
+.box h1 {
+	color: #f0f0f0;
+	margin: 0; padding: 0;
+	padding-top: 12px;
+	padding-bottom: 12px;
+	border-bottom: 4px solid #3f3f3f;
+	text-align: center;
+	font-size: large;
+}
+.events, .tickets {
+	list-style-type: none;
+	border-bottom: 3px solid #3f3f3f;
+	padding: 0;
+	margin: 0;
+}
+.events {
+	width: 100%;
+}
+.events li {
+	margin: 0;
+	font-size: 40px; 
+	padding: 10px 20px;
+	border-bottom: 2px solid #3f3f3f;
+}
+.events td {
+	font-size: 25px;
+}
+.events tfoot {
+	font-weight: bold;
+}
+.tickets li {
+	margin: 0;
+	padding: 10px 20px;
+	border-bottom: 2px solid #3f3f3f;
+}
+.tickets li h3 {
+	margin: 0;
+	padding: 0;
+}
+.tickets li div {
+	display: inline-block;
+	vertical-align: -1.5em;
+}
+.tickets li strong {
+	float: right;
+	font-size: 2em;
+}
+.finance h2 {
+	margin: 0; padding: 0;
+	text-align: center;
+	font-size: 72px;
+}
+.ticketsGraph {
+	position: relative;
+}
+.ticketsGraph legend {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+.membership circle, .ticketsGraph circle, .products circle {
+	display: none;
+}
+legend ul {
+	list-style-type: none;
+	padding: 5px;
+	margin-left: 20px;
+	background-color: rgba(20, 20, 20, 0.9);
+	font-size: small;
+}
+legend .colorbox {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+}
+legend .color0 .colorbox {
+  background-color: #3880aa;
+}
+legend .color0.comp .colorbox {
+  background-color: #89bbd8;
+}
+legend .color1 .colorbox {
+  background-color: #4da944;
+}
+legend .color1.comp .colorbox {
+  background-color: #9dd597;
+}
+legend .color2 .colorbox {
+  background-color: #f26522;
+}
+legend .color2.comp .colorbox {
+  background-color: #f9b99a;
+}
+legend .color3 .colorbox {
+  background-color: #c6080d;
+}
+legend .color3.comp .colorbox {
+  background-color: #f8555a;
+}
+legend .color4 .colorbox {
+  background-color: #672d8b;
+}
+legend .color4.comp .colorbox {
+  background-color: #a869ce;
+}
+legend .color5 .colorbox {
+  background-color: #ce1797;
+}
+legend .color5.comp .colorbox {
+  background-color: #f075cb;
+}
+legend .color6 .colorbox {
+  background-color: #d9ce00;
+}
+legend .color6.comp .colorbox {
+  background-color: #fff75a;
+}
+legend .color7 .colorbox {
+  background-color: #754c24;
+}
+legend .color7.comp .colorbox {
+  background-color: #c98c50;
+}
+legend .color8 .colorbox {
+  background-color: #2eb9b4;
+}
+legend .color8.comp .colorbox {
+  background-color: #86e1de;
+}
+legend .color9 .colorbox {
+  background-color: #0e2e42;
+}
+legend .color9.comp .colorbox {
+  background-color: #2477ab;
+}
+.negative {
+  color: red;
+}
+</style>
+<script>
+{% verbatim %}
+var app = angular.module('StatsApp', ['ngAnimate', 'ngAnimate-animate.css']);
+
+app.factory('stats', ['$http', '$interval', function($http, $interval) {
+	var data;
+
+	var doNotify = [];
+
+	var reloadData = function() {
+		$http.get('json/' + window.location.search).success(function(inp) {
+			data = inp;
+			for (var i = 0; i < doNotify.length; i++) {
+				doNotify[i](inp);
+			}
+		});
+	};
+	reloadData();
+	$interval(reloadData, 1000);
+
+	return function(cb) {
+		doNotify.push(cb);
+		if (data)
+			cb(data);
+	};
+}]);
+
+app.controller('EventBoxCtrl', ['stats', function(stats) {
+	var that = this;
+
+	stats(function(data) {
+		that.events = data.today.events;
+	});
+}]);
+app.controller('EventsCtrl', ['stats', function(stats) {
+	var that = this;
+
+	var to_total = ['tickets', 'tickets_to_breakeven', 'take', 'profit'];
+
+	stats(function(data) {
+		that.events = data.today.events;
+		that.total = {};
+		for (var i = 0; i < to_total.length; i++) { that.total[to_total[i]] = 0; }
+
+		for (var i = 0; i < that.events.length; i++) {
+			var e = that.events[i];
+			for (var j = 0; j < to_total.length; j++) { that.total[to_total[j]] += e[to_total[j]]; }
+		}
+	});
+}]);
+app.controller('TicketsCtrl', ['stats', function(stats) {
+	var that = this;
+	stats(function(data) {
+		that.tickets = data.today.tickets;
+	});
+}]);
+app.controller('MoneyCtrl', ['stats', function(stats) {
+	var that = this;
+	stats(function(data) {
+		that.sgi = data.money;
+	});
+}]);
+app.controller('MembershipCtrl', ['stats', function(stats) {
+	var that = this;
+	that.data = {
+		xScale: 'time',
+		yScale: 'linear',
+		type: 'cumulative',
+		main: [{
+			className: '.thisYear',
+			data: []
+		}, {
+			className: '.lastYear',
+			data: []
+		}]
+	};
+	that.opts = {
+		dataFormatX: function(x) {
+			return d3.time.format('%Y-%m-%d').parse(x);
+		},
+		tickFormatX: function(x) {
+			return d3.time.format('%B')(x);
+		},
+		paddingTop: 10,
+		paddingLeft: 30,
+	};
+	that.legend = [
+		{
+			posn: 0,
+			comp: false,
+			text: 'This Year'
+		},
+		{
+			posn: 1,
+			comp: false,
+			text: 'Last Year'
+		}
+	];
+
+	var mapping = {'this_year': that.data.main[0], 'last_year': that.data.main[1]};
+
+	stats(function(data) {
+		that.data.main.data = [];
+		for (var n in mapping) {
+			if (!mapping.hasOwnProperty(n)) continue;
+
+			var x = data.membership[n];
+			var into = mapping[n];
+			into.data = []
+			for (var date in x) {
+				if (!x.hasOwnProperty(date)) continue;
+				into.data.push({
+					x: date,
+					y: x[date]
+				});
+
+			}
+		}
+	});
+}]);
+app.controller('TicketsGraphCtrl', ['stats', function(stats) {
+	var that = this;
+	that.data = {
+		xScale: 'time',
+		yScale: 'linear',
+		type: 'cumulative',
+		main: [],
+		comp: []
+	};
+	that.opts = {
+		dataFormatX: function(x) {
+			return d3.time.format('%Y-%m-%dT%H:%M:%S').parse(x);
+		},
+		tickFormatX: function(x) {
+			return d3.time.format('%H:%M')(x);
+		},
+		dataFormatY: function(y) {
+			return y / 100;
+		},
+		paddingTop: 10,
+		paddingLeft: 50,
+		interpolation: 'step'
+	};
+	that.legend = [];
+
+	stats(function(data) {
+		that.data.main = [];
+		that.data.comp = [];
+		that.legend = [];
+
+		if (data.today.events.length == 0) return;
+
+		var minDate = -1;
+		var maxDate = -1;
+		var df = d3.time.format('%Y-%m-%dT%H:%M:%S');
+		for (var filmId in data.today.events) {
+			if (!data.today.events.hasOwnProperty(filmId))
+				continue;
+			var dat = data.today.events[filmId].take_over_time;
+			for (var x in dat) {
+				if (!dat.hasOwnProperty(x)) continue;
+				var now = df.parse(x); 
+				if (minDate == -1 || now < minDate) minDate = now;
+				if (maxDate == -1 || now > maxDate) maxDate = now;
+			}
+		}
+		minDate = df(minDate);
+		maxDate = df(maxDate);
+
+		for (var filmId in data.today.events) {
+			if (!data.today.events.hasOwnProperty(filmId))
+				continue;
+			
+			var dat = data.today.events[filmId].take_over_time;
+			that.data.main.push({
+				className: '.film' + (filmId),
+				data: []
+			});
+			that.data.comp.push({
+				className: '.film' + filmId + '-mg',
+				data: [],
+				type: 'line-dotted'
+			});
+			that.legend.push({
+				posn: that.data.main.length - 1,
+				comp: false,
+				text: data.today.events[filmId].name
+			});
+			that.legend.push({
+				posn: that.data.main.length - 1,
+				comp: true,
+				text: data.today.events[filmId].name + ' MG'
+			});
+			var ooo = that.data.main[that.data.main.length - 1].data;
+			var ppp = that.data.comp[that.data.comp.length - 1].data;
+
+			if (!dat.hasOwnProperty(minDate)) {
+				ooo.push({
+					x: minDate,
+					y: 0
+				});
+			}
+			if (!dat.hasOwnProperty(maxDate)) {
+				ooo.push({
+					x: maxDate,
+					y: 0
+				});
+			}
+			ppp.push({
+				x: minDate,
+				y: data.today.events[filmId].minimum
+			});
+			ppp.push({
+				x: maxDate, y: 0
+			});
+
+
+			for (var x in dat) {
+				if (!dat.hasOwnProperty(x)) continue;
+
+				ooo.push({
+					x: x,
+					y: dat[x]
+				});
+			}
+		}
+	});
+}]);
+app.controller('ProductsCtrl', ['stats', function(stats) {
+	var that = this;
+	that.data = {
+		xScale: 'time',
+		yScale: 'linear',
+		type: 'cumulative',
+		main: [],
+	};
+	that.opts = {
+		dataFormatX: function(x) {
+			return d3.time.format('%Y-%m-%d').parse(x);
+		},
+		tickFormatX: function(x) {
+			return d3.time.format('%Y-%m-%d')(x);
+		},
+		paddingTop: 10,
+		paddingLeft: 50,
+	};
+	that.legend = [];
+
+	stats(function(data) {
+		that.data.main = [];
+		that.legend = [];
+
+		var minDate = -1;
+		var df = d3.time.format('%Y-%m-%d');
+		for (var i = 0; i < data.products.length; i++) {
+			var dat = data.products[i];
+			for (var x in dat.sales) {
+				if (!dat.sales.hasOwnProperty(x)) continue;
+				var now = df.parse(x); 
+				if (minDate == -1 || now < minDate) minDate = now;
+			}
+		}
+		minDate = df(minDate);
+		maxDate = df(new Date());
+
+		that.data.xMin = minDate;
+		that.data.xMax = maxDate;
+
+		for (var i = 0; i < data.products.length; i++) {
+			var dat = data.products[i];
+			that.data.main.push({
+				className: '.product' + (i),
+				data: []
+			});
+			that.legend.push({
+				posn: that.data.main.length - 1,
+				comp: false,
+				text: dat.name
+			});
+			var ooo = that.data.main[that.data.main.length - 1].data;
+
+			if (!dat.hasOwnProperty(minDate)) {
+				ooo.push({
+					x: minDate,
+					y: 0
+				});
+			}
+			if (!dat.hasOwnProperty(maxDate)) {
+				ooo.push({
+					x: maxDate,
+					y: 0
+				});
+			}
+
+			for (var x in dat.sales) {
+				if (!dat.sales.hasOwnProperty(x)) continue;
+
+				ooo.push({
+					x: x,
+					y: dat.sales[x]
+				});
+			}
+		}
+	});
+}]);
+
+
+app.directive('graph', function() {
+	var graphId = 0;
+
+	return {
+		restrict: 'E',
+		replace: true,
+		template: '<figure></figure>',
+		link: function(scope, elem, attrs) {
+			var elemId;
+			if (!elem.attr('id')) {
+				graphId++;
+				elemId = 'chart-' + graphId;
+				elem.attr('id', elemId);
+			}
+
+			var chart = null;
+
+			scope.$watch(attrs.data, function(v) {
+				if (!chart) {
+					chart = new xChart(scope.$eval(attrs.type), v, '#' + elemId, scope.$eval(attrs.opts));
+				} else {
+					chart.setData(v);
+				}
+			}, true);
+		}
+	};
+});
+app.directive('autoScale', function() {
+	return {
+		restrict: 'A',
+		link: function(scope, elem, attrs) {
+			var recalcSize = function() {
+				var elemParent = elem.parent();
+				var remainingHeight = elemParent.height();
+				elemParent.children().each(function() {
+					if (this.id==elem[0].id) return;
+					remainingHeight -= $(this).outerHeight();
+				});
+				elem.css('height', remainingHeight + 'px');
+			};
+			recalcSize();
+			$(window).resize(recalcSize);
+		}
+	};
+});
+app.directive('legend', function() {
+	return {
+		restrict: 'E',
+		scope: {
+			items: '='
+		},
+		template: '<ul class="legend xchart"><li class="color{{ l.posn }}" ng-class="{ comp: l.comp }" ng-repeat="l in items"><div class="colorbox"></div> {{ l.text }}</li></ul>',
+	};
+});
+{% endverbatim %}
+</script>
+</head>
+<body ng-app="StatsApp">
+{% verbatim %}
+<div class="today box bbb" ng-controller="EventBoxCtrl as eventBox" style="position: relative;" ng-hide="eventBox.events && eventBox.events.length <= 0"> 
+	<h1>Today's Events</h1>
+
+	<table class="events" ng-controller="EventsCtrl as events">
+		<thead>
+			<tr>
+				<th>Event</th>
+				<th>Sold</th>
+				<th>BE</th>
+				<th>Take</th>
+				<th>Profit</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="event in events.events">
+				<td>{{ event.name }}</td>
+				<td>{{ event.tickets }}</td>
+				<td><span ng-if="event.tickets_to_breakeven > 0">{{ event.tickets_to_breakeven }}</span><span ng-if="event.tickets_to_breakeven <= 0">0</span></td>
+				<td>{{ (event.take/100)|currency:'£' }}</td>
+				<td ng-class="{negative: event.profit < 0}">{{ (event.profit/100)|currency:'£' }}</td>
+			</tr>
+		</tbody>
+		<tfoot>
+			<tr>
+				<td>Total</th>
+				<td>{{ events.total.tickets }}</td>
+				<td><span ng-if="events.total.tickets_to_breakeven > 0">{{ events.total.tickets_to_breakeven }}</span><span ng-if="events.total.tickets_to_breakeven <= 0">0</span></td>
+				<td>{{ (events.total.take/100)|currency:'£' }}</td>
+				<td ng-class="{negative: events.total.profit < 0}">{{ (events.total.profit/100)|currency:'£' }}</td>
+			</tr>
+		</tfoot>
+	</table>
+
+	<ol class="tickets" ng-controller="TicketsCtrl as tickets">
+		<li ng-repeat="ticket in tickets.tickets">
+			<code>{{ ticket.id }}.</code>
+			<strong><span ng-if="ticket.cost > 0">{{ ticket.cost/100|currency:'£' }}</span><span ng-if="ticket.cost == 0">Free</span></strong>
+			<div>
+				<h3>{{ ticket.event }}</h3>
+				<em>{{ ticket.type }}</em>
+			</div>
+		</li>
+	</ol>
+
+	<div class="ticketsGraph" ng-controller="TicketsGraphCtrl as ticketsGraph" style="position: absolute; bottom: 0; left: 0; right: 0; top: 50%; background: #2f2f2f;">
+		<legend items="ticketsGraph.legend"></legend>
+		<graph opts="ticketsGraph.opts" type="cumulative" data="ticketsGraph.data" style="width: 90%; height: 90%;"></graph>
+	</div>
+</div>
+<div class="membership box bbr" ng-controller="MembershipCtrl as memberships">
+	<h1>Membership</h1>
+	<div id="membershipScaler" auto-scale style="position: relative;">
+		<legend items="memberships.legend" style="position: absolute; top: -10px; left: -10px;"></legend>
+		<graph opts="memberships.opts" type="cumulative" data="memberships.data" style="width: 90%; height: 90%;"></graph>
+	</div>
+</div>
+<div class="products box bbr" ng-controller="ProductsCtrl as products">
+	<h1>Products</h1>
+	<div id="productsScaler" auto-scale style="position: relative;">
+		<legend items="products.legend" style="position: absolute; top: -10px; left: -10px;"></legend>
+		<graph opts="products.opts" type="cumulative" data="products.data" style="width: 90%; height: 90%;"></graph>
+	</div>
+</div>
+<div class="finance box bbr bbb" ng-controller="MoneyCtrl as money">
+	<h1>Money In The Bank (SGI)</h1>
+	<h2 class="money">{{ money.sgi/100|currency:'£' }}</h2>
+</div>
+{% endverbatim %}
+</body>
+</html>

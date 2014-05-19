@@ -1,12 +1,16 @@
 import datetime
 import decimal
+import json
+import collections
 Decimal = decimal.Decimal
 
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, View
+from django.http import HttpResponse
 from django.db.models import Count, Sum
 from django.utils.timezone import now
 
 from ticketing import models
+from . import models as smodels
 
 def get_default_date_bounds():
     my_now = now()
@@ -16,6 +20,9 @@ def get_default_date_bounds():
 
 def quantize(d, **kwargs):
     return d.quantize(Decimal('.01'), **kwargs)
+
+def flatten(d):
+    return int(quantize(d) * 100)
 
 class IndexView(TemplateView):
     template_name = 'stats/index.html'
@@ -292,3 +299,104 @@ class OverviewMoneyView(ReportView):
             if foot[x] != '':
                 foot[x] = foot[x].quantize(Decimal('.01'))
         return foot
+
+class DashboardJsonView(View):
+    def get(self, request, *args, **kwargs):
+
+        # try to work out if there are events today
+        try:
+            if request.GET.get('date', None) is not None:
+                today = datetime.datetime.strptime(request.GET.get('date'), '%Y-%m-%d')
+            else:
+                raise Exception('LOL')
+        except:
+            today = datetime.date.today()
+        tomorrow = today + datetime.timedelta(days=1)
+        events = models.Showing.objects.filter(start_time__gte=today, start_time__lt=tomorrow)
+
+        def format_punter(punter):
+            if punter is None:
+                return 'Guest'
+            elif punter.name == '':
+                return 'Unknown (ID: {})'.format(punter.id)
+            return punter.name
+
+        f_events = []
+        event_event_ids = set()
+        for e in events:
+            tix = e.tickets().filter(status='live').select_related('ticket_type')
+
+            take = tix.aggregate(take=Sum('ticket_type__sale_price'))['take']
+            minimum = Decimal(e.week.royalties_minimum)
+            percent = Decimal(e.week.royalties_percent) / 100 + 1
+            troytastic = 1.2 if e.week.royalties_troytastic else 1.0
+
+            take_novat = quantize(take / Decimal(1.2), rounding=decimal.ROUND_DOWN)
+            bor_cost = tix.aggregate(bor=Sum('ticket_type__box_office_return_price'))['bor']
+            bor_cost_novat = quantize(bor_cost / Decimal(1.2), rounding=decimal.ROUND_DOWN)
+            rental_cost_novat = quantize(max(bor_cost_novat * Decimal(percent) / 100, minimum))
+            rental_cost_novat = (max(0, rental_cost_novat - minimum) * Decimal(troytastic)) + minimum
+            profit_novat = take_novat - rental_cost_novat
+            tickets_to_breakeven = (-profit_novat) / Decimal(3)
+
+            f_event = {
+                'name': e.name,
+                'tickets': tix.count(),
+                'take': flatten(take_novat),
+                'reported_take': flatten(bor_cost_novat),
+                'profit': flatten(profit_novat),
+                'tickets_to_breakeven': int(tickets_to_breakeven.quantize(Decimal('1'), rounding=decimal.ROUND_UP))
+            }
+            
+            f_events.append(f_event)
+
+            for ev in e.events.all().values_list('id', flat=True):
+                event_event_ids.add(ev)
+
+            f_event['minimum'] = flatten(minimum)
+            f_event['take_over_time'] = tot = collections.OrderedDict()
+            for ticket in tix.order_by('timestamp'):
+                x = ticket.timestamp.strftime('%Y-%m-%dT%H:%M:%S')
+                tot[x] = tot.get(x, 0) + flatten(ticket.ticket_type.sale_price / Decimal(1.2))
+
+        tickets_qs = models.Ticket.objects.filter(ticket_type__event__id__in=event_event_ids).select_related('ticket_type', 'ticket_type__event').order_by('-timestamp')
+
+        today = {
+            'events': f_events,
+            'tickets': [{'id': t.id, 'name': format_punter(t.punter), 'type': t.ticket_type.name, 'cost': flatten(t.ticket_type.sale_price), 'event': t.ticket_type.event.name} for t in tickets_qs[:20]],
+        }
+
+        membership = {
+            'this_year': smodels.StatsData.objects.get(key='membership_this_year').value,
+            'last_year': self.change_year_to_this_year(smodels.StatsData.objects.get(key='membership_last_year').value)
+        }
+
+        products = []
+        active_products = smodels.StatsData.objects.get(key='active_products').value
+        for p in active_products:
+            products.append({
+                'name': p['name'],
+                'sales': smodels.StatsData.objects.get(key='products_' + str(p['id'])).value
+            })
+
+        money = [y for (x, y) in smodels.StatsData.objects.get(key='finances').value['funding_overview'].iteritems() if x == 'SGI (1)'][0]
+
+        res = {
+            'today': today,
+            'membership': membership,
+            'products': products,
+            'money': money
+        }
+        return HttpResponse(json.dumps(res), content_type="application/json")
+
+    def change_year_to_this_year(self, data):
+        out = collections.OrderedDict()
+        for k, v in data.iteritems():
+            y, dash, rest = k.partition('-')
+            y = str(int(y) + 1)
+            new_k = y + dash + rest
+            out[new_k] = v
+        return out
+
+class DashboardView(TemplateView):
+    template_name = 'stats/dashboard.html'

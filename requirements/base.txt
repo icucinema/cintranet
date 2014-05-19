@@ -16,3 +16,4 @@ reportlab==2.7
 python-dateutil==1.5
 django-ical==1.2
 psycopg2==2.5.2
+jsonfield==0.9.20
