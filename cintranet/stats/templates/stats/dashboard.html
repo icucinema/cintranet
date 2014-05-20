@@ -26,6 +26,16 @@ html, body {
 * {
 	box-sizing: border-box;
 }
+figure {
+	width: 90%;
+	height: 90%;
+}
+legend.backLegend {
+	position: absolute; top: -10px; left: -10px;
+}
+.scaler {
+	position: relative;
+}
 .box {
 	float: left;
 	background-color: #2f2f2f;
@@ -34,6 +44,14 @@ html, body {
 	width: 50%;
 	overflow: hidden;
 }
+.innerbox {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	top: 50%;
+	background: #2f2f2f;
+}
 .bbr {
 	border-right: 10px solid #0f0f0f;
 }
@@ -41,6 +59,7 @@ html, body {
 	border-bottom: 10px solid #0f0f0f;
 }
 .today {
+	position: relative;
 	height: 100%;
 }
 .membership {
@@ -103,9 +122,6 @@ html, body {
 	margin: 0; padding: 0;
 	text-align: center;
 	font-size: 72px;
-}
-.ticketsGraph {
-	position: relative;
 }
 .ticketsGraph legend {
 	position: absolute;
@@ -190,6 +206,44 @@ legend .color9.comp .colorbox {
 .negative {
   color: red;
 }
+.ticker {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 40px;
+	line-height: 40px;
+	font-family: Courier New, Courier;
+	font-size: 35px;
+	overflow: hidden;
+}
+.tickerText {
+	position: relative;
+}
+.mainPage {
+	height: 100%;
+	width: 100%;
+	padding-bottom: 40px;
+}
+.mainPage:after {
+	display: block;
+	content: '';
+	clear: both;
+}
+ticker ul {
+	white-space: nowrap;
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+}
+ticker li {
+	display: inline;
+}
+ticker li:after {
+	margin-left: 0.5em;
+	content: '•';
+	margin-right: 0.5em;
+}
 </style>
 <script>
 {% verbatim %}
@@ -201,6 +255,7 @@ app.factory('stats', ['$http', '$interval', function($http, $interval) {
 	var doNotify = [];
 
 	var reloadData = function() {
+		if (window.noUpdate) return;
 		$http.get('json/' + window.location.search).success(function(inp) {
 			data = inp;
 			for (var i = 0; i < doNotify.length; i++) {
@@ -209,7 +264,7 @@ app.factory('stats', ['$http', '$interval', function($http, $interval) {
 		});
 	};
 	reloadData();
-	$interval(reloadData, 1000);
+	$interval(reloadData, 5000);
 
 	return function(cb) {
 		doNotify.push(cb);
@@ -343,9 +398,10 @@ app.controller('TicketsGraphCtrl', ['stats', function(stats) {
 
 		if (data.today.events.length == 0) return;
 
-		var minDate = -1;
-		var maxDate = -1;
 		var df = d3.time.format('%Y-%m-%dT%H:%M:%S');
+		var minDate = new Date();
+		var maxDate = new Date();
+		var notSet = true;
 		for (var filmId in data.today.events) {
 			if (!data.today.events.hasOwnProperty(filmId))
 				continue;
@@ -353,8 +409,12 @@ app.controller('TicketsGraphCtrl', ['stats', function(stats) {
 			for (var x in dat) {
 				if (!dat.hasOwnProperty(x)) continue;
 				var now = df.parse(x); 
-				if (minDate == -1 || now < minDate) minDate = now;
-				if (maxDate == -1 || now > maxDate) maxDate = now;
+				if (notSet) {
+					notSet = false;
+					minDate = maxDate = now;
+				}
+				if (now < minDate) minDate = now;
+				if (now > maxDate) maxDate = now;
 			}
 		}
 		minDate = df(minDate);
@@ -496,8 +556,89 @@ app.controller('ProductsCtrl', ['stats', function(stats) {
 		}
 	});
 }]);
+app.controller('TickerCtrl', ['stats', function(stats) {
+	this.items = [];
+	var that = this;
+
+	stats(function(data) {
+		that.items = data.ticker;
+	});
+}]);
 
 
+app.directive('ticker', ['$timeout', function($timeout) {
+	var elemsWidth = 0;
+	var currentScrollPos = 0;
+	var moveBy = 0.25;
+	var lastTimestamp = null;
+
+	return {
+		restrict: 'E',
+		template: '<ul class="tickerText"><li class="batch-1" ng-repeat="item in items">{{ item }}</li><li class="batch-2" ng-repeat="item in additionalItems track by $index">{{ item }}</li></ul>',
+		link: function(scope, elem, attrs) {
+			// scroll tickerText left until it goes off the screen
+			var tt = elem.find(".tickerText");
+
+			windowWidth = document.body.getBoundingClientRect().width; 
+			window.addEventListener('resize', function() {
+				windowWidth = document.body.getBoundingClientRect().width; 
+			});
+
+			scope.$watch(attrs.items, function(v) {
+				var isSame = scope.items && scope.items.length == v.length;
+				if (isSame) {
+					for (var i = 0; i < v.length; i++) {
+						isSame = isSame && v[i] == scope.items[i];
+						if (!isSame) break;
+					}
+				}
+				if (isSame) return;
+
+				scope.items = v;
+				scope.additionalItems = scope.items.slice(0);
+
+				$timeout(function() {
+					var thisElemsWidth = 0;
+					tt.find(".batch-1").each(function() {
+						thisElemsWidth += (this.getBoundingClientRect().width);
+					});
+					if (thisElemsWidth > 0) {
+						var n = thisElemsWidth;
+						while (n < (2 * windowWidth)) {
+							scope.additionalItems.concat(scope.items);
+							
+							n += thisElemsWidth;
+						}
+					}
+					elemsWidth = thisElemsWidth;
+
+				}, 10);
+			});
+
+			var stepFn = function(timestamp) {
+				if (lastTimestamp === null) {
+					lastTimestamp = timestamp;
+					window.requestAnimationFrame(stepFn);
+					return;
+				}
+				if (elemsWidth <= 0) {
+					lastTimestamp = timestamp;
+					window.requestAnimationFrame(stepFn);
+					return;
+				}
+
+				currentScrollPos += moveBy * (timestamp - lastTimestamp);
+				currentScrollPos %= elemsWidth;
+				tt[0].style.webkitTransform = "translate3d(-" + currentScrollPos + "px, 0, 0)";
+				tt[0].style.transform = "translate3d(-" + currentScrollPos + "px, 0, 0)";
+
+				lastTimestamp = timestamp;
+				window.requestAnimationFrame(stepFn);
+			};
+			window.requestAnimationFrame(stepFn);
+		}
+	};
+}]);
 app.directive('graph', function() {
 	var graphId = 0;
 
@@ -557,72 +698,77 @@ app.directive('legend', function() {
 </head>
 <body ng-app="StatsApp">
 {% verbatim %}
-<div class="today box bbb" ng-controller="EventBoxCtrl as eventBox" style="position: relative;" ng-hide="eventBox.events && eventBox.events.length <= 0"> 
-	<h1>Today's Events</h1>
-
-	<table class="events" ng-controller="EventsCtrl as events">
-		<thead>
-			<tr>
-				<th>Event</th>
-				<th>Sold</th>
-				<th>BE</th>
-				<th>Take</th>
-				<th>Profit</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr ng-repeat="event in events.events">
-				<td>{{ event.name }}</td>
-				<td>{{ event.tickets }}</td>
-				<td><span ng-if="event.tickets_to_breakeven > 0">{{ event.tickets_to_breakeven }}</span><span ng-if="event.tickets_to_breakeven <= 0">0</span></td>
-				<td>{{ (event.take/100)|currency:'£' }}</td>
-				<td ng-class="{negative: event.profit < 0}">{{ (event.profit/100)|currency:'£' }}</td>
-			</tr>
-		</tbody>
-		<tfoot>
-			<tr>
-				<td>Total</th>
-				<td>{{ events.total.tickets }}</td>
-				<td><span ng-if="events.total.tickets_to_breakeven > 0">{{ events.total.tickets_to_breakeven }}</span><span ng-if="events.total.tickets_to_breakeven <= 0">0</span></td>
-				<td>{{ (events.total.take/100)|currency:'£' }}</td>
-				<td ng-class="{negative: events.total.profit < 0}">{{ (events.total.profit/100)|currency:'£' }}</td>
-			</tr>
-		</tfoot>
-	</table>
-
-	<ol class="tickets" ng-controller="TicketsCtrl as tickets">
-		<li ng-repeat="ticket in tickets.tickets">
-			<code>{{ ticket.id }}.</code>
-			<strong><span ng-if="ticket.cost > 0">{{ ticket.cost/100|currency:'£' }}</span><span ng-if="ticket.cost == 0">Free</span></strong>
-			<div>
-				<h3>{{ ticket.event }}</h3>
-				<em>{{ ticket.type }}</em>
-			</div>
-		</li>
-	</ol>
-
-	<div class="ticketsGraph" ng-controller="TicketsGraphCtrl as ticketsGraph" style="position: absolute; bottom: 0; left: 0; right: 0; top: 50%; background: #2f2f2f;">
-		<legend items="ticketsGraph.legend"></legend>
-		<graph opts="ticketsGraph.opts" type="cumulative" data="ticketsGraph.data" style="width: 90%; height: 90%;"></graph>
+<div class="mainPage">
+	<div class="today box bbb" ng-controller="EventBoxCtrl as eventBox" ng-hide="eventBox.events && eventBox.events.length <= 0"> 
+		<h1>Today's Events</h1>
+	
+		<table class="events" ng-controller="EventsCtrl as events">
+			<thead>
+				<tr>
+					<th>Event</th>
+					<th>Sold</th>
+					<th>BE</th>
+					<th>Take</th>
+					<th>Profit</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="event in events.events">
+					<td>{{ event.name }}</td>
+					<td>{{ event.tickets }}</td>
+					<td><span ng-if="event.tickets_to_breakeven > 0">{{ event.tickets_to_breakeven }}</span><span ng-if="event.tickets_to_breakeven <= 0">0</span></td>
+					<td>{{ (event.take/100)|currency:'£' }}</td>
+					<td ng-class="{negative: event.profit < 0}">{{ (event.profit/100)|currency:'£' }}</td>
+				</tr>
+			</tbody>
+			<tfoot>
+				<tr>
+					<td>Total</th>
+					<td>{{ events.total.tickets }}</td>
+					<td><span ng-if="events.total.tickets_to_breakeven > 0">{{ events.total.tickets_to_breakeven }}</span><span ng-if="events.total.tickets_to_breakeven <= 0">0</span></td>
+					<td>{{ (events.total.take/100)|currency:'£' }}</td>
+					<td ng-class="{negative: events.total.profit < 0}">{{ (events.total.profit/100)|currency:'£' }}</td>
+				</tr>
+			</tfoot>
+		</table>
+	
+		<ol class="tickets" ng-controller="TicketsCtrl as tickets">
+			<li ng-repeat="ticket in tickets.tickets" class="dn-bounce-down">
+				<code>{{ ticket.id }}.</code>
+				<strong><span ng-if="ticket.cost > 0">{{ ticket.cost/100|currency:'£' }}</span><span ng-if="ticket.cost == 0">Free</span></strong>
+				<div>
+					<h3>{{ ticket.event }}</h3>
+					<em>{{ ticket.type }}</em>
+				</div>
+			</li>
+		</ol>
+	
+		<div class="ticketsGraph innerbox" ng-controller="TicketsGraphCtrl as ticketsGraph">
+			<legend items="ticketsGraph.legend"></legend>
+			<graph opts="ticketsGraph.opts" type="cumulative" data="ticketsGraph.data"></graph>
+		</div>
+	</div>
+	<div class="membership box bbr" ng-controller="MembershipCtrl as memberships">
+		<h1>Membership</h1>
+		<div id="membershipScaler" auto-scale class="scaler">
+			<legend items="memberships.legend" class="backLegend"></legend>
+			<graph opts="memberships.opts" type="cumulative" data="memberships.data"></graph>
+		</div>
+	</div>
+	<div class="products box bbr" ng-controller="ProductsCtrl as products">
+		<h1>Products</h1>
+		<div id="productsScaler" auto-scale class="scaler">
+			<legend items="products.legend" class="backLegend"></legend>
+			<graph opts="products.opts" type="cumulative" data="products.data"></graph>
+		</div>
+	</div>
+	<div class="finance box bbr bbb" ng-controller="MoneyCtrl as money">
+		<h1>Money In The Bank (SGI)</h1>
+		<h2 class="money">{{ money.sgi/100|currency:'£' }}</h2>
 	</div>
 </div>
-<div class="membership box bbr" ng-controller="MembershipCtrl as memberships">
-	<h1>Membership</h1>
-	<div id="membershipScaler" auto-scale style="position: relative;">
-		<legend items="memberships.legend" style="position: absolute; top: -10px; left: -10px;"></legend>
-		<graph opts="memberships.opts" type="cumulative" data="memberships.data" style="width: 90%; height: 90%;"></graph>
-	</div>
-</div>
-<div class="products box bbr" ng-controller="ProductsCtrl as products">
-	<h1>Products</h1>
-	<div id="productsScaler" auto-scale style="position: relative;">
-		<legend items="products.legend" style="position: absolute; top: -10px; left: -10px;"></legend>
-		<graph opts="products.opts" type="cumulative" data="products.data" style="width: 90%; height: 90%;"></graph>
-	</div>
-</div>
-<div class="finance box bbr bbb" ng-controller="MoneyCtrl as money">
-	<h1>Money In The Bank (SGI)</h1>
-	<h2 class="money">{{ money.sgi/100|currency:'£' }}</h2>
+<div class="ticker" ng-controller="TickerCtrl as ticker">
+	<ticker items="ticker.items"></ticker>
 </div>
 {% endverbatim %}
 </body>

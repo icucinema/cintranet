@@ -1,7 +1,10 @@
+# vim: set fileencoding=utf-8 :
+
 import datetime
 import decimal
 import json
 import collections
+import random
 Decimal = decimal.Decimal
 
 from django.views.generic.base import TemplateView, View
@@ -304,13 +307,9 @@ class DashboardJsonView(View):
     def get(self, request, *args, **kwargs):
 
         # try to work out if there are events today
-        try:
-            if request.GET.get('date', None) is not None:
-                today = datetime.datetime.strptime(request.GET.get('date'), '%Y-%m-%d')
-            else:
-                raise Exception('LOL')
-        except:
-            today = datetime.date.today()
+        today = datetime.date.today()
+        if request.GET.get('date', None) is not None:
+            today = datetime.datetime.strptime(request.GET.get('date'), '%Y-%m-%d')
         tomorrow = today + datetime.timedelta(days=1)
         events = models.Showing.objects.filter(start_time__gte=today, start_time__lt=tomorrow)
 
@@ -326,18 +325,18 @@ class DashboardJsonView(View):
         for e in events:
             tix = e.tickets().filter(status='live').select_related('ticket_type')
 
-            take = tix.aggregate(take=Sum('ticket_type__sale_price'))['take']
-            minimum = Decimal(e.week.royalties_minimum)
-            percent = Decimal(e.week.royalties_percent) / 100 + 1
+            take = tix.aggregate(take=Sum('ticket_type__sale_price'))['take'] or Decimal('0')
+            minimum = Decimal(e.week.royalties_minimum or '0.00')
+            percent = Decimal(e.week.royalties_percent or '0') / 100 + 1
             troytastic = 1.2 if e.week.royalties_troytastic else 1.0
 
             take_novat = quantize(take / Decimal(1.2), rounding=decimal.ROUND_DOWN)
-            bor_cost = tix.aggregate(bor=Sum('ticket_type__box_office_return_price'))['bor']
+            bor_cost = tix.aggregate(bor=Sum('ticket_type__box_office_return_price'))['bor'] or Decimal('0')
             bor_cost_novat = quantize(bor_cost / Decimal(1.2), rounding=decimal.ROUND_DOWN)
             rental_cost_novat = quantize(max(bor_cost_novat * Decimal(percent) / 100, minimum))
             rental_cost_novat = (max(0, rental_cost_novat - minimum) * Decimal(troytastic)) + minimum
             profit_novat = take_novat - rental_cost_novat
-            tickets_to_breakeven = (-profit_novat) / Decimal(3)
+            tickets_to_breakeven = (-profit_novat) / (Decimal(3) / Decimal(1.2))
 
             f_event = {
                 'name': e.name,
@@ -381,11 +380,14 @@ class DashboardJsonView(View):
 
         money = [y for (x, y) in smodels.StatsData.objects.get(key='finances').value['funding_overview'].iteritems() if x == 'SGI (1)'][0]
 
+        ticker = self.generate_ticker()
+
         res = {
             'today': today,
             'membership': membership,
             'products': products,
-            'money': money
+            'money': money,
+            'ticker': ticker,
         }
         return HttpResponse(json.dumps(res), content_type="application/json")
 
@@ -397,6 +399,49 @@ class DashboardJsonView(View):
             new_k = y + dash + rest
             out[new_k] = v
         return out
+
+    def generate_ticker(self):
+        ticker = []
+
+        now = datetime.datetime.now()
+        this_monday = now.date() - datetime.timedelta(days=now.weekday())
+        next_monday = this_monday + datetime.timedelta(days=7)
+        last_monday = this_monday - datetime.timedelta(days=7)
+        two_mondays_ago = last_monday - datetime.timedelta(days=7)
+
+        last_september = datetime.date(now.year if now.month > 9 else now.year - 1, 9, 20)
+
+        take_calc = lambda qs: qs.aggregate(take=Sum('ticket_type__sale_price'))['take'] or Decimal('0.00')
+        tix = models.Ticket.objects.filter(status='live')
+        take_last_week = take_calc(tix.filter(ticket_type__event__start_time__gte=last_monday, ticket_type__event__start_time__lt=this_monday)) or Decimal('0.00')
+        take_this_week = take_calc(tix.filter(ticket_type__event__start_time__gte=this_monday, ticket_type__event__start_time__lt=next_monday)) or Decimal('0.00')
+        tickets_sold_last_week = tix.filter(ticket_type__event__start_time__gte=last_monday, ticket_type__event__start_time__lt=this_monday).aggregate(n=Count('id'))['n'] or 0
+        tickets_sold_this_week = tix.filter(ticket_type__event__start_time__gte=this_monday, ticket_type__event__start_time__lt=next_monday).aggregate(n=Count('id'))['n'] or 0
+
+        lolz_feeling = random.choice([
+            "Bad",
+            "Shit",
+            "Epic Fail",
+            "Super Special Fail",
+            "Petrol Bombing Time",
+            "#IHateMyLife",
+            "FUCK IMPERIAL",
+            "ERMAHGERD THIS IS THE WORST EVER"
+        ])
+
+
+        ticker.append('Current members: {}'.format(models.EntitlementDetail.objects.filter(entitlement__name='2013-14 Membership').count()))
+        if random.randint(1,10) == 6:
+            ticker.append('#LivingTheDream')
+        ticker.append('Outstanding free tickets: {}'.format(models.EntitlementDetail.objects.filter(entitlement__name='2013-14 Members Free Ticket', remaining_uses__gte=1).count()))
+        ticker.append('Take last week: £{}'.format(take_last_week))
+        ticker.append('Take so far this week: £{}'.format(take_this_week))
+        ticker.append('Tickets to sell until we can afford Atmos: '+str(random.randint(100000,200000)))
+        ticker.append('Tickets sold last week: {}'.format(tickets_sold_last_week))
+        ticker.append('Tickets sold this week: {}'.format(tickets_sold_this_week))
+        ticker.append('UCH Redevelopment Status Report: '+lolz_feeling)
+
+        return ticker
 
 class DashboardView(TemplateView):
     template_name = 'stats/dashboard.html'
