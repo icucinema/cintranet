@@ -5,6 +5,7 @@ import decimal
 import json
 import collections
 import random
+import requests
 Decimal = decimal.Decimal
 
 from django.views.generic.base import TemplateView, View
@@ -325,17 +326,30 @@ class DashboardJsonView(View):
         for e in events:
             tix = e.tickets().filter(status='live').select_related('ticket_type')
 
-            take = tix.aggregate(take=Sum('ticket_type__sale_price'))['take'] or Decimal('0')
+            take = Decimal('0')
+            bor_cost = Decimal('0')
+            for tick in tix:
+                take += tick.ticket_type.sale_price / tick.ticket_type.event.showings.count()
+                bor_cost += tick.ticket_type.box_office_return_price / tick.ticket_type.event.showings.count()
+
             minimum = Decimal(e.week.royalties_minimum or '0.00')
             percent = Decimal(e.week.royalties_percent or '0') / 100 + 1
             troytastic = 1.2 if e.week.royalties_troytastic else 1.0
 
             take_novat = quantize(take / Decimal(1.2), rounding=decimal.ROUND_DOWN)
-            bor_cost = tix.aggregate(bor=Sum('ticket_type__box_office_return_price'))['bor'] or Decimal('0')
             bor_cost_novat = quantize(bor_cost / Decimal(1.2), rounding=decimal.ROUND_DOWN)
             rental_cost_novat = quantize(max(bor_cost_novat * Decimal(percent) / 100, minimum))
             rental_cost_novat = (max(0, rental_cost_novat - minimum) * Decimal(troytastic)) + minimum
-            profit_novat = take_novat - rental_cost_novat
+
+            other_showings = e.week.showings.exclude(id=e.id).filter(start_time__lt=e.start_time)
+            prior_take = Decimal('0')
+            for other_showing in other_showings:
+                other_tix = other_showing.tickets().filter(status='live').select_related('ticket_type')
+                for other_tick in other_tix:
+                    prior_take += other_tick.ticket_type.sale_price / other_tick.ticket_type.event.showings.count()
+            prior_take_novat = quantize(prior_take / Decimal(1.2), rounding=decimal.ROUND_DOWN)
+
+            profit_novat = prior_take_novat + take_novat - rental_cost_novat
             tickets_to_breakeven = (-profit_novat) / (Decimal(3) / Decimal(1.2))
 
             f_event = {
@@ -388,6 +402,7 @@ class DashboardJsonView(View):
             'products': products,
             'money': money,
             'ticker': ticker,
+            'live_data': self.generate_live_data()
         }
         return HttpResponse(json.dumps(res), content_type="application/json")
 
@@ -430,18 +445,32 @@ class DashboardJsonView(View):
         ])
 
 
-        ticker.append('Current members: {}'.format(models.EntitlementDetail.objects.filter(entitlement__name='2013-14 Membership').count()))
-        if random.randint(1,10) == 6:
-            ticker.append('#LivingTheDream')
-        ticker.append('Outstanding free tickets: {}'.format(models.EntitlementDetail.objects.filter(entitlement__name='2013-14 Members Free Ticket', remaining_uses__gte=1).count()))
-        ticker.append('Take last week: £{}'.format(take_last_week))
-        ticker.append('Take so far this week: £{}'.format(take_this_week))
-        ticker.append('Tickets to sell until we can afford Atmos: '+str(random.randint(100000,200000)))
-        ticker.append('Tickets sold last week: {}'.format(tickets_sold_last_week))
-        ticker.append('Tickets sold this week: {}'.format(tickets_sold_this_week))
-        ticker.append('UCH Redevelopment Status Report: '+lolz_feeling)
+        ticker.append('​Current members: {}'.format(models.EntitlementDetail.objects.filter(entitlement__name='2013-14 Membership').count()))
+        ticker.append('​Outstanding free tickets: {}'.format(models.EntitlementDetail.objects.filter(entitlement__name='2013-14 Members Free Ticket', remaining_uses__gte=1).count()))
+        ticker.append('​Take last week: £{}'.format(take_last_week))
+        ticker.append('​Take so far this week: £{}'.format(take_this_week))
+        ticker.append('​Tickets to sell until we can afford Atmos: '+str(random.randint(100000,200000)))
+        ticker.append('​Tickets sold last week: {}'.format(tickets_sold_last_week))
+        if random.randint(1, 10) == 2:
+            ticker.append('﻿#LivingTheDream')
+        ticker.append('​Tickets sold this week: {}'.format(tickets_sold_this_week))
+        ticker.append('​UCH Redevelopment Status Report: '+lolz_feeling)
 
         return ticker
+
+    def grab_from(self, url):
+        return requests.get(url).text
+
+    def generate_live_data(self):
+        data = {}
+
+        data['barco.temperature.ambient'] = self.grab_from('http://su-cinema.su.ic.ac.uk/info/barco.temperature.ambient.txt').strip()
+        try:
+            data['barco.temperature.ambient'] = int(data['barco.temperature.ambient'])
+        except:
+            pass
+
+        return data
 
 class DashboardView(TemplateView):
     template_name = 'stats/dashboard.html'

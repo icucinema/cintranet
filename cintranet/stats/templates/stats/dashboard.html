@@ -71,6 +71,12 @@ legend.backLegend {
 .finance {
 	height: 20%;
 }
+.projTemp {
+	height: 20%;
+}
+.halfBox {
+	width: 25%;
+}
 .box h1 {
 	color: #f0f0f0;
 	margin: 0; padding: 0;
@@ -118,10 +124,16 @@ legend.backLegend {
 	float: right;
 	font-size: 2em;
 }
-.finance h2 {
+.finance h2, .projTemp h2 {
 	margin: 0; padding: 0;
 	text-align: center;
 	font-size: 72px;
+}
+.temperature.warning {
+	color: yellow;
+}
+.temperature.critical {
+	color: red;
 }
 .ticketsGraph legend {
 	position: absolute;
@@ -230,19 +242,22 @@ legend .color9.comp .colorbox {
 	content: '';
 	clear: both;
 }
-ticker ul {
+shitty-ticker ul {
 	white-space: nowrap;
 	margin: 0;
 	padding: 0;
 	list-style-type: none;
 }
-ticker li {
+shitty-ticker li {
 	display: inline;
 }
-ticker li:after {
+shitty-ticker li:after {
 	margin-left: 0.5em;
 	content: '•';
 	margin-right: 0.5em;
+}
+canvas.prerender {
+	display: none;
 }
 </style>
 <script>
@@ -306,6 +321,12 @@ app.controller('MoneyCtrl', ['stats', function(stats) {
 	var that = this;
 	stats(function(data) {
 		that.sgi = data.money;
+	});
+}]);
+app.controller('ProjectorTemperatureCtrl', ['stats', function(stats) {
+	var that = this;
+	stats(function(data) {
+		that.temperature = data.live_data['barco.temperature.ambient'];
 	});
 }]);
 app.controller('MembershipCtrl', ['stats', function(stats) {
@@ -565,12 +586,163 @@ app.controller('TickerCtrl', ['stats', function(stats) {
 	});
 }]);
 
+app.directive('ticker', [function() {
+	var currentScrollPos = 0;
+	var lastTimestamp = null;
+	var hasDrawnYet = null;
+	var JOINING_CHAR = ' • ';
+	var colours = ['rgb(236, 0, 140)', 'rgb(44, 170, 226)'];
+	var lastColour = colours.length - 1;
+	var RAINBOW = null; 
 
-app.directive('ticker', ['$timeout', function($timeout) {
+	return {
+		restrict: 'E',
+		template: '<canvas class="display"/><canvas class="prerender current"/><canvas class="prerender next"/><canvas class="prerender superNext"/>',
+		link: function(scope, elem, attrs) {
+			var dispCnv = elem.find(".display")[0];
+			var currentCnv = elem.find(".current")[0];
+			var nextCnv = elem.find(".next")[0];
+			var superNextCnv = elem.find(".superNext")[0];
+			var cnvs = [dispCnv, currentCnv, nextCnv, superNextCnv];
+
+			var dispCtx = dispCnv.getContext('2d');
+			var currentCtx = currentCnv.getContext('2d');
+			var nextCtx = nextCnv.getContext('2d');
+			var superNextCtx = superNextCnv.getContext('2d');
+			var ctxs = [dispCtx, currentCtx, nextCtx, superNextCtx];
+
+			// INITIALISE RAINBOW
+			RAINBOW = function(x, w) {
+				var g = superNextCtx.createLinearGradient(x, 0, x + w, 0);
+				var x = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
+				for (var i = 0; i < x.length; i++) {
+					g.addColorStop(i / (x.length - 1), x[i]);
+				}
+				return g;
+			};
+
+			// set up the canvases
+			cnvs.forEach(function() {
+				var cnv = this;
+				cnv.width = 1;
+			});
+			ctxs.forEach(function() {
+				var ctx = this;
+				ctx.fillStyle = '#fff';
+				ctx.font = '20px Courier';
+			});
+
+			var condenseArray = function(arr) {
+				var arr = arr.slice(0);
+				arr.push('');
+				return arr.join(JOINING_CHAR);
+			};
+
+			var rerenderSuperNext = function(nextItems, outCtx, outCnv) {
+				// create the next string
+				var nextStr = condenseArray(nextItems);
+
+				// now figure out how wide that will be
+				var nextStrMetrics = outCtx.measureText(nextStr);
+
+				// set the canvas to the correct width
+				outCnv.width = nextStrMetrics.width;
+
+				// clear the canvas
+				outCtx.clearRect(0, 0, outCnv.width, outCnv.height);
+
+				// now render the text onto the canvas
+				outCtx.fillStyle = '#fff';
+				outCtx.font = '20px Courier';
+				var currentX = 0;
+				for (var i = 0; i < nextItems.length; i++) {
+					var itemWidth = outCtx.measureText(nextItems[i]).width;
+
+					if (nextItems[i][0] != '​' && nextItems[i][0] != '﻿') {
+						lastColour = (lastColour + 1) % colours.length;
+						outCtx.fillStyle = colours[lastColour];
+					} else if (nextItems[i][0] == '﻿') {
+						outCtx.fillStyle = RAINBOW(currentX, itemWidth);
+					}
+
+					outCtx.strokeText(nextItems[i], currentX, 20);
+					outCtx.fillText(nextItems[i], currentX, 20);
+					currentX += itemWidth;
+
+					outCtx.fillStyle = '#fff';
+					outCtx.fillText(JOINING_CHAR, currentX, 20);
+					currentX += outCtx.measureText(JOINING_CHAR).width;
+				}
+			};
+			scope.$watch(attrs.items, function(v) {
+				rerenderSuperNext(v, superNextCtx, superNextCnv);
+
+				if (!hasDrawnYet) hasDrawnYet = false;
+			});
+
+			var moveOver = function(oldCtx, oldCnv, newCtx, newCnv) {
+				oldCtx.clearRect(0, 0, oldCnv.width, oldCnv.height);
+				oldCnv.width = newCnv.width;
+				oldCnv.height = newCnv.height;
+				oldCtx.drawImage(newCnv, 0, 0, newCnv.width, newCnv.height);
+			};
+
+			var step = function(timestamp) {
+				(function() {
+					if (!lastTimestamp) {
+						lastTimestamp = timestamp;
+						return;
+					}
+
+					if (hasDrawnYet === null) {
+						// not ready yet!
+						return;
+					} else if (hasDrawnYet === false && superNextCnv.width > 0) {
+						// now we just flush all the buffers all the way through
+						moveOver(nextCtx, nextCnv, superNextCtx, superNextCnv);
+						moveOver(currentCtx, currentCnv, nextCtx, nextCnv);
+						hasDrawnYet = true;
+					}
+
+					currentScrollPos += (timestamp - lastTimestamp) / 5;
+
+					// clear the output rectangle
+					dispCtx.clearRect(0, 0, dispCnv.width, dispCnv.height);
+					dispCnv.width = dispCnv.parentNode.parentNode.clientWidth;
+
+					// have we cleared the current rectangle entirely?
+					if (currentScrollPos >= currentCnv.width) {
+						currentScrollPos %= currentCnv.width;
+
+						// shift all the canvases along
+						moveOver(currentCtx, currentCnv, nextCtx, nextCnv);
+						moveOver(nextCtx, nextCnv, superNextCtx, superNextCnv);
+					}
+
+					// draw the current canvas onto the output canvas
+					var minWidth = Math.min(dispCnv.width, currentCnv.width - currentScrollPos);
+					dispCtx.drawImage(currentCnv, currentScrollPos, 0, minWidth, dispCnv.height, 0, 0, minWidth, dispCnv.height);
+
+					// are we "off the end" of the current canvas?
+					if ((currentScrollPos + currentCnv.width) > dispCnv.width) {
+						// top it up
+						dispCtx.drawImage(nextCnv, 0, 0, dispCnv.width - minWidth, dispCnv.height, currentCnv.width - currentScrollPos, 0, dispCnv.width - minWidth, dispCnv.height);
+					}
+				})();
+				lastTimestamp = timestamp;
+				window.requestAnimationFrame(step);
+			};
+			window.requestAnimationFrame(step);
+		}
+	};
+}]);
+
+app.directive('shittyTicker', ['$timeout', function($timeout) {
 	var elemsWidth = 0;
 	var currentScrollPos = 0;
 	var moveBy = 0.25;
 	var lastTimestamp = null;
+	var updatedItems = null;
 
 	return {
 		restrict: 'E',
@@ -585,34 +757,7 @@ app.directive('ticker', ['$timeout', function($timeout) {
 			});
 
 			scope.$watch(attrs.items, function(v) {
-				var isSame = scope.items && scope.items.length == v.length;
-				if (isSame) {
-					for (var i = 0; i < v.length; i++) {
-						isSame = isSame && v[i] == scope.items[i];
-						if (!isSame) break;
-					}
-				}
-				if (isSame) return;
-
-				scope.items = v;
-				scope.additionalItems = scope.items.slice(0);
-
-				$timeout(function() {
-					var thisElemsWidth = 0;
-					tt.find(".batch-1").each(function() {
-						thisElemsWidth += (this.getBoundingClientRect().width);
-					});
-					if (thisElemsWidth > 0) {
-						var n = thisElemsWidth;
-						while (n < (2 * windowWidth)) {
-							scope.additionalItems.concat(scope.items);
-							
-							n += thisElemsWidth;
-						}
-					}
-					elemsWidth = thisElemsWidth;
-
-				}, 10);
+				updatedItems = v
 			});
 
 			var stepFn = function(timestamp) {
@@ -621,13 +766,49 @@ app.directive('ticker', ['$timeout', function($timeout) {
 					window.requestAnimationFrame(stepFn);
 					return;
 				}
+
+				currentScrollPos += moveBy * (timestamp - lastTimestamp);
+
+				(function() {
+					if (elemsWidth != 0 && currentScrollPos / elemsWidth < 1) {
+						return
+					}
+					var isSame = scope.items && scope.items.length == updatedItems.length;
+					if (isSame) {
+						for (var i = 0; i < updatedItems.length; i++) {
+							isSame = isSame && updatedItems[i] == scope.items[i];
+							if (!isSame) break;
+						}
+					}
+					if (isSame && elemsWidth != 0) return;
+
+					scope.items = updatedItems;
+					scope.additionalItems = scope.items.slice(0);
+
+					$timeout(function() {
+						var thisElemsWidth = 0;
+						tt.find(".batch-1").each(function() {
+							thisElemsWidth += (this.getBoundingClientRect().width);
+						});
+						if (thisElemsWidth > 0) {
+							var n = thisElemsWidth;
+							while (n < (2 * windowWidth)) {
+								scope.additionalItems.concat(scope.items);
+								
+								n += thisElemsWidth;
+							}
+						}
+						elemsWidth = thisElemsWidth;
+
+					}, 10);
+				}());
+
 				if (elemsWidth <= 0) {
 					lastTimestamp = timestamp;
 					window.requestAnimationFrame(stepFn);
 					return;
 				}
 
-				currentScrollPos += moveBy * (timestamp - lastTimestamp);
 				currentScrollPos %= elemsWidth;
 				tt[0].style.webkitTransform = "translate3d(-" + currentScrollPos + "px, 0, 0)";
 				tt[0].style.transform = "translate3d(-" + currentScrollPos + "px, 0, 0)";
@@ -733,7 +914,7 @@ app.directive('legend', function() {
 		</table>
 	
 		<ol class="tickets" ng-controller="TicketsCtrl as tickets">
-			<li ng-repeat="ticket in tickets.tickets" class="dn-bounce-down">
+			<li ng-repeat="ticket in tickets.tickets track by ticket.id" class="dn-bounce-down">
 				<code>{{ ticket.id }}.</code>
 				<strong><span ng-if="ticket.cost > 0">{{ ticket.cost/100|currency:'£' }}</span><span ng-if="ticket.cost == 0">Free</span></strong>
 				<div>
@@ -762,9 +943,13 @@ app.directive('legend', function() {
 			<graph opts="products.opts" type="cumulative" data="products.data"></graph>
 		</div>
 	</div>
-	<div class="finance box bbr bbb" ng-controller="MoneyCtrl as money">
+	<div class="finance box bbb halfBox" ng-controller="MoneyCtrl as money">
 		<h1>Money In The Bank (SGI)</h1>
 		<h2 class="money">{{ money.sgi/100|currency:'£' }}</h2>
+	</div>
+	<div class="projTemp box bbr bbb halfBox" ng-controller="ProjectorTemperatureCtrl as projector">
+		<h1>Barco Temperature</h1>
+		<h2 class="temperature" ng-class="{ critical: projector.temperature > 40, warning: projector.temperature > 30 }">{{ projector.temperature }}<span ng-show="projector.temperature.toLowerCase() != 'off'">°C</span></h2>
 	</div>
 </div>
 <div class="ticker" ng-controller="TickerCtrl as ticker">
