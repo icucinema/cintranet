@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'icusync',
     'cinbin',
     'stats',
+    'inventory',
 
     'south',
 ]

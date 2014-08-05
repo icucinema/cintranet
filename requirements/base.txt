@@ -3,7 +3,10 @@ South==0.8
 django-auth-ldap==1.1.5
 django-floppyforms==1.1
 django-floppy-gumby==0.1
-requests==2.0.1
+requests==2.3.0
+pyOpenSSL==0.14
+pyasn1==0.1.7
+ndg-httpsclient==0.3.2
 beautifulsoup4==4.3.2
 Pillow==2.2.1
 djangorestframework==2.3.8
@@ -17,3 +20,5 @@ python-dateutil==1.5
 django-ical==1.2
 psycopg2==2.5.2
 jsonfield==0.9.20
+
+django-reversion==1.8

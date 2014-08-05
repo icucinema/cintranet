@@ -22,6 +22,8 @@ urlpatterns = patterns('',
     url(r'^ticketing/', include('ticketing.urls', app_name='ticketing', namespace='ticketing')),
     url(r'^stats/', include('stats.urls', app_name='stats', namespace='stats')),
     url(r'^cinbin/', include('cinbin.urls', app_name='cinbin', namespace='cinbin')),
+    url(r'^inventory/api/', include('inventory.api_urls')),
+    url(r'^inventory/', include('inventory.urls', app_name='inventory', namespace='inventory')),
 )
 
 if settings.DEBUG:
