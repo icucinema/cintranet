@@ -18,6 +18,7 @@ urlpatterns = patterns('',
 
     url(r'^user/', include('auth.urls', app_name='auth', namespace='auth')),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^impersonate/', include('impersonate.urls')),
     url(r'^ticketing/api/', include('ticketing.api_urls')),
     url(r'^ticketing/', include('ticketing.urls', app_name='ticketing', namespace='ticketing')),
     url(r'^stats/', include('stats.urls', app_name='stats', namespace='stats')),

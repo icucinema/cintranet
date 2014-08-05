@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'djangular',
     'rest_framework',
     'rest_framework.authtoken',
+    'impersonate',
 
     'sitewide',
     'auth',
@@ -66,6 +67,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'sitewide.middleware.LoginRequiredMiddleware',
+    'impersonate.middleware.ImpersonateMiddleware',
 ]
 
 TEMPLATE_CONTEXT_PROCESSORS = (
