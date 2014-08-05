@@ -18,7 +18,7 @@ from . import models as smodels
 
 def get_default_date_bounds():
     my_now = now()
-    start_at = my_now.replace(month=8, day=10, year=my_now.year if my_now.month > 8 else my_now.year - 1)
+    start_at = my_now.replace(month=8, day=1, year=my_now.year if my_now.month >= 8 else my_now.year - 1)
     end_at = my_now
     return start_at, end_at
 
@@ -40,6 +40,18 @@ class ReportView(TemplateView):
     head = False
     foot = False
     col_classes = None
+
+    def get_date_bounds(self):
+        start_at, end_at = get_default_date_bounds()
+
+        start_at_str = self.request.GET.get('start_at')
+        end_at_str = self.request.GET.get('end_at')
+        if start_at_str:
+            start_at = datetime.datetime.strptime(start_at_str, '%Y-%m-%d')
+        if end_at_str:
+            end_at = datetime.datetime.strptime(end_at_str, '%Y-%m-%d')
+
+        return start_at, end_at
 
     def get_head(self, raw_data, data):
         return self.head
@@ -73,6 +85,7 @@ class ReportView(TemplateView):
         data['grouped'] = self.get_grouped(raw_data, data['dataset'])
         data['head'] = zip(self.get_head(raw_data, data['dataset']), data['col_classes'])
         data['foot'] = self.get_foot(raw_data, data['dataset'])
+        data['start_at'], data['end_at'] = self.get_date_bounds()
         data.update(super(ReportView, self).get_context_data(**kwargs))
         return data
 
@@ -83,8 +96,8 @@ class OverviewAudiencePlayweekView(ReportView):
     head = ['Film', 'Tickets Sold', 'Total Audience']
 
     def get_queryset(self):
-        start_at, end_at = get_default_date_bounds()
-        return models.Event.objects.all().extra({"playweek": "date_trunc('week', start_time - '4 days'::interval) + '4 days'::interval"}).order_by('playweek').filter(start_time__gt=start_at, start_time__lte=end_at).prefetch_related('showings', 'showings__week', 'showings__week__film')
+        start_at, end_at = self.get_date_bounds()
+        return models.Event.objects.all().extra({"pplayweek": "date_trunc('week', start_time - '4 days'::interval) + '4 days'::interval"}).order_by('pplayweek').filter(start_time__gt=start_at, start_time__lte=end_at).prefetch_related('showings', 'showings__week', 'showings__week__film')
 
     def get_raw_data(self):
         events = self.get_queryset()
@@ -96,7 +109,7 @@ class OverviewAudiencePlayweekView(ReportView):
             my_turnout = ticket_counts.get(event.id, 0) + event.additional_audience
             my_data = {
                 'turnout': my_turnout,
-                'playweek': event.playweek,
+                'playweek': event.pplayweek,
                 'date': event.start_time,
                 'showings': []
             }
@@ -146,7 +159,8 @@ class OverviewAudiencePlayweekView(ReportView):
             current_playweek_data['audience'] += raw_datum['turnout'] * len(raw_datum['showings'])
             for showing in raw_datum['showings']:
                 current_playweek_data['data'][showing['name']] = raw_datum['turnout'] + current_playweek_data['data'].get(showing['name'], 0)
-        playweeks_data.append(self.process_raw_playweek(current_playweek, current_playweek_data))
+        if current_playweek_data is not None:
+            playweeks_data.append(self.process_raw_playweek(current_playweek, current_playweek_data))
         return playweeks_data
 
     def get_foot(self, raw_data, data):
@@ -188,8 +202,8 @@ class OverviewMoneyView(ReportView):
     col_classes = ['col-date', None, None, None, None, None, None]
 
     def get_raw_data(self):
-        start_at, end_at = get_default_date_bounds()
-        events = models.Event.objects.all().extra({"playweek": "date_trunc('week', start_time - '4 days'::interval) + '4 days'::interval"}).order_by('playweek').filter(start_time__gt=start_at, start_time__lte=end_at).prefetch_related('showings', 'showings__week__film')
+        start_at, end_at = self.get_date_bounds()
+        events = models.Event.objects.all().order_by('start_time').filter(start_time__gt=start_at, start_time__lte=end_at).prefetch_related('showings', 'showings__week__film')
 
         event_dicts = []
         showings = {}
@@ -392,7 +406,8 @@ class DashboardJsonView(View):
                 'sales': smodels.StatsData.objects.get(key='products_' + str(p['id'])).value
             })
 
-        money = [y for (x, y) in smodels.StatsData.objects.get(key='finances').value['funding_overview'].iteritems() if x == 'SGI (1)'][0]
+        money = [y for (x, y) in smodels.StatsData.objects.get(key='finances').value['funding_overview'].iteritems() if x == 'SGI (1)']
+        money = money[0] if money else 0
 
         ticker = self.generate_ticker()
 
@@ -445,8 +460,8 @@ class DashboardJsonView(View):
         ])
 
 
-        ticker.append('​Current members: {}'.format(models.EntitlementDetail.objects.filter(entitlement__name='2013-14 Membership').count()))
-        ticker.append('​Outstanding free tickets: {}'.format(models.EntitlementDetail.objects.filter(entitlement__name='2013-14 Members Free Ticket', remaining_uses__gte=1).count()))
+        ticker.append('​Current members: {}'.format(models.EntitlementDetail.objects.filter(entitlement__name='2014-15 Membership').count()))
+        ticker.append('​Outstanding free tickets: {}'.format(models.EntitlementDetail.objects.filter(entitlement__name='2014-15 Members Free Ticket', remaining_uses__gte=1).count()))
         ticker.append('​Take last week: £{}'.format(take_last_week))
         ticker.append('​Take so far this week: £{}'.format(take_this_week))
         ticker.append('​Tickets to sell until we can afford Atmos: '+str(random.randint(100000,200000)))
@@ -465,10 +480,16 @@ class DashboardJsonView(View):
         data = {}
 
         data['barco.temperature.ambient'] = self.grab_from('http://su-cinema.su.ic.ac.uk/info/barco.temperature.ambient.txt').strip()
-        try:
-            data['barco.temperature.ambient'] = int(data['barco.temperature.ambient'])
-        except:
-            pass
+        data['barco.runtime.bulb'] = self.grab_from('http://su-cinema.su.ic.ac.uk/info/barco.runtime.bulb.txt').strip()
+        data['barco.runtime.bulb.max'] = self.grab_from('http://su-cinema.su.ic.ac.uk/info/barco.runtime.bulb.max.txt').strip()
+        data['barco.runtime.bulb.warning'] = self.grab_from('http://su-cinema.su.ic.ac.uk/info/barco.runtime.bulb.warning.txt').strip()
+
+        def safe_int(x):
+            try:
+                return int(x)
+            except:
+                return x
+        data = dict((k, safe_int(v)) for (k, v) in data.items())
 
         return data
 
