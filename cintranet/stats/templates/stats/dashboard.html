@@ -11,6 +11,9 @@
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.8/angular-animate.min.js"></script>
 <script src="{% static "ticketing/js/animate-animate.css.js" %}"></script>
 <style>
+html {
+	overflow: hidden;
+}
 html, body {
 	margin: 0;
 	padding: 0;
@@ -71,7 +74,7 @@ legend.backLegend {
 .finance {
 	height: 20%;
 }
-.projTemp {
+.projTemp, .projBulb {
 	height: 20%;
 }
 .halfBox {
@@ -124,16 +127,20 @@ legend.backLegend {
 	float: right;
 	font-size: 2em;
 }
-.finance h2, .projTemp h2 {
+.finance h2, .projTemp h2, .projBulb h2 {
 	margin: 0; padding: 0;
 	text-align: center;
-	font-size: 72px;
+	font-size: 3em;
 }
-.temperature.warning {
+.warning {
 	color: yellow;
 }
-.temperature.critical {
+.critical {
 	color: red;
+}
+.animate-forever {
+	-webkit-animation-iteration-count: infinite;
+	animation-iteration-count: infinite;
 }
 .ticketsGraph legend {
 	position: absolute;
@@ -329,6 +336,14 @@ app.controller('ProjectorTemperatureCtrl', ['stats', function(stats) {
 		that.temperature = data.live_data['barco.temperature.ambient'];
 	});
 }]);
+app.controller('ProjectorBulbCtrl', ['stats', function(stats) {
+	var that = this;
+	stats(function(data) {
+		that.hours = data.live_data['barco.runtime.bulb'];
+		that.warning = data.live_data['barco.runtime.bulb.warning'];
+		that.max = data.live_data['barco.runtime.bulb.max'];
+	});
+}]);
 app.controller('MembershipCtrl', ['stats', function(stats) {
 	var that = this;
 	that.data = {
@@ -521,6 +536,9 @@ app.controller('ProductsCtrl', ['stats', function(stats) {
 	that.legend = [];
 
 	stats(function(data) {
+		that.exists = data.products.length > 0;
+		if (!that.exists) return;
+
 		that.data.main = [];
 		that.legend = [];
 
@@ -583,6 +601,14 @@ app.controller('TickerCtrl', ['stats', function(stats) {
 
 	stats(function(data) {
 		that.items = data.ticker;
+	});
+}]);
+app.controller('PageCtrl', ['stats', function(stats) {
+	this.showLeftBar = false;
+	var that = this;
+
+	stats(function(data) {
+		that.showLeftBar = data.today.events && data.today.events.length > 0;
 	});
 }]);
 
@@ -879,8 +905,8 @@ app.directive('legend', function() {
 </head>
 <body ng-app="StatsApp">
 {% verbatim %}
-<div class="mainPage">
-	<div class="today box bbb" ng-controller="EventBoxCtrl as eventBox" ng-hide="eventBox.events && eventBox.events.length <= 0"> 
+<div class="mainPage" ng-controller="PageCtrl as page">
+	<div class="today box bbb" ng-controller="EventBoxCtrl as eventBox" ng-if="page.showLeftBar !== false"> 
 		<h1>Today's Events</h1>
 	
 		<table class="events" ng-controller="EventsCtrl as events">
@@ -929,7 +955,7 @@ app.directive('legend', function() {
 			<graph opts="ticketsGraph.opts" type="cumulative" data="ticketsGraph.data"></graph>
 		</div>
 	</div>
-	<div class="membership box bbr" ng-controller="MembershipCtrl as memberships">
+	<div class="membership box" ng-controller="MembershipCtrl as memberships" ng-class="{ bbr: page.showLeftBar }">
 		<h1>Membership</h1>
 		<div id="membershipScaler" auto-scale class="scaler">
 			<legend items="memberships.legend" class="backLegend"></legend>
@@ -938,18 +964,22 @@ app.directive('legend', function() {
 	</div>
 	<div class="products box bbr" ng-controller="ProductsCtrl as products">
 		<h1>Products</h1>
-		<div id="productsScaler" auto-scale class="scaler">
+		<div id="productsScaler" auto-scale class="scaler" ng-if="products.exists">
 			<legend items="products.legend" class="backLegend"></legend>
 			<graph opts="products.opts" type="cumulative" data="products.data"></graph>
 		</div>
 	</div>
-	<div class="finance box bbb halfBox" ng-controller="MoneyCtrl as money">
+	<div class="finance box halfBox" ng-controller="MoneyCtrl as money" ng-class="{ bbb: page.showLeftBar }">
 		<h1>Money In The Bank (SGI)</h1>
 		<h2 class="money">{{ money.sgi/100|currency:'£' }}</h2>
 	</div>
-	<div class="projTemp box bbr bbb halfBox" ng-controller="ProjectorTemperatureCtrl as projector">
+	<div class="projTemp box halfBox" ng-controller="ProjectorTemperatureCtrl as projector" ng-class="{ bbr: page.showLeftBar, bbb: page.showLeftBar }">
 		<h1>Barco Temperature</h1>
-		<h2 class="temperature" ng-class="{ critical: projector.temperature > 40, warning: projector.temperature > 30 }">{{ projector.temperature }}<span ng-show="projector.temperature.toLowerCase() != 'off'">°C</span></h2>
+		<h2 class="temperature animate-forever" ng-class="{ shake: projector.temperature >= 40, animated: projector.temperature >= 40, critical: projector.temperature >= 35, warning: projector.temperature >= 30 }">{{ projector.temperature }}<span ng-show="projector.temperature.toLowerCase() != 'off'">°C</span></h2>
+	</div>
+	<div class="projBulb box halfBox" ng-controller="ProjectorBulbCtrl as projector" ng-class="{ bbr: page.showLeftBar, bbb: page.showLeftBar }" ng-if="!page.showLeftBar">
+		<h1>Barco Bulb Hours</h1>
+		<h2 class="bulb" ng-class="{ critical: projector.hours >= projector.max, warning: projector.hours >= projector.warning }">{{ projector.hours }}<span ng-show="projector.hours.toLowerCase() != 'off'">hrs</span></h2>
 	</div>
 </div>
 <div class="ticker" ng-controller="TickerCtrl as ticker">

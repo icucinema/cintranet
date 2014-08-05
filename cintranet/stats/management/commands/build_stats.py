@@ -88,7 +88,10 @@ class Command(BaseCommand):
 
     def fetch_active_products(self):
         self.stdout.write("Updating products list...")
-        return self.ehack.get("{}/clubs/{}/{}/products".format(EHACK_URL, self.club_id, THIS_YEAR)).json()
+        resp = self.ehack.get("{}/clubs/{}/{}/products".format(EHACK_URL, self.club_id, THIS_YEAR))
+        if resp.status_code == 404:
+            return []
+        return resp.json()
 
     def update_product_data(self, product_id):
         self.stdout.write("Updating product data for {}...".format(product_id))

@@ -398,6 +398,20 @@ class Event(models.Model):
     def tickets(self):
         return Ticket.objects.filter(ticket_type__event=self)
 
+    @property
+    def playweek(self):
+        try:
+            return self.showings.all()[0].week.start_time
+        except:
+            # go backwards until we find a Friday!
+    
+            show_week = self.start_time.date()
+            # a Friday is weekday() 4
+            one_day = datetime.timedelta(days=1)
+            while show_week.weekday() != 4:
+                show_week -= one_day
+            return show_week
+
     def __unicode__(self):
         return u"{} ({})".format(self.name, self.start_time)
 
