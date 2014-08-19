@@ -16,7 +16,7 @@ def paste_determine_filename(instance, filename):
 
 def slug_generator():
     ADJECTIVES = ['tasty', 'delicious', 'scrummy', 'yummy', 'appetizing', 'disgusting', 'gross', 'hideous', 'beautiful', 'fluorescent', 'friendly', 'evil', 'good', 'nice', 'riveting', 'indigestible', 'foreign', 'violent', 'gentle', 'peaceful', 'shiny', 'dull', 'exciting', 'boring', 'fun']
-    COLOURS = ['orange', 'blue', 'silver', 'gold', 'yellow', 'red', 'bronze', 'indigo', 'black', 'white', 'green', 'turquoise', 'brown', 'violet']
+    COLOURS = ['orange', 'blue', 'silver', 'gold', 'yellow', 'red', 'bronze', 'indigo', 'black', 'white', 'green', 'turquoise', 'brown', 'violet', 'cyan', 'magenta']
     NOUNS = ['chocolate', 'toffee', 'coffee', 'salad', 'bacon', 'caramel', 'pineapple', 'bacon', 'fish', 'salmon', 'toast', 'tea', 'milk', 'sandwich', 'rice', 'potato', 'soup', 'tomato']
     slug = [random.choice(ADJECTIVES), random.choice(COLOURS), random.choice(NOUNS)]
     return '-'.join(slug)
