@@ -1,4 +1,4 @@
-Django==1.6
+Django==1.6.7
 South==0.8
 django-auth-ldap==1.1.5
 django-floppyforms==1.1
@@ -22,3 +22,4 @@ psycopg2==2.5.2
 jsonfield==0.9.20
 
 django-reversion==1.8
+django-impersonate==0.9b1
