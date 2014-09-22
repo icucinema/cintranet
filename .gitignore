@@ -36,3 +36,5 @@ nosetests.xml
 
 # Local stuff
 db.sqlite3
+
+*.sw[op]
