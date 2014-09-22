@@ -474,7 +474,10 @@ class DashboardJsonView(View):
         return ticker
 
     def grab_from(self, url):
-        return requests.get(url).text
+        try:
+            return requests.get(url).text
+        except:
+            return ""
 
     def generate_live_data(self):
         data = {}
