@@ -19,6 +19,11 @@
 						<dd ng-hide="editing"><a target="_blank" ng-href="{{ data.poster_url }}"><img ng-src="{{ data.poster_url }}" style="max-height:200px;width:auto;"></a></dd>
 						<dd ng-show="editing" class="field"><input type="url" class="xxwide url input" ng-model="edit_data.poster_url"></dd>
 				</div>
+				<div ng-show="data.hero_image_url || editing">
+					<dt>Hero Image</dt>
+						<dd ng-hide="editing"><a target="_blank" ng-href="{{ data.hero_image_url }}"><img ng-src="{{ data.hero_image_url }}" style="max-height:200px;width:auto;"></a></dd>
+						<dd ng-show="editing" class="field"><input type="url" class="xxwide url input" ng-model="edit_data.hero_image_url"></dd>
+				</div>
 				<dt>Distributor</dt>
 					<dd ng-hide="editing"><a ng-href="#/distributors/{{ data.distributor.id }}">{{ data.distributor.name }}</a></dd>
 					<dd ng-show="editing" class="field">
@@ -27,13 +32,15 @@
 						</select>
 					</dd>
 				<dt>Links</dt>
-					<dd ng-hide="editing"><a target="_blank" ng-show="data.imdb_id" href="http://www.imdb.com/title/{{ data.imdb_id }}/">IMDb</a> <a target="_blank" ng-show="data.tmdb_id" href="https://www.themoviedb.org/movie/{{ data.tmdb_id }}">TMDB</a></dd>
+					<dd ng-hide="editing"><a target="_blank" ng-show="data.imdb_id" href="http://www.imdb.com/title/{{ data.imdb_id }}/">IMDb</a> <a target="_blank" ng-show="data.tmdb_id" href="https://www.themoviedb.org/movie/{{ data.tmdb_id }}">TMDB</a> <a target="_blank" ng-show="data.rotten_tomatoes_id" href="http://www.rottentomatoes.com/m/{{ data.rotten_tomatoes_id }}">Rotten Tomatoes</a></dd>
 					<dd ng-show="editing">
 						<dl>
 							<dt>IMDb ID</dt>
 								<dd class="field"><input type="text" ng-model="edit_data.imdb_id" class="narrow text input"></dd>
 							<dt>TMDB ID</dt>
 								<dd class="field"><input type="text" ng-model="edit_data.tmdb_id" class="narrow text input"></dd>
+							<dt>Rotten Tomatoes ID</dt>
+								<dd class="field"><input type="text" ng-model="edit_data.rotten_tomatoes_id" class="narrow text input"></dd>
 						</dl>
 					</dd>
 			</dl>

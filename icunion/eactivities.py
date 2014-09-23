@@ -172,8 +172,10 @@ class EActivities(object):
         prs = []
         for bs_pr in bs_prs:
             skus = []
+            title = bs_pr.attrs['title']
+            title = title[:title.rfind('(')-1]
             pr = {
-                'name': bs_pr.attrs['title'],
+                'name': title,
                 'eactivities_id': int(bs_pr.attrs['linkobj'].rpartition('/')[-1]),
                 'skus': skus,
                 'purchased_count': 0,

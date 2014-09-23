@@ -174,13 +174,16 @@ class Distributor(models.Model):
 class Film(models.Model):
     tmdb_id = models.PositiveIntegerField(null=True, blank=True)
     imdb_id = models.CharField(max_length=20, null=False, blank=True, default="")
+    rotten_tomatoes_id = models.CharField(max_length=20, null=False, blank=True, default="")
 
     name = models.CharField(max_length=256, default="", null=False, blank=False)
     sorting_name = models.CharField(max_length=256, null=False, blank=False)
     description = models.TextField(default="", null=False, blank=True)
+    short_description = models.TextField(default="", null=False, blank=True)
     certificate = models.CharField(max_length=12, default="", null=False, blank=False)
 
     poster_url = models.URLField(blank=True, null=False, default="")
+    hero_image_url = models.URLField(blank=True, null=False, default="")
 
     distributor = models.ForeignKey(Distributor, null=True, blank=True, related_name='films')
 
@@ -222,8 +225,10 @@ class Film(models.Model):
         movie.info({'append_to_response': 'releases'})
         self.name = movie.title
         self.description = movie.overview
+        self.short_description = movie.overview
         self.imdb_id = movie.imdb_id
         self.poster_url = tmdb_construct_poster(movie.poster_path)
+        self.hero_image_url = tmdb_construct_poster(movie.backdrop_path)
         for country in movie.releases['countries']:
             if country['iso_3166_1'] == 'GB':
                 self.certificate = country['certification']

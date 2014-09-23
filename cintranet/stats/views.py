@@ -482,10 +482,10 @@ class DashboardJsonView(View):
     def generate_live_data(self):
         data = {}
 
-        data['barco.temperature.ambient'] = self.grab_from('http://su-cinema.su.ic.ac.uk/info/barco.temperature.ambient.txt').strip()
-        data['barco.runtime.bulb'] = self.grab_from('http://su-cinema.su.ic.ac.uk/info/barco.runtime.bulb.txt').strip()
-        data['barco.runtime.bulb.max'] = self.grab_from('http://su-cinema.su.ic.ac.uk/info/barco.runtime.bulb.max.txt').strip()
-        data['barco.runtime.bulb.warning'] = self.grab_from('http://su-cinema.su.ic.ac.uk/info/barco.runtime.bulb.warning.txt').strip()
+        #data['barco.temperature.ambient'] = self.grab_from('http://su-cinema.su.ic.ac.uk/info/barco.temperature.ambient.txt').strip()
+        #data['barco.runtime.bulb'] = self.grab_from('http://su-cinema.su.ic.ac.uk/info/barco.runtime.bulb.txt').strip()
+        #data['barco.runtime.bulb.max'] = self.grab_from('http://su-cinema.su.ic.ac.uk/info/barco.runtime.bulb.max.txt').strip()
+        #data['barco.runtime.bulb.warning'] = self.grab_from('http://su-cinema.su.ic.ac.uk/info/barco.runtime.bulb.warning.txt').strip()
 
         def safe_int(x):
             try:

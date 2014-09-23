@@ -537,6 +537,12 @@ app.controller('ProductsCtrl', ['stats', function(stats) {
 
 	stats(function(data) {
 		that.exists = data.products.length > 0;
+		if (that.exists) {
+			that.exists = false;
+			for (var i = 0; i < data.products.length; i++) {
+				if (Object.keys(data.products[i].sales).length > 0) that.exists = true;
+			}
+		}
 		if (!that.exists) return;
 
 		that.data.main = [];

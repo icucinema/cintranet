@@ -97,6 +97,8 @@ class Command(BaseCommand):
         self.stdout.write("Updating product data for {}...".format(product_id))
         purchasers = self.ehack.get("{}/clubs/{}/{}/products/{}/purchasers".format(EHACK_URL, self.club_id, THIS_YEAR, product_id)).json()
 
+        import json; self.stdout.write(json.dumps(purchasers))
+
         out_data = {}
         
         for purchaser in purchasers:

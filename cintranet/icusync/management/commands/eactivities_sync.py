@@ -39,7 +39,7 @@ class Command(BaseCommand):
             self.rescrape_products()
         except Exception as ex:
             traceback.print_exc()
-            self.irc_pinger.say('#botspam', 'SOMETHING WENT WRONG WHILE PARSING EACTIVITIES: {}: {} ({})'.format(type(ex), ex, ex.args))
+            self.irc_pinger.say('##icucinema.botspam', 'SOMETHING WENT WRONG WHILE PARSING EACTIVITIES: {}: {} ({})'.format(type(ex), ex, ex.args))
 
     def update_available_products(self):
         products = collate.get_product_info(self.eac, "https://www.imperialcollegeunion.org/shop/club-society-project-products/cinema-products/", 411)
@@ -56,7 +56,7 @@ class Command(BaseCommand):
                 )
                 p.name = product['name']
                 if p.sold != product['purchased_count']:
-                    self.irc_pinger.say('#botspam', '{} purchase count changed! {} -> {}'.format(p.name, p.sold, product['purchased_count']))
+                    self.irc_pinger.say('##icucinema.botspam', '{} purchase count changed! {} -> {}'.format(p.name, p.sold, product['purchased_count']))
                 p.sold = product['purchased_count']
                 if 'total_count' in product.keys():
                     p.initial = product['total_count']
@@ -165,7 +165,7 @@ class Command(BaseCommand):
             sku_e.sku.save()
             for member in pr:
                 try:
-                    punter, created, ents_created = ticketing.models.Punter.create_from_eactivities_csv(member, automatic_entitlements, "Purchased {} (order no {})".format(member['Date'], member['Order No']), lambda x: self.stdout.write(x.encode('utf-8')), lambda x: self.irc_pinger.say('#botspam', x))
+                    punter, created, ents_created = ticketing.models.Punter.create_from_eactivities_csv(member, automatic_entitlements, "Purchased {} (order no {})".format(member['Date'], member['Order No']), lambda x: self.stdout.write(x.encode('utf-8')), lambda x: self.irc_pinger.say('##icucinema.botspam', x))
                 except Exception, ex:
                     count_total += 1
                     count_errored += 1
