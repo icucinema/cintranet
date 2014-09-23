@@ -579,7 +579,7 @@ app.controller('FilmCtrl', function($rootScope, $scope, $routeParams, $location,
 
 	$scope.edit = function() {
 		$scope.edit_data = Restangular.copy($scope.data);
-		$scope.edit_data.distributor = $scope.edit_data.distributor.url;
+		if ($scope.edit_data.distributor) $scope.edit_data.distributor = $scope.edit_data.distributor.url;
 		$scope.editing = true;
 	};
 
@@ -589,6 +589,7 @@ app.controller('FilmCtrl', function($rootScope, $scope, $routeParams, $location,
 	$scope.saveEdit = function() {
 		$scope.data = $scope.edit_data;
 		$scope.data.put();
+		$scope.data.distributor = { url: $scope.edit_data.distributor };
 		$scope.editing = false;
 	};
 

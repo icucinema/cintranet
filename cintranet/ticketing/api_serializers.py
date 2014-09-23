@@ -115,16 +115,16 @@ class FilmSerializer(ModelSerializer):
     class Meta:
         model = models.Film
         fields = (
-            'url', 'id', 'name', 'description', 'tmdb_id', 'imdb_id', 'poster_url', 'certificate',
-            'distributor'
+            'url', 'id', 'name', 'description', 'tmdb_id', 'imdb_id', 'rotten_tomatoes_id', 'poster_url', 'hero_image_url', 'certificate',
+            'is_public', 'distributor'
         )
 
 class FlatFilmSerializer(ModelSerializer):
     class Meta:
         model = models.Film
         fields = (
-            'url', 'id', 'name', 'description', 'tmdb_id', 'imdb_id', 'poster_url', 'certificate',
-            'distributor'
+            'url', 'id', 'name', 'description', 'tmdb_id', 'imdb_id', 'rotten_tomatoes_id', 'poster_url', 'hero_image_url', 'certificate',
+            'is_public', 'distributor'
         )
 
 class ShowingSerializer(ModelSerializer):
@@ -135,7 +135,7 @@ class ShowingSerializer(ModelSerializer):
     class Meta:
         model = models.Showing
         fields = (
-            'url', 'id', 'film', 'primary_event', 'start_time', 'film_title'
+            'url', 'id', 'film', 'primary_event', 'start_time', 'film_title', 'is_public', 'banner_text'
         )
 
 class FlatShowingSerializer(ModelSerializer):
@@ -145,7 +145,7 @@ class FlatShowingSerializer(ModelSerializer):
     class Meta:
         model = models.Showing
         fields = (
-            'url', 'id', 'film', 'primary_event', 'start_time'
+            'url', 'id', 'film', 'primary_event', 'start_time', 'is_public', 'banner_text'
         )
 
 class BoxOfficeReturnSerializer(ModelSerializer):

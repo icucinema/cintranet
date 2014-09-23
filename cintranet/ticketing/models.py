@@ -23,6 +23,7 @@ F = models.F
 tmdb = TMDB(settings.TMDB_API_KEY)
 _tmdb_conf = None
 tmdb_url_re = re.compile(r'^https?://[a-z\.]+/movie/(?P<tmdb_id>\d+)-.*$')
+imdb_url_re = re.compile(r'^https?://[a-z\.]+/title/tt(?P<imdb_id>\d+)/?.*$')
 
 
 def tmdb_config():
@@ -187,6 +188,8 @@ class Film(models.Model):
 
     distributor = models.ForeignKey(Distributor, null=True, blank=True, related_name='films')
 
+    is_public = models.BooleanField(null=False, default=False)
+
     def __unicode__(self):
         return self.name
 
@@ -200,7 +203,33 @@ class Film(models.Model):
 
     def save(self, *args, **kwargs):
         self.update_sorting_name()
+        self.fix_urls_in_id_fields()
         super(Film, self).save(*args, **kwargs)
+
+    def fix_urls_in_id_fields(self):
+        tmdb_id = str(self.tmdb_id)
+        if 'themoviedb.org' in tmdb_id:
+            # it looks like a URL...
+            tmdb_match = tmdb_url_re.search(tmdb_id)
+            if tmdb_match:
+                self.tmdb_id = tmdb_match.groupdict().get('tmdb_id', None)
+
+        rt_id = str(self.rotten_tomatoes_id)
+        if 'rottentomatoes.com' in rt_id:
+            # again, a URL?
+            resp = requests.get(rt_id)
+            if resp.status == 200:
+                txt = resp.text
+                srch = '<meta name="movieID" content="'
+                start_at = txt.find(srch)
+                end_at = txt.find('">', start_at)
+                self.rotten_tomatoes_id = txt[start_st + len(srch):end_at]
+
+        imdb_id = str(self.imdb_id)
+        if 'imdb.com' in str(imdb_id):
+            imdb_match = imdb_url_re.search(imdb_id)
+            if imdb_match:
+                self.imdb_id = imdb_match.groupdict().get('imdb_id', None)
 
     @classmethod
     def from_tmdb(cls, tmdb_id):
@@ -284,6 +313,9 @@ class Showing(models.Model):
     primary_event = models.OneToOneField('Event', related_name='primary_showing', null=True, blank=True)
 
     week = models.ForeignKey(ShowingsWeek, related_name='showings')
+
+    is_public = models.BooleanField(null=False, default=False)
+    banner_text = models.CharField(max_length=280, null=False, default='', blank=True)
 
     def __unicode__(self):
         return u"{} ({})".format(self.film.name, self.start_time)
