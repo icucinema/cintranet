@@ -438,8 +438,10 @@ class DashboardJsonView(View):
         next_monday = this_monday + datetime.timedelta(days=7)
         last_monday = this_monday - datetime.timedelta(days=7)
         two_mondays_ago = last_monday - datetime.timedelta(days=7)
-
         last_september = datetime.date(now.year if now.month > 9 else now.year - 1, 9, 20)
+
+        atmos_counter_start_date = datetime.datetime(2014, 9, 1)
+        atmos_start_balance = 2059.33
 
         take_calc = lambda qs: qs.aggregate(take=Sum('ticket_type__sale_price'))['take'] or Decimal('0.00')
         tix = models.Ticket.objects.filter(status='live')
@@ -447,24 +449,24 @@ class DashboardJsonView(View):
         take_this_week = take_calc(tix.filter(ticket_type__event__start_time__gte=this_monday, ticket_type__event__start_time__lt=next_monday)) or Decimal('0.00')
         tickets_sold_last_week = tix.filter(ticket_type__event__start_time__gte=last_monday, ticket_type__event__start_time__lt=this_monday).aggregate(n=Count('id'))['n'] or 0
         tickets_sold_this_week = tix.filter(ticket_type__event__start_time__gte=this_monday, ticket_type__event__start_time__lt=next_monday).aggregate(n=Count('id'))['n'] or 0
+        tickets_sold_since_atmos_counter = tix.filter(ticket_type__event__start_time__gte=atmos_counter_start_date, ticket_type__event__start_time__lt=next_monday).aggregate(n=Count('id'))['n'] or 0
 
         lolz_feeling = random.choice([
-            "Bad",
-            "Shit",
-            "Epic Fail",
-            "Super Special Fail",
-            "Petrol Bombing Time",
-            "#IHateMyLife",
-            "FUCK IMPERIAL",
-            "ERMAHGERD THIS IS THE WORST EVER"
+            "So Nearly Done...",
+            "So Close",
+            "Nearly there",
+            "Not far now",
+            "Not quite",
+            "#Phase2",
+            "Just a little more",
+            "Failing to acquire raked seating since 1993."
         ])
-
 
         ticker.append('​Current members: {}'.format(models.EntitlementDetail.objects.filter(entitlement__name='2014-15 Membership').count()))
         ticker.append('​Outstanding free tickets: {}'.format(models.EntitlementDetail.objects.filter(entitlement__name='2014-15 Members Free Ticket', remaining_uses__gte=1).count()))
         ticker.append('​Take last week: £{}'.format(take_last_week))
         ticker.append('​Take so far this week: £{}'.format(take_this_week))
-        ticker.append('​Tickets to sell until we can afford Atmos: '+str(random.randint(100000,200000)))
+        ticker.append('​Tickets to sell until we can afford Atmos: {}'.format(((66919.56-atmos_start_balance)/2.18)-tickets_sold_since_atmos_counter))
         ticker.append('​Tickets sold last week: {}'.format(tickets_sold_last_week))
         if random.randint(1, 10) == 2:
             ticker.append('﻿#LivingTheDream')
