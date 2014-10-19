@@ -13,6 +13,8 @@ from icunion import collate, eactivities
 import ticketing.models
 from cintranet.utils import IRCCatPinger
 
+from pymailman import mailman
+
 class Command(BaseCommand):
     args = 'eactivities_session_key'
     help = 'Imports all data from eActivities using the specified session key'
@@ -41,6 +43,32 @@ class Command(BaseCommand):
             traceback.print_exc()
             self.irc_pinger.say('##icucinema.botspam', 'SOMETHING WENT WRONG WHILE PARSING EACTIVITIES: {}: {} ({})'.format(type(ex), ex, ex.args))
 
+    def mailing_list_subscription(self, controller, punters):
+        if not controller.subscribe_to_mailing_list:
+            return
+
+        self.stdout.write("Subscribing {} people to our mailing list!\n".format(len(punters)))
+        self.irc_pinger.say("#icucinema", "Subscribing {} people to our mailing list.".format(len(punters)))
+
+        def _unbreak_emails(x):
+            e = x.email
+            if e.endswith('@ic.ac.uk'):
+                e = e[:-len('@ic.ac.uk')] + '@imperial.ac.uk'
+            return e
+
+        emails = map(_unbreak_emails, punters)
+
+        from django.conf import settings
+        mman = mailman.MailmanInterface(settings.MAILMAN_LIST, settings.MAILMAN_ADMIN_PASSWORD, settings.MAILMAN_INSTANCE)
+        try:
+            ok, fail = mman.add_members(emails, invite_to_list=False, send_welcome_message=True, invitation_text=controller.mailing_list_subscribe_header, notify_list_owner=True)
+            self.irc_pinger.say('##icucinema.botspam', 'Subscribed {}, failed {}'.format(len(ok), len(fail)))
+            self.stdout.write(str(ok) + "\n")
+            self.stdout.write(str(fail) + "\n\n")
+        except Exception as ex:
+            traceback.print_exc()
+            self.irc_pinger.say('##icucinema.botspam', 'SOMETHING WENT WRONG WHILE SUBSCRIBING PEOPLE: {}: {} ({})'.format(type(ex), ex, ex.args))
+
     def update_available_products(self):
         products = collate.get_product_info(self.eac, "https://www.imperialcollegeunion.org/shop/club-society-project-products/cinema-products/", 411)
         with transaction.atomic():
@@ -56,7 +84,7 @@ class Command(BaseCommand):
                 )
                 p.name = product['name']
                 if p.sold != product['purchased_count']:
-                    self.irc_pinger.say('##icucinema.botspam', '{} purchase count changed! {} -> {}'.format(p.name, p.sold, product['purchased_count']))
+                    self.irc_pinger.say('#icucinema', '{} purchase count changed! {} -> {}'.format(p.name, p.sold, product['purchased_count']))
                 p.sold = product['purchased_count']
                 if 'total_count' in product.keys():
                     p.initial = product['total_count']
@@ -160,12 +188,16 @@ class Command(BaseCommand):
         count_already_exist_created_ents = 0
         count_total_ents_created = 0
 
+        punters = []
+
         with transaction.atomic():
             sku_e.sku.dirty = False
             sku_e.sku.save()
             for member in pr:
                 try:
-                    punter, created, ents_created = ticketing.models.Punter.create_from_eactivities_csv(member, automatic_entitlements, "Purchased {} (order no {})".format(member['Date'], member['Order No']), lambda x: self.stdout.write(x.encode('utf-8')), lambda x: self.irc_pinger.say('##icucinema.botspam', x))
+                    punter, created, ents_created = ticketing.models.Punter.create_from_eactivities_csv(member, automatic_entitlements, "Purchased {} (order no {})".format(member['Date'], member['Order No']), lambda x: self.stdout.write(x.encode('utf-8')), lambda x: self.irc_pinger.say('#icucinema', x))
+                    if ents_created > 0:
+                        punters.append(punter)
                 except Exception, ex:
                     count_total += 1
                     count_errored += 1
@@ -182,6 +214,9 @@ class Command(BaseCommand):
                     count_total_ents_created += ents_created
                 if not created and ents_created != 0:
                     count_already_exist_created_ents += 1
+
+            if sku_e.subscribe_to_mailing_list and len(punters) > 0:
+                self.mailing_list_subscription(sku_e, punters)
 
             self.stdout.write("")
             self.stdout.write("RESULTS")

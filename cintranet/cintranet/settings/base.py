@@ -190,3 +190,7 @@ INTERNAL_IPS = [
 ]
 
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
+
+MAILMAN_INSTANCE = "https://mailman.ic.ac.uk/mailman/"
+MAILMAN_LIST = "cinema-list"
+MAILMAN_ADMIN_PASSWORD = ""

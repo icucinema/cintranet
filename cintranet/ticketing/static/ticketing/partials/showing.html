@@ -8,7 +8,23 @@
 					<dd><a ng-href="#/films/{{ data.film.id }}">{{ data.film_title }}</a></dd>
 				<dt>Start time</dt>
 					<dd>{{ data.start_time | date:"short" }}</dd>
+				<dt>Is public?</dt>
+					<dd ng-hide="editing"><div ng-show="data.is_public">Yes</div><div ng-show="!data.is_public">No</div></dd>
+					<dd ng-show="editing" class="field">
+						<select class="xxwide select input" ng-options="x.value as x.text for x in [{text: 'No', value: false}, {text: 'Yes', value: true}]" ng-model="edit_data.is_public" required></select>
+					</dd>
+				<dt>Banner text</dt>
+					<dd ng-hide="editing"><div ng-show="data.banner_text">{{ data.banner_text }}</div><div ng-hide="data.banner_text"><em>No banner text</em></div></dd>
+					<dd ng-show="editing" class="field"><input type="text" class="xxwide url input" ng-model="edit_data.banner_text"></dd>
 			</dl>
+			<h3>Actions</h3>
+			<ul ng-hide="editing">
+				<li><div class="btn primary norm" ng-click="edit()"><a href>Edit</a></div></li>
+			</ul>
+			<ul ng-show="editing">
+				<li><div class="btn primary norm" ng-click="saveEdit()"><a href>Save</a></div></li>
+				<li><div class="btn danger norm" ng-click="cancelEdit()"><a href>Cancel</a></div></li>
+			</ul>
 		</tab>
 		<tab tab-title="Tickets ({{ tickets.length }})">
 			<input type="checkbox" ng-model="ticketsAutoRefresh" id="autorefresh" ng-change="ticketsAutoRefreshChange(ticketsAutoRefresh)">

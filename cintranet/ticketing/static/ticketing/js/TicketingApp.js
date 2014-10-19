@@ -399,17 +399,35 @@ app.controller('ShowingCtrl', function($rootScope, $scope, $routeParams, $locati
 	$rootScope.navName = 'showings';
 
 	$scope.loading = true;
+	$scope.editing = false;
 
 	var showingId = parseInt($routeParams.id, 10);
 
 	var showing = Restangular.one('showings', showingId);
 	showing.get().then(function(res) {
 		$scope.loading = false;
+		$scope.editing = false;
 		$scope.data = res;
+		$scope.edit_data = Restangular.copy(res);
 	});
 	showing.getList('tickets').then(function(res) {
 		$scope.tickets = res;
 	});
+
+	$scope.edit = function() {
+		$scope.edit_data = Restangular.copy($scope.data);
+		$scope.editing = true;
+	};
+	$scope.saveEdit = function() {
+		$scope.editing = false;
+		$scope.edit_data.film = $scope.data.film.url;
+		$scope.edit_data.put().then(function() {
+			showing.get().then(function(res) { $scope.data = res; });
+		});
+	};
+	$scope.cancelEdit = function() {
+		$scope.editing = false;
+	};
 
 	$scope.filmUrl = function(film) {
                 var filmId = film.split('/').reverse()[1];

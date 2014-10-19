@@ -76,6 +76,10 @@ Showing <strong>{{ data.startAt }}</strong>-<strong>{{ data.endAt }}</strong> of
 					<input class="xxwide url input" id="manual-poster-url" ng-model="addFilm.manualItem.poster_url" type="url">
 				</li>
 				<li class="field">
+					<label class="inline" for="manual-hero-image-url">Hero Image URL</label>
+					<input class="xxwide url input" id="manual-hero-image-url" ng-model="addFilm.manualItem.hero_image_url" type="url">
+				</li>
+				<li class="field">
 					<label class="inline" for="manual-imdb-id">IMDb ID (http://www.imdb.com/title/<strong>tt000000</strong>/)</label>
 					<input class="xxwide text input" id="manual-imdb-id" ng-model="addFilm.manualItem.imdb_id" type="text">
 				</li>
@@ -88,7 +92,12 @@ Showing <strong>{{ data.startAt }}</strong>-<strong>{{ data.endAt }}</strong> of
 					<select ng-model="addFilm.manualItem.distributor" class="xxwide select input" id="manual-distributor" ng-options="distributor.url as distributor.name for distributor in distributors">
 						<option value="">N/A (indie)</option>
 					</select>
-				<li>
+				</li>
+				<li class="field">
+					<label class="inline" for="manual-is-public">Is public? (i.e. not a test film)</label>
+					<select id="manual-is-public" class="xxwide select input" ng-options="x.value as x.text for x in [{text: 'No', value: false}, {text: 'Yes', value: true}]" ng-model="addFilm.manualItem.is_public" required></select>
+				</li>
+				<li class="field">
 					<div class="norm primary btn"><input type="submit" value="Add"></div>
 				</li>
 			</ul>

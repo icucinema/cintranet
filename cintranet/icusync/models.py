@@ -43,6 +43,9 @@ class SKUEntitlement(models.Model):
     entitlement = models.ForeignKey(ticketing.models.Entitlement)
     uses_remaining = models.PositiveSmallIntegerField(null=True, blank=True)
 
+    subscribe_to_mailing_list = models.BooleanField(null=False, default=False)
+    mailing_list_subscribe_header = models.TextField(null=False, blank=True)
+
     def __unicode__(self):
         return u"SKU {}: {} to Entitlement {}".format(self.sku.product.name, self.sku.name, self.entitlement.name)
 

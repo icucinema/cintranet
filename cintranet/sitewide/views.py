@@ -43,7 +43,7 @@ class IndexView(TemplateView):
         for product in cm:
             sold = product.sold
             initial = product.initial
-            
+
             btn_class = get_button_class(sold, initial)
 
             my_context['stats'].append({
@@ -52,15 +52,16 @@ class IndexView(TemplateView):
                 'value': sold,
                 'class': btn_class
             })
-                
-            sku_entitlements = icusync.models.SKUEntitlement.objects.filter(sku__product=product).select_related('entitlement')
-            for sku_entitlement in sku_entitlements:
-                my_context['stats'].append({
-                    'link': product.union_url,
-                    'title': '{} in DB'.format(sku_entitlement.entitlement.name),
-                    'value': sku_entitlement.entitlement.entitlement_details.all().count(),
-                    'class': 'default'
-                })
+
+            if self.request.user.is_superuser:
+                sku_entitlements = icusync.models.SKUEntitlement.objects.filter(sku__product=product).select_related('entitlement')
+                for sku_entitlement in sku_entitlements:
+                    my_context['stats'].append({
+                        'link': product.union_url,
+                        'title': '{} in DB'.format(sku_entitlement.entitlement.name),
+                        'value': sku_entitlement.entitlement.entitlement_details.all().count(),
+                        'class': 'default'
+                    })
 
         if 'view' not in kwargs:
             kwargs['view'] = self

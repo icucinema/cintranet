@@ -12,6 +12,8 @@ RAVEN_CONFIG = {
 
 SECRET_KEY = get_env_variable("CINTRANET_SECRET_KEY")
 SSO_SHARED_SECRET_KEY = get_env_variable("CINTRANET_SSO_KEY")
+#MAILMAN_ADMIN_PASSWORD = get_env_variable("CINTRANET_MAILMAN_PASSWORD")
+MAILMAN_ADMIN_PASSWORD = "perthrop"
 
 STATIC_ROOT = "/srv/www/vhosts/staff/httpdocs/static"
 MEDIA_ROOT = "/srv/www/vhosts/staff/httpdocs/media"

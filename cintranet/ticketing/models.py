@@ -188,7 +188,7 @@ class Film(models.Model):
 
     distributor = models.ForeignKey(Distributor, null=True, blank=True, related_name='films')
 
-    is_public = models.BooleanField(null=False, default=False)
+    is_public = models.BooleanField(null=False, default=True)
 
     def __unicode__(self):
         return self.name
@@ -316,6 +316,7 @@ class Showing(models.Model):
 
     is_public = models.BooleanField(null=False, default=False)
     banner_text = models.CharField(max_length=280, null=False, default='', blank=True)
+    whats_on_id = models.PositiveIntegerField(null=True, default=None)
 
     def __unicode__(self):
         return u"{} ({})".format(self.film.name, self.start_time)

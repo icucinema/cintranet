@@ -43,6 +43,11 @@
 								<dd class="field"><input type="text" ng-model="edit_data.rotten_tomatoes_id" class="narrow text input"></dd>
 						</dl>
 					</dd>
+				<dt>Is Public? (unset this ONLY for test films!)</dt>
+					<dd ng-hide="editing"><div ng-show="data.is_public">Yes</div><div ng-show="!data.is_public">No</div></dd>
+					<dd ng-show="editing" class="field">
+						<select class="xxwide select input" ng-options="x.value as x.text for x in [{text: 'No', value: false}, {text: 'Yes', value: true}]" ng-model="edit_data.is_public" required></select>
+					</dd>
 			</dl>
 			<h3>Actions</h3>
 			<ul ng-hide="editing">
