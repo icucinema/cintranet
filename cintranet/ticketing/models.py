@@ -157,6 +157,17 @@ class Punter(models.Model):
         ordering = ['name']
 
 
+class PunterIdentifier(models.Model):
+    TYPE = Choices('swipe', 'rfid')
+
+    punter = models.ForeignKey(Punter)
+    type = models.CharField(choices=TYPE, default=TYPE.swipe, max_length=120, blank=False, null=False)
+    value = models.CharField(max_length=256, blank=False, null=False)
+
+    class Meta:
+        index_together = (('type', 'value'),)
+
+
 class Distributor(models.Model):
     name = models.CharField(max_length=128)
 
