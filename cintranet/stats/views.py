@@ -466,7 +466,7 @@ class DashboardJsonView(View):
         ticker.append('​Outstanding free tickets: {}'.format(models.EntitlementDetail.objects.filter(entitlement__name='2014-15 Members Free Ticket', remaining_uses__gte=1).count()))
         ticker.append('​Take last week: £{}'.format(take_last_week))
         ticker.append('​Take so far this week: £{}'.format(take_this_week))
-        ticker.append('​Tickets to sell until we can afford Atmos: {}'.format(int((66919.56-atmos_start_balance)/2.18)-tickets_sold_since_atmos_counter)))
+        ticker.append('​Tickets to sell until we can afford Atmos: {}'.format(int((66919.56-atmos_start_balance)/2.18)-tickets_sold_since_atmos_counter))
         ticker.append('​Tickets sold last week: {}'.format(tickets_sold_last_week))
         if random.randint(1, 10) == 2:
             ticker.append('﻿#LivingTheDream')
