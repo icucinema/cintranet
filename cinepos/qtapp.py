@@ -179,11 +179,53 @@ class CineposApplication(QtGui.QGuiApplication):
     def on_event_changed(self, new_event_id):
         self.tickettypes_model.filter(new_event_id)
 
+    def ask_authoritative_datasource(self, swipecard):
+        resp = requests.post('http://su-cinema-ernie.su.ic.ac.uk:13111/swipe', data={'swipe': swipecard.upper()})
+        if resp.status_code != 200 or len(resp.content) == 0:
+            return None
+
+        cid = resp.content
+        try:
+            punter = models.Punter.objects.get(cid=cid)
+            models.PunterIdentifier(type='swipe' if swipecard[0] == '?' else 'rfid', value=swipecard, punter=punter).save()
+            return punter
+        except models.Punter.DoesNotExist:
+            return None
+        except models.Punter.MultipleObjectsReturned:
+            return None
+        return None
+
+    def handle_swipecard(self, swipecard, should_try_fallback):
+        if len(swipecard) == 0:
+            self.unknown_punter()
+            self.set_punter(None)
+            return
+
+        try_type = len(swipecard) > 0 and swipecard[0] == '?'
+        try_type_str = 'swipe' if try_type else 'rfid'
+
+        try:
+            pi = models.PunterIdentifier.objects.get(type=try_type, value=swipecard).select_related('punter')
+            self.set_punter(pi.punter)
+            return
+        except models.Punter.MultipleObjectsReturned:
+            self.unknown_punter()
+            self.set_punter(None)
+        except models.Punter.DoesNotExist:
+            punter = self.ask_authoritative_datasource(swipecard)
+            if punter is not None:
+                self.set_punter(punter)
+                return
+            
+            if should_try_fallback:
+                self.get_cid_for_swipecard(swipecard, try_type and should_try_fallback)
+            else:
+                self.unknown_punter()
+                self.set_punter(None)
+
     def on_new_punter_identifier(self, identifier_type, identifier):
-        if identifier_type != 'unknown':
-            qs = models.Punter.objects.filter(**{
-                identifier_type: identifier
-            })
+        if identifier_type == 'swipecard':
+            return self.handle_swipecard(identifier, True)
         else:
             qs = models.Punter.objects.filter(
                 Q(cid=identifier) | Q(name__iexact=identifier) | Q(login__iexact=identifier) | Q(
@@ -192,11 +234,10 @@ class CineposApplication(QtGui.QGuiApplication):
         try:
             punter = qs.get()
         except models.Punter.DoesNotExist:
+            if len(identifier) % 2 == 0 and all(c in string.hexdigits for c in identifier):
+                return self.handle_swipecard(identifier, False)
             print "Could not find punter by", identifier_type, ":", identifier
-            if identifier_type == 'swipecard':
-                self.get_cid_for_swipecard(identifier)
-            else:
-                self.unknown_punter()
+            self.unknown_punter()
             self.set_punter(None)
             return
         except models.Punter.MultipleObjectsReturned:
