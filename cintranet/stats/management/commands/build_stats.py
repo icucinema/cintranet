@@ -91,6 +91,7 @@ class Command(BaseCommand):
         resp = self.ehack.get("{}/clubs/{}/{}/products".format(EHACK_URL, self.club_id, THIS_YEAR))
         if resp.status_code == 404:
             return []
+        self.stdout.write("Products list: %r" % (resp.json(),))
         return resp.json()
 
     def update_product_data(self, product_id):
