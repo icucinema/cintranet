@@ -322,12 +322,9 @@ class CineposApplication(QtGui.QGuiApplication):
             )
 
     def on_card_link_performed(self, cid):
-        punter, created = models.Punter.objects.get_or_create(cid=cid, defaults={
-            'swipecard': self.acquiring_swipecard
-        })
+        punter, created = models.Punter.objects.get_or_create(cid=cid)
+        models.PunterIdentifier.objects.get_or_create(punter=punter, type='swipe', value=self.acquiring_swipecard)
         if not created:
-            punter.swipecard = self.acquiring_swipecard
-            punter.save()
             print "Saving swipecard into existing punter", punter
         else:
             print "Created new punter for swipecard", punter
