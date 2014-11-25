@@ -55,3 +55,7 @@ class SKUTicketType(models.Model):
 
     def __unicode__(self):
         return u"SKU {}: {} to TicketType {}".format(self.sku.product.name, self.sku.name, unicode(self.ticket_type))
+
+    @property
+    def subscribe_to_mailing_list(self):
+        return False
