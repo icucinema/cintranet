@@ -14,11 +14,6 @@
 						<dd ng-hide="data_editing">{{ data.cid }}</dd>
 						<dd ng-show="data_editing" class="field"><input type="text" class="xxwide text input" ng-model="edit_data.cid"></dd>
 				</div>
-				<div ng-show="data.swipecard || data_editing">
-					<dt>Swipecard Data</dt>
-						<dd ng-hide="data_editing">{{ data.swipecard }}</dd>
-						<dd ng-show="data_editing" class="field"><input type="text" class="xxwide text input" ng-model="edit_data.swipecard"></dd>
-				</div>
 				<div ng-show="data.login || data_editing">
 					<dt>Username</dt>
 						<dd ng-hide="data_editing">{{ data.login }}</dd>
@@ -33,6 +28,10 @@
 					<dt>Comment</dt>
 						<dd ng-hide="data_editing"><pre>{{ data.comment }}</pre></dd>
 						<dd ng-show="data_editing" class="field"><textarea rows="6" ng-model="edit_data.comment" class="xxwide input textarea"></textarea></dd>
+				</div>
+				<div ng-show="data.identifiers">
+					<dt>Identifiers</dt>
+						<dd><ul><li ng-repeat="identifier in data.identifiers"><strong>{{ identifier.type }}</strong>: {{ identifier.value }}</li></ul></dd>
 				</div>
 				<div>
 					<dt></dt>
