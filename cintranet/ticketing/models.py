@@ -160,7 +160,7 @@ class Punter(models.Model):
 class PunterIdentifier(models.Model):
     TYPE = Choices('swipe', 'rfid')
 
-    punter = models.ForeignKey(Punter)
+    punter = models.ForeignKey(Punter, related_name='identifiers')
     type = models.CharField(choices=TYPE, default=TYPE.swipe, max_length=120, blank=False, null=False)
     value = models.CharField(max_length=256, blank=False, null=False)
 

@@ -41,8 +41,7 @@ class Command(BaseCommand):
             score += 50
         if punter.email != '':
             score += 25
-        if punter.swipecard != '':
-            score += 15
+        score += 15 * punter.identifiers.count()
         if punter.login != '':
             score += 15
         if punter.comment != '':
@@ -53,12 +52,14 @@ class Command(BaseCommand):
         return score
 
     def copy_data(self, main_punter, punter):
-        fields = ['name', 'email', 'swipecard', 'login']
+        fields = ['name', 'email', 'login']
         for field in fields:
             main_p_data = getattr(main_punter, field)
             p_data = getattr(punter, field)
             if main_p_data == '' and p_data != '':
                 setattr(main_punter, field, p_data)
+
+        punter.identifiers.update(punter=main_punter)
 
         if punter.comment != '':
             main_punter.comment += '\r\n\r\nMERGED DATA:\r\n' + punter.comment

@@ -97,15 +97,24 @@ class EntitlementDetailSerializer(ModelSerializer):
             'entitlement', 'valid'
         )
 
+class PunterIdentifierSerializer(ModelSerializer):
+    class Meta:
+        model = models.PunterIdentifier
+        fields = (
+            'url', 'id',
+            'type', 'value'
+        )
+
 class PunterSerializer(ModelSerializer):
     entitlement_details = EntitlementDetailSerializer(many=True)
+    identifiers = PunterIdentifierSerializer(many=True)
 
     class Meta:
         model = models.Punter
         fields = (
             'url', 'id',
             'punter_type', 'name',
-            'cid', 'login', 'swipecard', 'email',
+            'cid', 'login', 'email',
             'comment',
         )
 
