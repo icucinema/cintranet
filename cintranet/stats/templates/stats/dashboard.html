@@ -758,7 +758,11 @@ app.directive('ticker', [function() {
 					// are we "off the end" of the current canvas?
 					if ((currentScrollPos + currentCnv.width) > dispCnv.width) {
 						// top it up
-						dispCtx.drawImage(nextCnv, 0, 0, dispCnv.width - minWidth, dispCnv.height, currentCnv.width - currentScrollPos, 0, dispCnv.width - minWidth, dispCnv.height);
+						try {
+							dispCtx.drawImage(nextCnv, 0, 0, dispCnv.width - minWidth, dispCnv.height, currentCnv.width - currentScrollPos, 0, dispCnv.width - minWidth, dispCnv.height);
+						} catch (ex) {
+							// this seems to generate an IndexSizeError at the moment (on RPi) need to diagnose this
+						}
 					}
 				})();
 				lastTimestamp = timestamp;
