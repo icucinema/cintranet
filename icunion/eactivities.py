@@ -187,14 +187,14 @@ class EActivities(object):
             bs_skus = bs_pr.find_all("infotablerow")
             for bs_sku in bs_skus:
                 print bs_sku
-                tns = bs_sku.find('infotablecell', alias=TOTAL_NET_SALE_RE).text
+                tns = bs_sku.find('infotablecell', alias=TOTAL_NET_SALE_RE).text.replace(',', '')
                 if tns == u'\xa0': tns = '0'
                 sku = {
                     'name': bs_sku.find('infotablecell', alias="Product SKU Name").text,
                     'eactivities_id': int(bs_sku.find('infotablecell', alias="Download").attrs['linkobj'].rpartition('/')[-1]),
                     'purchased_count': int(bs_sku.find('infotablecell', alias="Number Purchased").text),
                     'total': Decimal(tns),
-                    'per_item': Decimal(bs_sku.find('infotablecell', alias=PRICE_INC_VAT_RE).text),
+                    'per_item': Decimal(bs_sku.find('infotablecell', alias=PRICE_INC_VAT_RE).text.replace(',', '')),
                 }
                 pr['purchased_count'] += sku['purchased_count']
                 pr['total'] += sku['total']
