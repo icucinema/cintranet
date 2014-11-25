@@ -15,6 +15,7 @@ api_router.register(r'event-types', api_views.EventTypeViewSet)
 api_router.register(r'showings', api_views.ShowingViewSet)
 api_router.register(r'events', api_views.EventViewSet)
 api_router.register(r'distributors', api_views.DistributorViewSet)
+api_router.register(r'punter-identifiers', api_views.PunterIdentifierViewSet)
 
 urlpatterns = patterns('',
     url(r'^$', views.IndexView.as_view(), name='root'),

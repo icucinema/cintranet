@@ -66,6 +66,10 @@ class PunterViewSet(viewsets.ModelViewSet):
         punter = self.get_object()
         return serialize_queryset(self, api_serializers.ComprehensiveTicketSerializer, punter.tickets.all())
 
+class PunterIdentifierViewSet(viewsets.ModelViewSet):
+    queryset = models.PunterIdentifier.objects.all()
+    serializer_class = api_serializers.PunterIdentifierSerializer
+
 class EntitlementViewSet(viewsets.ModelViewSet):
     queryset = models.Entitlement.objects.all()
     serializer_class = api_serializers.EntitlementSerializer

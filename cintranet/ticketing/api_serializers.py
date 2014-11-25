@@ -115,7 +115,7 @@ class PunterSerializer(ModelSerializer):
             'url', 'id',
             'punter_type', 'name',
             'cid', 'login', 'email',
-            'comment',
+            'comment', 'identifiers',
         )
 
 class FilmSerializer(ModelSerializer):
