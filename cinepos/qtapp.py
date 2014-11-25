@@ -181,7 +181,7 @@ class CineposApplication(QtGui.QGuiApplication):
         self.tickettypes_model.filter(new_event_id)
 
     def ask_authoritative_datasource(self, swipecard):
-        resp = requests.post('http://su-cinema-ernie.su.ic.ac.uk:13111/swipe', data={'swipe': swipecard.upper()})
+        resp = requests.post('http://su-cinema-ernie.su.ic.ac.uk:13111/swipe', data={'swipe': swipecard.upper()}, timeout=5)
         if resp.status_code != 200 or len(resp.content) == 0:
             return None
 
