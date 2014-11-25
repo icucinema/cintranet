@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import requests
 
 from PyQt5 import QtWidgets, QtQuick, QtCore, QtGui
 from ticketing import models, api_serializers
