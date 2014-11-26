@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import datetime
-import requests
+import string
 
 from PyQt5 import QtWidgets, QtQuick, QtCore, QtGui
+import requests
 from ticketing import models, api_serializers
 from django.db.models import Q
 from django.utils.timezone import now
@@ -188,7 +189,7 @@ class CineposApplication(QtGui.QGuiApplication):
         cid = resp.content
         try:
             punter = models.Punter.objects.get(cid=cid)
-            models.PunterIdentifier(type='swipe' if swipecard[0] == '?' else 'rfid', value=swipecard, punter=punter).save()
+            models.PunterIdentifier(type='swipe' if swipecard[0] == ';' else 'rfid', value=swipecard, punter=punter).save()
             return punter
         except models.Punter.DoesNotExist:
             return None
@@ -197,34 +198,37 @@ class CineposApplication(QtGui.QGuiApplication):
         return None
 
     def handle_swipecard(self, swipecard, should_try_fallback):
+        print "Got swipecard", swipecard, "!"
         if len(swipecard) == 0:
             self.unknown_punter()
             self.set_punter(None)
             return
 
-        try_type = len(swipecard) > 0 and swipecard[0] == '?'
+        try_type = len(swipecard) > 0 and swipecard[0] == ';'
         try_type_str = 'swipe' if try_type else 'rfid'
+        print "Searching for PI type", try_type_str, "value", swipecard
 
         try:
-            pi = models.PunterIdentifier.objects.get(type=try_type, value=swipecard).select_related('punter')
+            pi = models.PunterIdentifier.objects.select_related('punter').get(type=try_type_str, value=swipecard)
             self.set_punter(pi.punter)
             return
-        except models.Punter.MultipleObjectsReturned:
+        except models.PunterIdentifier.MultipleObjectsReturned:
             self.unknown_punter()
             self.set_punter(None)
-        except models.Punter.DoesNotExist:
+        except models.PunterIdentifier.DoesNotExist:
             punter = self.ask_authoritative_datasource(swipecard)
             if punter is not None:
                 self.set_punter(punter)
                 return
             
             if should_try_fallback:
-                self.get_cid_for_swipecard(swipecard, try_type and should_try_fallback)
+                self.get_cid_for_swipecard(swipecard)
             else:
                 self.unknown_punter()
                 self.set_punter(None)
 
     def on_new_punter_identifier(self, identifier_type, identifier):
+        print "Searching for punter by", identifier_type, '-', identifier
         if identifier_type == 'swipecard':
             return self.handle_swipecard(identifier, True)
         else:
