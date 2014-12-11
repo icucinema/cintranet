@@ -1,5 +1,6 @@
 @charset "UTF-8";
 @import url(//fonts.googleapis.com/css?family=Open+Sans:400,300,600,700);
+@import url(//fonts.googleapis.com/css?family=Lato:400,700|Oswald:400,700);
 
 html {
     position: absolute;
@@ -34,6 +35,10 @@ html {
     line-height: 58px;
     width: 31.91489%;
     border: none;
+    font-family: Oswald, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 28px;
+    text-transform: uppercase;
+    font-weight: bold;
 }
 
 .icu-header-four-logo a {
@@ -45,6 +50,7 @@ html {
     text-decoration: none;
     outline: 0;
     border: none;
+    color: white;
 }
 
 .icu-header-four-logo img {
@@ -98,7 +104,7 @@ html {
     margin-top: -60px;
     width: 100%;
     height: 60px;
-    background: #052443;
+    background: #0d2443;
     z-index: 10000;
 }
 

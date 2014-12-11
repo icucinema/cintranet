@@ -3,6 +3,9 @@
   -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
  }
 
+.logo { font-family: Oswald, "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 28px; text-transform: uppercase; font-weight: bold; }
+.logo a { color: white; }
+
 .alert { padding: 0 10px; font-family: "Open Sans"; font-weight: 600; list-style-type: none; word-wrap: break-word; margin-bottom: 8px; font-size: 14px; font-size: 0.875rem; -webkit-border-radius: 4px; -moz-border-radius: 4px; -ms-border-radius: 4px; -o-border-radius: 4px; border-radius: 4px; }
 .alert.default { background: white; border: 1px solid #f2f2f2; color: #bfbfbf; color: #555555; border: 1px solid #f2f2f2; }
 .alert.primary { background: #85b7e7; border: 1px solid #3085d6; color: #1a5186; }
@@ -15,7 +18,8 @@
 .index-header {
 	margin-top: -20px;
 	padding-top: 15px;
-	background-color: #ccc;
+	background-color: #294158;
+	color: white;
 }
 .index-header p {
 	font-size: 1.7em;
@@ -23,22 +27,26 @@
 .index-header small {
 	font-size: 0.6em;
 }
+.index-header a {
+	color: #afafff;
+}
 .row-margin {
 	margin-top: 20px;
 }
 
 .panel.panel-primary .panel-heading {
-	background: #052443;
+	background: #294158;
 	overflow: hidden;
 	padding: 2px 6px;
 	padding-bottom: 0;
+	color: white;
 }
 .panel.panel-primary .panel-heading h3 {
 	color: white;
 	font-size: 16pt;
 }
 .panel.panel-primary .panel-body {
-	border: 1px solid #052443;
+	border: 1px solid #294158;
 	overflow: hidden;
 	padding: 1px 6px;
 	margin: 0 0 20px;
@@ -51,7 +59,7 @@
 	background-color: #fff;
 }
 .vertical-nav li.active a {
-	background-color: #052443;
+	background-color: #294158;
 	color: #fff;
 }
 .fixed-nav {
