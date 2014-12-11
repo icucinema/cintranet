@@ -1,15 +1,8 @@
 from rest_framework import viewsets, filters
-from rest_framework.decorators import action, link
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 
 from . import models, api_serializers
-
-def top_level_action(methods=['post'], **kwargs):
-    def decorator(func):
-        func.toplevel_bind_to_methods = methods
-        func.kwargs = kwargs
-        return func
-    return decorator
 
 def serialize_queryset(self, serializer_class, queryset):
     self.serializer_class = serializer_class#api_serializers.EntitlementDetailSerializer
@@ -56,12 +49,12 @@ class PunterViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         return super(PunterViewSet, self).list(request, *args, **kwargs)
 
-    @action(methods=['GET'])
+    @detail_route(methods=['GET'])
     def entitlement_details(self, request, pk=None):
         punter = self.get_object()
         return serialize_queryset(self, api_serializers.EntitlementDetailSerializer, punter.entitlement_details.all())
 
-    @action(methods=['GET'])
+    @detail_route(methods=['GET'])
     def tickets(self, request, pk=None):
         punter = self.get_object()
         return serialize_queryset(self, api_serializers.ComprehensiveTicketSerializer, punter.tickets.all())
@@ -82,7 +75,7 @@ class DistributorViewSet(viewsets.ModelViewSet):
     queryset = models.Distributor.objects.all()
     serializer_class = api_serializers.DistributorSerializer
 
-    @action(methods=['GET'])
+    @detail_route(methods=['GET'])
     def films(self, request, pk=None):
         distributor = self.get_object()
         return serialize_queryset(self, api_serializers.FilmSerializer, distributor.films.all())
@@ -99,20 +92,20 @@ class FilmViewSet(viewsets.ModelViewSet):
             return self.serializer_class
         return api_serializers.FlatFilmSerializer
 
-    @action()
+    @detail_route()
     def update_remote(self, request, pk=None):
         film = self.get_object()
         film.update_remote()
         film.save()
         return Response(api_serializers.FilmSerializer(film).data)
 
-    @top_level_action(methods=['get'])
+    @list_route(methods=['get'])
     def search_tmdb(self, request, pk=None):
         results = models.Film.search_tmdb(request.GET.get('query'))
         results = api_serializers.FilmSerializer(results, many=True).data
         return Response(results)
 
-    @action(methods=['GET'])
+    @detail_route(methods=['GET'])
     def showings(self, request, pk=None):
         film = self.get_object()
         return serialize_queryset(self, api_serializers.ShowingsWeekSerializer, film.showing_weeks.all())
@@ -137,7 +130,7 @@ CASE
             return self.serializer_class
         return api_serializers.FlatShowingSerializer
 
-    @action(methods=['GET'])
+    @detail_route(methods=['GET'])
     def tickets(self, request, pk=None):
         showing = self.get_object()
         return serialize_queryset(self, api_serializers.ComprehensiveTicketSerializer, showing.tickets())
@@ -148,22 +141,22 @@ class EventViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('name',)
 
-    @action(methods=['GET'])
+    @detail_route(methods=['GET'])
     def showings(self, request, pk=None):
         event = self.get_object()
         return serialize_queryset(self, api_serializers.ShowingSerializer, event.showings.all())
 
-    @action(methods=['GET'])
+    @detail_route(methods=['GET'])
     def tickettypes(self, request, pk=None):
         event = self.get_object()
         return serialize_queryset(self, api_serializers.TicketTypeSerializer, event.tickettype_set.all())
 
-    @action(methods=['GET'])
+    @detail_route(methods=['GET'])
     def tickets(self, request, pk=None):
         event = self.get_object()
         return serialize_queryset(self, api_serializers.ComprehensiveTicketSerializer, event.tickets.all())
 
-    @action(methods=['POST'])
+    @detail_route(methods=['POST'])
     def reset_ticket_types_by_event_type(self, request, pk=None):
         event = self.get_object()
         event.tickettype_set.all().delete()

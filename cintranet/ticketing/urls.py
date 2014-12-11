@@ -1,8 +1,10 @@
 from django.conf.urls import patterns, include, url
 
-from . import api_views, views, api_router
+from . import api_views, views
 
-api_router = api_router.APIRouter()
+from rest_framework import routers
+
+api_router = routers.DefaultRouter()
 api_router.register(r'punters', api_views.PunterViewSet)
 api_router.register(r'films', api_views.FilmViewSet)
 api_router.register(r'entitlements', api_views.EntitlementViewSet)

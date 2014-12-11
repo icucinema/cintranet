@@ -42,7 +42,7 @@ class EventTypeSerializer(ModelSerializer):
         )
 
 class EntitledToRelatedField(serializers.RelatedField):
-    def to_native(self, value):
+    def to_representation(self, value):
         kwargs = {'context': self.context}
         if isinstance(value, models.TicketType):
             typen = 'type'
@@ -65,8 +65,8 @@ class FlatEntitledToRelatedField(serializers.RelatedField):
         raise Exception("Unexpected entitlement")
 
 class EntitlementSerializer(ModelSerializer):
-    entitled_to = EntitledToRelatedField(source='entitled_to_subclasses', many=True)
-    valid = serializers.Field(source='valid')
+    entitled_to = EntitledToRelatedField(source='entitled_to_subclasses', many=True, read_only=True)
+    valid = serializers.ReadOnlyField()
 
     class Meta:
         model = models.Entitlement
@@ -87,7 +87,7 @@ class TicketSerializer(ModelSerializer):
 
 class EntitlementDetailSerializer(ModelSerializer):
     entitlement = EntitlementSerializer()
-    valid = serializers.Field(source='valid')
+    valid = serializers.ReadOnlyField()
 
     class Meta:
         model = models.EntitlementDetail
@@ -116,6 +116,7 @@ class PunterSerializer(ModelSerializer):
             'punter_type', 'name',
             'cid', 'login', 'email',
             'comment', 'identifiers',
+            'entitlement_details',
         )
 
 class FilmSerializer(ModelSerializer):
@@ -137,7 +138,7 @@ class FlatFilmSerializer(ModelSerializer):
         )
 
 class ShowingSerializer(ModelSerializer):
-    primary_event = serializers.HyperlinkedRelatedField(required=False, view_name='event-detail')
+    primary_event = serializers.HyperlinkedRelatedField(read_only=True, required=False, view_name='event-detail')
     film_title = serializers.SlugRelatedField(read_only=True, slug_field='name', source='film')
     film = FilmSerializer(source='week.film')
 
@@ -148,7 +149,7 @@ class ShowingSerializer(ModelSerializer):
         )
 
 class FlatShowingSerializer(ModelSerializer):
-    primary_event = serializers.HyperlinkedRelatedField(required=False, view_name='event-detail')
+    primary_event = serializers.HyperlinkedRelatedField(read_only=True, required=False, view_name='event-detail')
     film = serializers.HyperlinkedRelatedField(required=True, source='film', view_name='film-detail', queryset=models.Film.objects.all())
 
     class Meta:
@@ -192,7 +193,7 @@ class GroupedShowingSerializer(serializers.Serializer):
         super(GroupedShowingSerializer, self).__init__(munged_dataset, *args, **kwargs)
 
 class ShowingsWeekSerializer(ModelSerializer):
-    start_time = serializers.DateField(format='%Y-%m-%d')
+    start_time = serializers.DateTimeField()
     showings = ShowingSerializer(many=True)
     box_office_return = BoxOfficeReturnSerializer()
 
