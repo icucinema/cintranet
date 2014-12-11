@@ -1,3 +1,6 @@
 [submodule "inventory"]
 	path = inventory
 	url = git://github.com/icucinema/inventory.git
+[submodule "cintranet/pymailman"]
+	path = cintranet/pymailman
+	url = git://github.com/lukegb/pymailman.git
