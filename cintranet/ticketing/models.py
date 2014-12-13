@@ -66,6 +66,31 @@ class Punter(models.Model):
             punter_name = punter.name
         return punter_name
 
+    @staticmethod
+    def get_by_swipe(swipe):
+        if swipe.startswith(';'):
+            swipe = swipe[1:]
+        if swipe.endswith('?'):
+            swipe = swipe[:-1]
+
+        swipe_type = 'swipe' if len(swipe) == 12 or 'a' in swipe or 'b' in swipe or 'c' in swipe or 'd' in swipe or 'e' in swipe or 'f' in swipe else 'rfid'
+
+        resp = requests.post(settings.ROLLUP_ADDR + "/swipe", data={'swipe': swipe})
+        if resp.status_code != 200:
+            return None
+        cid = resp.text.strip()
+        punter = Punter.objects.filter(cid=cid)
+        if not punter:
+            return None
+        punter = punter.get()
+
+        try:
+            PunterIdentifier(punter=punter, type=swipe_type, value=swipe).save()
+        except:
+            pass
+
+        return punter.get()
+
     def available_tickets(self, events, at_time=None, on_door=True, online=False):
         if not isinstance(events, django.db.models.query.QuerySet):
             events = Event.objects.filter(pk__in=[x.pk for x in events])
@@ -177,7 +202,7 @@ class PunterIdentifier(models.Model):
     value = models.CharField(max_length=256, blank=False, null=False)
 
     class Meta:
-        index_together = (('type', 'value'),)
+        unique_together = (('type', 'value'),)
 
 
 class Distributor(models.Model):
