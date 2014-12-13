@@ -68,12 +68,13 @@ class Punter(models.Model):
 
     @staticmethod
     def get_by_swipe(swipe):
-        if swipe.startswith(';'):
-            swipe = swipe[1:]
-        if swipe.endswith('?'):
-            swipe = swipe[:-1]
+        swipe_type = 'rfid'
+        save_swipe = swipe
 
-        swipe_type = 'swipe' if len(swipe) == 12 or 'a' in swipe or 'b' in swipe or 'c' in swipe or 'd' in swipe or 'e' in swipe or 'f' in swipe else 'rfid'
+        if swipe.startswith(';') and swipe.endswith('?'):
+            save_swipe = swipe
+            swipe = swipe[1:-1]
+            swipe_type = 'swipe'
 
         resp = requests.post(settings.ROLLUP_ADDR + "/swipe", data={'swipe': swipe})
         if resp.status_code != 200:
@@ -85,7 +86,7 @@ class Punter(models.Model):
         punter = punter.get()
 
         try:
-            PunterIdentifier(punter=punter, type=swipe_type, value=swipe).save()
+            PunterIdentifier(punter=punter, type=swipe_type, value=save_swipe).save()
         except:
             pass
 
