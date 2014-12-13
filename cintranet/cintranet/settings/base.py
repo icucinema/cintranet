@@ -174,6 +174,7 @@ LOGIN_EXEMPT_URLS = (
     '^cinbin/i/([a-z0-9\-]+)/$',
     '^cinbin/t/([a-z0-9\-]+)/$',
     '^media/',
+    '^pointofsale/',
 )
 
 ### ticketing settings

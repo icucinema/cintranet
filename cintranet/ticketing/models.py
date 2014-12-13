@@ -6,6 +6,7 @@ import datetime
 from decimal import Decimal
 
 from django.db import models, transaction
+import django.db.models.query
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.utils.timezone import now
@@ -66,25 +67,36 @@ class Punter(models.Model):
         return punter_name
 
     def available_tickets(self, events, at_time=None, on_door=True, online=False):
-        return TicketType.objects.filter(
-            Q(event__in=events) &
-            (
-                Q(
-                    general_availability=True,
-                    sell_on_the_door=on_door,
-                    sell_online=online,
-                ) | Q(
-                    Q(
-                        EntitlementDetail.valid_q_obj("entitlements__entitlement_details__", at_time=at_time),
-                        entitlements__entitlement_details__punter=self,
-                    ) | Q(
-                        EntitlementDetail.valid_q_obj("template__entitlements__entitlement_details__", at_time=at_time),
-                        template__entitlements__entitlement_details__punter=self,
-                    ),
-                    general_availability=False,
-                )
+        if not isinstance(events, django.db.models.query.QuerySet):
+            events = Event.objects.filter(pk__in=[x.pk for x in events])
+
+        event_q = Q(event__in=events)
+        ticket_types = [TicketType.objects.filter(
+            event_q & 
+            Q(
+                general_availability=True,
+                sell_on_the_door=on_door,
+                sell_online=online,
             )
-        )
+        ).values_list('id', flat=True)]
+
+        for event in events:
+            ticket_types.append(TicketType.objects.filter(Q(event=event) & Q(
+                Q(
+                    EntitlementDetail.valid_q_obj("entitlements__entitlement_details__", at_time=event.start_time),
+                    entitlements__entitlement_details__punter=self,
+                ) | Q(
+                    EntitlementDetail.valid_q_obj("template__entitlements__entitlement_details__", at_time=event.start_time),
+                    template__entitlements__entitlement_details__punter=self,
+                ),
+                general_availability=False,
+            )).values_list('id', flat=True))
+
+        tt_id_set = Q()
+        for ticket_type_queryset in ticket_types:
+            tt_id_set = tt_id_set | Q(id__in=ticket_type_queryset)
+
+        return TicketType.objects.filter(tt_id_set)
 
     @classmethod
     def create_from_eactivities_csv(cls, csv_row, entitlements, note, write_to=lambda x: None, more_write_to=lambda x: None, membership_type=None):
@@ -494,10 +506,17 @@ class TicketTemplate(BaseTicketInfo):
     event_type = models.ManyToManyField(EventType, related_name='ticket_templates')
 
 
+class TicketTypeManager(models.Manager):
+    def get_queryset(self):
+        return super(TicketTypeManager, self).get_queryset().select_related('event', 'template')
+
+
 class TicketType(BaseTicketInfo):
     event = models.ForeignKey(Event)
 
     template = models.ForeignKey(TicketTemplate, blank=True, null=True)
+
+    objects = TicketTypeManager()
 
     @classmethod
     def from_template(cls, template, event):
