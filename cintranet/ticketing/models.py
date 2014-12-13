@@ -89,7 +89,7 @@ class Punter(models.Model):
         except:
             pass
 
-        return punter.get()
+        return punter
 
     def available_tickets(self, events, at_time=None, on_door=True, online=False):
         if not isinstance(events, django.db.models.query.QuerySet):
