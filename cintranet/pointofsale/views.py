@@ -106,6 +106,8 @@ class PunterFilterBackend(filters.BaseFilterBackend):
         card_id = request.GET.get('card_id', None)
         if card_id is not None:
             queryset = queryset.filter(identifiers__value=card_id)
+            if not queryset.count():
+                ticketing.models.Punter.get_by_swipe(card_id)
 
         search = request.GET.get('search', None)
         if search is not None:

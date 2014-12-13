@@ -202,3 +202,5 @@ BROKER_PORT = 5672
 BROKER_USER = "cintranet"
 BROKER_PASSWORD = "cintranet"
 BROKER_VHOST = "/cintranet"
+
+ROLLUP_ADDR = "http://su-cinema-ernie.su.ic.ac.uk:13111"
