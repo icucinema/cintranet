@@ -25,6 +25,7 @@ urlpatterns = patterns('',
     url(r'^cinbin/', include('cinbin.urls', app_name='cinbin', namespace='cinbin')),
     url(r'^inventory/api/', include('inventory.api_urls')),
     url(r'^inventory/', include('inventory.urls', app_name='inventory', namespace='inventory')),
+    url(r'^pointofsale/', include('pointofsale.urls', app_name='pointofsale', namespace='pointofsale')),
 )
 
 if settings.DEBUG:

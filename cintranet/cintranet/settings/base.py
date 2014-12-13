@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'cinbin',
     'stats',
     'inventory',
+    'pointofsale',
 
     'south',
 ]
@@ -194,3 +195,9 @@ DEBUG_TOOLBAR_PATCH_SETTINGS = False
 MAILMAN_INSTANCE = "https://mailman.ic.ac.uk/mailman/"
 MAILMAN_LIST = "cinema-list"
 MAILMAN_ADMIN_PASSWORD = ""
+
+BROKER_HOST = "localhost"
+BROKER_PORT = 5672
+BROKER_USER = "cintranet"
+BROKER_PASSWORD = "cintranet"
+BROKER_VHOST = "/cintranet"
