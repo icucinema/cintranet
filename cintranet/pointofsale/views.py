@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.shortcuts import render
 from django.db.models import Q
 
@@ -29,15 +31,19 @@ class TicketViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = TicketGenerationSerializer(data=request.data)
         if serializer.is_valid():
             printer = models.Printer.objects.get(pk=serializer.data['printer']) if serializer.data['printer'] else None
+            total_value = Decimal(0)
 
             tickets = []
             for proto in serializer.data['tickets']:
                 ticket_type = ticketing.models.TicketType.objects.get(pk=proto['ticket_type'])
                 punter = None if not proto['punter'] else ticketing.models.Punter.objects.get(pk=proto['punter'])
                 tickets.append(ticketing.models.Ticket.generate(ticket_type=ticket_type, punter=punter))
+                total_value += ticket_type.sale_price
 
             if printer:
                 printer.print_tickets(tickets)
+                if total_value > Decimal(0) and request.GET.get('open_cashdrawer', None) == 'true':
+                    printer.open_cash_drawer()
             return Response({'status': 'printing', 'tickets': TicketSerializer(tickets, many=True).data})
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -154,7 +160,7 @@ class PrinterFilterBackend(filters.BaseFilterBackend):
             queryset = queryset.filter(name=name)
         return queryset
 
-class PrinterViewSet(viewsets.ReadOnlyModelViewSet):
+class PrinterViewSet(viewsets.ModelViewSet):
     queryset = models.Printer.objects.all()
     serializer_class = PrinterSerializer
     filter_backends = [PrinterFilterBackend,]
