@@ -1,0 +1,48 @@
+<form role="form" ng-submit="doneConfiguring(selectedEvents, selectedPrinter)" class="setup-form">
+	<div class="form-header">
+		<div class="row">
+			<div class="col-md-12">
+				<h1>CinePoS Setup</h1>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6">
+				<label>Available Events</label>
+			</div>
+			<div class="col-md-6">
+				<label>Selected Events</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6">
+				<input type="date" class="form-control" ng-model="eventDate" ng-change="updateEvents(eventDate)">
+			</div>
+		</div>
+	</div>
+	<div class="events-selector">
+		<div class="col-md-6">
+			<ul class="event-list">
+				<li ng-repeat="event in events" class="event" ng-class="{'selected': event.selected}" ng-click="addEvent(event)"><strong>{{ event.name }}</strong> ({{ event.start_time|date:'EEE d MMM yyyy @ HH:mm' }})</li>
+			</ul>
+			<div ng-if="!events.length && !eventsLoading">
+				<h2>There are no events on <strong>{{ eventDate|date:'EEE d MMM yyyy' }}</strong>.</h2><br>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<ul class="event-list">
+				<li ng-repeat="event in selectedEvents" class="event" ng-click="removeEvent(event)"><strong>{{ event.name }}</strong> ({{ event.start_time|date:'EEE d MMM yyyy @ HH:mm' }})</li>
+			</ul>
+		</div>
+	</div>
+	<div class="form-footer">
+		<div class="col-md-12">
+			<label>Printer</label>
+			<select ng-model="selectedPrinter" class="form-control">
+				<option ng-repeat="printer in printers" value="{{ printer.id }}"><strong>{{ printer.name }}</strong> (last seen: {{ printer.last_seen|date:'EEE d MMM yyyy' }})</option>
+			</select>
+		</div>
+		<div class="col-md-12">
+			<button class="btn btn-primary btn-lg btn-block" type="submit">Done</button>
+		</div>
+	</div>
+</form>

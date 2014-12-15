@@ -1,4 +1,5 @@
 from decimal import Decimal
+import datetime
 
 from django.shortcuts import render
 from django.db.models import Q
@@ -86,9 +87,29 @@ class TicketTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ticketing.models.TicketType
 
+class EventFilterSerializer(serializers.Serializer):
+    date = serializers.DateTimeField()
+
+class EventFilterBackend(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        date = request.GET.get('date', None)
+        if date is not None:
+            serializer = EventFilterSerializer(data=request.GET)
+            if serializer.is_valid():
+                actual_date = serializer.validated_data['date']
+                oneday = datetime.timedelta(days=1, hours=12)
+                queryset = queryset.filter(start_time__gt=actual_date, start_time__lte=actual_date+oneday)
+            else:
+                raise Exception(serializer.errors)
+
+        queryset = queryset.order_by('start_time')
+
+        return queryset
+
 class EventViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ticketing.models.Event.objects.all()
     serializer_class = EventSerializer
+    filter_backends = [EventFilterBackend,]
 
     @detail_route(methods=['get'])
     def ticket_types(self, request, pk=None):
@@ -96,7 +117,7 @@ class EventViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = event.tickettype_set.all()
         x = []
         for tt in queryset:
-            tt.allowed = None
+            tt.allowed = tt.general_availability and tt.sell_on_the_door
             x.append(tt)
         serializer = TicketTypeSerializer(x, many=True)
         return Response(serializer.data)
@@ -144,6 +165,18 @@ class PunterViewSet(viewsets.ReadOnlyModelViewSet):
             tt_dict[tt.id].allowed = True
 
         return Response(TicketTypeSerializer(tt_dict.values(), many=True).data)
+
+    @detail_route(methods=['get'])
+    def tickets(self, request, pk=None):
+        punter = self.get_object()
+        detailed_mode = bool(request.GET.get('detailed', None))
+        tickets = ticketing.models.Ticket.objects.filter(punter=punter)
+        if request.GET.get('status') is not None:
+            tickets = tickets.filter(status__in=request.GET.getlist('status'))
+        serializer = TicketSerializer if not detailed_mode else DetailedTicketSerializer
+        if detailed_mode:
+            tickets = tickets.select_related('ticket_type', 'ticket_type__event')
+        return Response(serializer(tickets, many=True).data)
         
 class PrinterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -194,3 +227,15 @@ class PrinterViewSet(viewsets.ModelViewSet):
         printer = self.get_object()
         printer.open_cash_drawer()
         return Response({'status': 'ding'})
+
+class DetailedTicketTicketTypeSerializer(serializers.ModelSerializer):
+    event = EventSerializer()
+
+    class Meta:
+        model = ticketing.models.TicketType
+
+class DetailedTicketSerializer(serializers.ModelSerializer):
+    ticket_type = DetailedTicketTicketTypeSerializer()
+
+    class Meta:
+        model = ticketing.models.Ticket
