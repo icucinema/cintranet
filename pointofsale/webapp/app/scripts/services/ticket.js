@@ -14,7 +14,7 @@ angular.module('webappApp')
     this.generate = function(specs, printerObj) {
       var submit = {
         tickets: specs,
-        printerObj: printerObj.id,
+        printer: printerObj.id,
       };
 
       return $http
