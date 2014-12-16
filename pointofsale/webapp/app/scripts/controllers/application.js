@@ -38,13 +38,13 @@ angular.module('webappApp')
       }
     };
     var doRefresh = function() {
-      if (!angular.isDefined($scope.configuration) || !angular.isDefined($scope.configuration.events)) {
+      if (!angular.isDefined($scope.configuration) || $scope.configuration === null || !angular.isDefined($scope.configuration.events) || $scope.configuration.events === null || $scope.configuration.events.length === 0) {
         return;
       }
 
       var oevs = $scope.configuration.events;
       event.refresh($scope.configuration.events).then(function(results) {
-        if ($scope.configuration.events !== oev) return; // something's different
+        if ($scope.configuration.events !== oevs) return; // something's different
         $scope.configuration.events = results;
       });
     };
