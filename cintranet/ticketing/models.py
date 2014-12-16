@@ -80,6 +80,8 @@ class Punter(models.Model):
         if resp.status_code != 200:
             return None
         cid = resp.text.strip()
+        if not cid:
+            return None
         punter = Punter.objects.filter(cid=cid)
         if not punter:
             return None
