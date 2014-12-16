@@ -8,7 +8,7 @@
  * Controller of the webappApp
  */
 angular.module('webappApp')
-  .controller('ApplicationCtrl', function ($scope, AUTH_EVENTS, events, $interval) {
+  .controller('ApplicationCtrl', function ($scope, AUTH_EVENTS, event, $interval) {
     $scope.currentUser = null;
     $scope.configuration = null;
     $scope.currentPunter = null;
@@ -43,7 +43,7 @@ angular.module('webappApp')
       }
 
       var oevs = $scope.configuration.events;
-      events.refresh($scope.configuration.events).then(function(results) {
+      event.refresh($scope.configuration.events).then(function(results) {
         if ($scope.configuration.events !== oev) return; // something's different
         $scope.configuration.events = results;
       });
