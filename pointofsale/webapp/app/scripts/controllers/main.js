@@ -39,6 +39,8 @@ angular.module('webappApp')
         // open the cash drawer
         printer.openDrawer($scope.configuration.printer);
       }
+      $scope.clearCart();
+      $scope.setCurrentPunter(null);
     };
     $scope.checkout = function(cart) {
       if (!cart || !cart.length) return;
