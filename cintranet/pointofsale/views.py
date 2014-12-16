@@ -1,5 +1,6 @@
 from decimal import Decimal
 import datetime
+from collections import OrderedDict
 
 from django.shortcuts import render
 from django.db.models import Q
@@ -166,7 +167,7 @@ class PunterViewSet(viewsets.ReadOnlyModelViewSet):
         punter = self.get_object()
         this_ticket_types = punter.available_tickets(events=events, on_door=(sale_point == 'on_door'), online=(sale_point == 'online'))
 
-        tt_dict = dict()
+        tt_dict = OrderedDict()
         for tt in all_ticket_types:
             tt_dict[tt.id] = tt
             tt_dict[tt.id].allowed = False
