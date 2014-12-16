@@ -84,7 +84,7 @@ class EventSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'start_time', 'tickets_count')
 
     def get_tickets_count(self, obj):
-        return obj.tickets.count()
+        return obj.tickets.filter(status__in=('live', 'pending_collection')).count()
 
 class TicketTypeSerializer(serializers.ModelSerializer):
     allowed = serializers.BooleanField()
