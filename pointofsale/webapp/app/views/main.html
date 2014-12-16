@@ -2,7 +2,7 @@
   <div class="events-col side-col">
     <h2>Events</h2>
     <ul class="event-list inverse-selected">
-      <li ng-repeat="event in configuration.events" class="event event-flat" ng-class="{'selected': event.id==currentEvent.id}" ng-click="selectEvent(event)"><strong>{{ event.name }}</strong> ({{ event.start_time|date:'HH:mm' }})</li>
+      <li ng-repeat="event in configuration.events" class="event event-flat" ng-class="{'selected': event.id==currentEvent.id}" ng-click="selectEvent(event)"><strong>{{ event.name }}</strong> ({{ event.start_time|date:'HH:mm' }} - {{ event.tickets_count }})</li>
     </ul>
   </div>
   <div class="tickets-col main-col">

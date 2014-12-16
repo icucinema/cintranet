@@ -77,9 +77,14 @@ class TicketViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(TicketSerializer(ticket).data)
 
 class EventSerializer(serializers.ModelSerializer):
+    tickets_count = serializers.SerializerMethodField()
+
     class Meta:
         model = ticketing.models.Event
-        fields = ('id', 'name', 'start_time')
+        fields = ('id', 'name', 'start_time', 'tickets_count')
+
+    def get_tickets_count(self, obj):
+        return obj.tickets.count()
 
 class TicketTypeSerializer(serializers.ModelSerializer):
     allowed = serializers.BooleanField()

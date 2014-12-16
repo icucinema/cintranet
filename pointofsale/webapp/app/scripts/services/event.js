@@ -8,7 +8,8 @@
  * Service in the webappApp.
  */
 angular.module('webappApp')
-  .service('event', function ($http) {
+  .service('event', function ($http, $q) {
+    var that = this;
     this.list = function(date) {
       return $http
         .get(
@@ -27,5 +28,9 @@ angular.module('webappApp')
         .then(function(resp) {
           return resp.data;
         });
+    };
+
+    this.refresh = function(events) {
+      return $q.all(events.map(function(event) { return that.getById(event.id); }));
     };
   });
