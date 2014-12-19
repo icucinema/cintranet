@@ -25,8 +25,7 @@ urlpatterns = patterns('',
     url(r'^events/ical/$', views.EventCalendar(), name='event_calendar'),
     url(r'^api/films/(?P<film_id>[0-9]+)/bor-data/(?P<show_week>20[0-9]{2}\-[0-9]{1,2}\-[0-9]{1,2})/$', views.generate_bor_information),
     url(r'^api/films/(?P<film_id>[0-9]+)/generate-bor-pdf/(?P<show_week>20[0-9]{2}\-[0-9]{1,2}\-[0-9]{1,2})/$', views.generate_bor_draft_pdf),
-    #url(r'^api/', include(api_router.urls)),
+    url(r'^api/', include(api_router.urls)),
     # need to work around an issue in rest_framework
     # so this is declared at the top level
 )
-api_urlpatterns = api_router.urls

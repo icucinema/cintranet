@@ -193,7 +193,7 @@ class GroupedShowingSerializer(serializers.Serializer):
         super(GroupedShowingSerializer, self).__init__(munged_dataset, *args, **kwargs)
 
 class ShowingsWeekSerializer(ModelSerializer):
-    start_time = serializers.DateTimeField()
+    start_time = serializers.DateTimeField(format='%Y-%m-%d')
     showings = ShowingSerializer(many=True)
     box_office_return = BoxOfficeReturnSerializer()
 

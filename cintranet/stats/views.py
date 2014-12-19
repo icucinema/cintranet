@@ -12,6 +12,7 @@ from django.views.generic.base import TemplateView, View
 from django.http import HttpResponse
 from django.db.models import Count, Sum
 from django.utils.timezone import now
+from django.db import connection
 
 from ticketing import models
 from . import models as smodels
@@ -208,6 +209,8 @@ class OverviewMoneyView(ReportView):
         event_dicts = []
         showings = {}
 
+        cursor = connection.cursor()
+
         for event in events:
             tickets = event.tickets.exclude(status='void')
             take = tickets.aggregate(take=Sum('ticket_type__sale_price'))['take'] or Decimal(0)
@@ -231,6 +234,7 @@ class OverviewMoneyView(ReportView):
 
             this_costing = dict(event_dict['costing'])
             this_costing['take'] = this_costing['take'] / len(event.showings.all())
+            this_costing['bor_cost'] = this_costing['bor_cost'] / len(event.showings.all())
 
             for showing in event.showings.all():
                 showing_dict = showings.setdefault(showing.id, {
@@ -325,7 +329,7 @@ class DashboardJsonView(View):
         today = datetime.date.today()
         if request.GET.get('date', None) is not None:
             today = datetime.datetime.strptime(request.GET.get('date'), '%Y-%m-%d')
-        tomorrow = today + datetime.timedelta(days=1)
+        tomorrow = today + datetime.timedelta(days=2)
         events = models.Showing.objects.filter(start_time__gte=today, start_time__lt=tomorrow)
 
         def format_punter(punter):
@@ -338,7 +342,7 @@ class DashboardJsonView(View):
         f_events = []
         event_event_ids = set()
         for e in events:
-            tix = e.tickets().filter(status='live').select_related('ticket_type')
+            tix = e.tickets().filter(status__in=('pending_collection', 'live')).select_related('ticket_type')
 
             take = Decimal('0')
             bor_cost = Decimal('0')
