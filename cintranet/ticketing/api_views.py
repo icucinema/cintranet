@@ -102,7 +102,7 @@ class FilmViewSet(viewsets.ModelViewSet):
     @list_route(methods=['get'])
     def search_tmdb(self, request, pk=None):
         results = models.Film.search_tmdb(request.GET.get('query'))
-        results = api_serializers.FilmSerializer(results, many=True).data
+        results = api_serializers.FilmSerializer(results, many=True, context={'request': request}).data
         return Response(results)
 
     @detail_route(methods=['GET'])
