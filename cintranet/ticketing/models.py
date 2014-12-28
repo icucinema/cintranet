@@ -332,6 +332,8 @@ class Film(models.Model):
 
     def fetch_tmdb_images(self, movie=None):
         if movie is None:
+            if not self.tmdb_id:
+                return {}
             movie = tmdb.Movies(self.tmdb_id)
             movie.info({'append_to_response': 'images'})
         self._images = {}
