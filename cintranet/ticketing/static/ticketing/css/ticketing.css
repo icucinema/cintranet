@@ -63,3 +63,10 @@ ul.bulleted-list > li {
 	content: " - ";
 	font-weight: bold;
 }
+
+.img-selector li {
+	float: left;
+	display: inline-block;
+	width: 20%;
+	padding: 0 2px;
+}

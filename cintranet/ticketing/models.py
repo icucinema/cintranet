@@ -302,13 +302,19 @@ class Film(models.Model):
 
     def update_tmdb(self):
         movie = tmdb.Movies(self.tmdb_id)
-        movie.info({'append_to_response': 'releases'})
+        movie.info({'append_to_response': 'releases,images'})
         self.name = movie.title
         self.description = movie.overview
         self.short_description = movie.overview
         self.imdb_id = movie.imdb_id
         self.poster_url = tmdb_construct_poster(movie.poster_path)
         self.hero_image_url = tmdb_construct_poster(movie.backdrop_path)
+        self._images = {}
+        for image_type, images in movie.images.iteritems():
+            self._images[image_type] = curr_images = []
+            for image in images:
+                image['url'] = tmdb_construct_poster(image['file_path'])
+                curr_images.append(image)
         for country in movie.releases['countries']:
             if country['iso_3166_1'] == 'GB':
                 self.certificate = country['certification']
@@ -319,11 +325,20 @@ class Film(models.Model):
             return
         txt = resp.text
         n = txt.find('<h5>Certification:</h5>')
+        if n == -1:
+            return
         txt = txt[n:]
         n = txt.find('</div>')
+        if n == -1:
+            return
         txt = txt[:n]
-        n = txt.find('">UK:') + len('">UK:')
+        n = txt.find('">UK:')
+        if n == -1:
+            return
+        n += len('">UK:')
         p = txt.find('</a>', n)
+        if p == -1:
+            return
         self.certificate = txt[n:p]
 
     def update_remote(self):

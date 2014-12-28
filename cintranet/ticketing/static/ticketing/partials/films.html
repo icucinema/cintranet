@@ -75,17 +75,31 @@ Showing <strong>{{ data.startAt }}</strong>-<strong>{{ data.endAt }}</strong> of
 					<label class="inline" for="manual-poster-url">Poster URL</label>
 					<input class="xxwide url input" id="manual-poster-url" ng-model="addFilm.manualItem.poster_url" type="url">
 				</li>
+				<li class="field" ng-if="addFilm.manualItem.images.posters">
+					<ul class="img-selector">
+						<li ng-repeat="img in addFilm.manualItem.images.posters track by img.file_path"><img ng-src="{{ img.url }}" ng-click="addFilm.manualItem.poster_url=img.url"></li>
+					</ul>
+				</li>
 				<li class="field">
 					<label class="inline" for="manual-hero-image-url">Hero Image URL</label>
 					<input class="xxwide url input" id="manual-hero-image-url" ng-model="addFilm.manualItem.hero_image_url" type="url">
 				</li>
+				<li class="field" ng-if="addFilm.manualItem.images.backdrops">
+					<ul class="img-selector">
+						<li ng-repeat="img in addFilm.manualItem.images.backdrops track by img.file_path"><img ng-src="{{ img.url }}" ng-click="addFilm.manualItem.hero_image_url=img.url"></li>
+					</ul>
+				</li>
 				<li class="field">
-					<label class="inline" for="manual-imdb-id">IMDb ID (http://www.imdb.com/title/<strong>tt000000</strong>/)</label>
+					<label class="inline" for="manual-imdb-id"><a target="_blank" ng-href="http://www.imdb.com/title/{{addFilm.manualItem.imdb_id}}">IMDb ID</a> (http://www.imdb.com/title/<strong>tt000000</strong>/)</label>
 					<input class="xxwide text input" id="manual-imdb-id" ng-model="addFilm.manualItem.imdb_id" type="text">
 				</li>
 				<li class="field">
-					<label class="inline" for="manual-tmdb-id">TMDB ID (http://www.themoviedb.org/movie/<strong>000000</strong>-my-favourite-film-ever/)</label>
+					<label class="inline" for="manual-tmdb-id"><a target="_blank" ng-href="http://www.themoviedb.org/movie/{{addFilm.manualItem.tmdb_id}}">TMDB ID</a> (http://www.themoviedb.org/movie/<strong>000000</strong>-my-favourite-film-ever/)</label>
 					<input class="xxwide text input" id="manual-tmdb-id" ng-model="addFilm.manualItem.tmdb_id" type="text">
+				</li>
+				<li class="field">
+					<label class="inline" for="manual-rotten-tomatoes-id"><a target="_blank" ng-href="http://www.rottentomatoes.com/m/{{addFilm.manualItem.rotten_tomatoes_id}}">Rotten Tomatoes ID</a> (http://www.rottentomatoes.com/m/<strong>000000000</strong>/)</label>
+					<input class="xxwide text input" id="manual-rotten-tomatoes-id" ng-model="addFilm.manualItem.rotten_tomatoes_id" type="text">
 				</li>
 				<li class="field">
 					<label class="inline" for="manual-distributor">Distributor</label>

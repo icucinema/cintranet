@@ -121,12 +121,16 @@ class PunterSerializer(ModelSerializer):
 
 class FilmSerializer(ModelSerializer):
     distributor = DistributorSerializer()
+    images = serializers.SerializerMethodField()
+
+    def get_images(self, obj):
+        return getattr(obj, '_images', None)
 
     class Meta:
         model = models.Film
         fields = (
             'url', 'id', 'name', 'description', 'tmdb_id', 'imdb_id', 'rotten_tomatoes_id', 'poster_url', 'hero_image_url', 'certificate',
-            'is_public', 'distributor'
+            'is_public', 'distributor', 'images'
         )
 
 class FlatFilmSerializer(ModelSerializer):
