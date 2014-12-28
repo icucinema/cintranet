@@ -18,6 +18,7 @@ class TicketTypeSerializer(ModelSerializer):
             'url', 'id',
             'name',
             'event',
+            'template',
             'box_office_return_price', 'sale_price'
         )
 
@@ -123,8 +124,15 @@ class FilmSerializer(ModelSerializer):
     distributor = DistributorSerializer()
     images = serializers.SerializerMethodField()
 
+    def __init__(self, *args, **kwargs):
+        super(FilmSerializer, self).__init__(*args, **kwargs)
+
+        self.with_images = False
+        if 'request' in self.context and self.context['request'].query_params.get('with_images'):
+            self.with_images = True
+
     def get_images(self, obj):
-        if hasattr(self, 'parent') and hasattr(self.parent, 'many') and self.parent.many:
+        if not self.with_images:
             return {}
 
         images = getattr(obj, '_images', None)
@@ -160,7 +168,7 @@ class ShowingSerializer(ModelSerializer):
 
 class FlatShowingSerializer(ModelSerializer):
     primary_event = serializers.HyperlinkedRelatedField(read_only=True, required=False, view_name='event-detail')
-    film = serializers.HyperlinkedRelatedField(required=True, source='film', view_name='film-detail', queryset=models.Film.objects.all())
+    film = serializers.HyperlinkedRelatedField(required=True, view_name='film-detail', queryset=models.Film.objects.all())
 
     class Meta:
         model = models.Showing

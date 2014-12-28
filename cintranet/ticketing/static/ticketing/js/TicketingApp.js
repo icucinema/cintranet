@@ -533,7 +533,7 @@ app.controller('FilmsCtrl', function($rootScope, $scope, $routeParams, $location
 			$scope.addFilm.resultsFor = null;
 			$scope.addFilm.results = [];
 			var st = $scope.addFilm.search;
-			films.customGETLIST('search_tmdb', {'query': st}).then(function(res) {
+			films.customGETLIST('search_tmdb', {'query': st, 'with_images': true}).then(function(res) {
 				$scope.addFilm.searching = false;
 				$scope.addFilm.resultsFor = st;
 				$scope.addFilm.results = res;
@@ -569,7 +569,7 @@ app.controller('FilmCtrl', function($rootScope, $scope, $routeParams, $location,
 	var filmId = parseInt($routeParams.id, 10);
 
 	var film = Restangular.one('films', filmId);
-	film.get().then(function(res) {
+	film.get({'with_images': true}).then(function(res) {
 		$scope.loading = false;
 		$scope.data = res;
 	});
