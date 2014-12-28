@@ -19,7 +19,10 @@ class TicketTypeSerializer(ModelSerializer):
             'name',
             'event',
             'template',
-            'box_office_return_price', 'sale_price'
+            'box_office_return_price', 'sale_price',
+            'is_public',
+            'sell_online', 'sell_on_the_door',
+            'general_availability',
         )
 
 class TicketTemplateSerializer(ModelSerializer):
@@ -29,7 +32,10 @@ class TicketTemplateSerializer(ModelSerializer):
             'url', 'id',
             'name',
             'event_type',
-            'box_office_return_price', 'sale_price'
+            'box_office_return_price', 'sale_price',
+            'is_public',
+            'sell_online', 'sell_on_the_door',
+            'general_availability',
         )
 
 class EventTypeSerializer(ModelSerializer):
