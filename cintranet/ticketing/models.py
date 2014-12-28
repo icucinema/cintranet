@@ -561,6 +561,7 @@ class BaseTicketInfo(models.Model):
     )
     name = models.CharField(max_length=128, null=False, blank=False)
     print_template_extension = models.CharField(max_length=64, null=False, blank=True, default='')
+    is_public = models.BooleanField(default=False, null=False, help_text="Display on website?")
 
     objects = InheritanceManager()
 
@@ -597,6 +598,7 @@ class TicketType(BaseTicketInfo):
             'sale_price',
             'name',
             'print_template_extension',
+            'is_public',
             'box_office_return_price'
         )
         tt = cls(

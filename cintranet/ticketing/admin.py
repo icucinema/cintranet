@@ -16,11 +16,11 @@ admin.site.register(models.EventType)
 admin.site.register(models.Event)
 
 class TicketTypeAdmin(admin.ModelAdmin):
-    list_display = ('event', 'name', 'sale_price')
+    list_display = ('event', 'name', 'sale_price', 'is_public')
 admin.site.register(models.TicketType, TicketTypeAdmin)
 
 class TicketTemplateAdmin(admin.ModelAdmin):
-    list_display = ('name', 'sale_price', 'sell_online', 'sell_on_the_door', 'general_availability')
+    list_display = ('name', 'sale_price', 'sell_online', 'sell_on_the_door', 'general_availability', 'is_public')
 admin.site.register(models.TicketTemplate, TicketTemplateAdmin)
 
 class EntitlementAdmin(admin.ModelAdmin):
