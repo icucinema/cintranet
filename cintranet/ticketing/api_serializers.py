@@ -124,6 +124,9 @@ class FilmSerializer(ModelSerializer):
     images = serializers.SerializerMethodField()
 
     def get_images(self, obj):
+        if hasattr(self, 'parent') and hasattr(self.parent, 'many') and self.parent.many:
+            return {}
+
         images = getattr(obj, '_images', None)
         if images:
             return images
