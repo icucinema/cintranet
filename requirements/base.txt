@@ -25,3 +25,5 @@ django-reversion==1.8
 django-impersonate==0.9b1
 
 carrot==0.10.7
+
+django_extensions==1.4.9
