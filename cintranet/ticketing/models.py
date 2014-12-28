@@ -325,15 +325,23 @@ class Film(models.Model):
         self.imdb_id = movie.imdb_id
         self.poster_url = tmdb_construct_poster(movie.poster_path)
         self.hero_image_url = tmdb_construct_poster(movie.backdrop_path)
+        for country in movie.releases['countries']:
+            if country['iso_3166_1'] == 'GB':
+                self.certificate = country['certification']
+        self.fetch_tmdb_images(movie)
+
+    def fetch_tmdb_images(self, movie=None):
+        if movie is None:
+            movie = tmdb.Movies(self.tmdb_id)
+            movie.info({'append_to_response': 'images'})
         self._images = {}
         for image_type, images in movie.images.iteritems():
             self._images[image_type] = curr_images = []
             for image in images:
                 image['url'] = tmdb_construct_poster(image['file_path'])
                 curr_images.append(image)
-        for country in movie.releases['countries']:
-            if country['iso_3166_1'] == 'GB':
-                self.certificate = country['certification']
+        return self._images
+
 
     def update_imdb(self):
         resp = requests.get("http://www.imdb.com/title/{}/parentalguide".format(self.imdb_id))

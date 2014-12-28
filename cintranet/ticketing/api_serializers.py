@@ -124,7 +124,10 @@ class FilmSerializer(ModelSerializer):
     images = serializers.SerializerMethodField()
 
     def get_images(self, obj):
-        return getattr(obj, '_images', None)
+        images = getattr(obj, '_images', None)
+        if images:
+            return images
+        return obj.fetch_tmdb_images()
 
     class Meta:
         model = models.Film

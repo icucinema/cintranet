@@ -17,12 +17,22 @@
 				<div ng-show="data.poster_url || editing">
 					<dt>Poster</dt>
 						<dd ng-hide="editing"><a target="_blank" ng-href="{{ data.poster_url }}"><img ng-src="{{ data.poster_url }}" style="max-height:200px;width:auto;"></a></dd>
-						<dd ng-show="editing" class="field"><input type="url" class="xxwide url input" ng-model="edit_data.poster_url"></dd>
+						<dd ng-show="editing" class="field">
+							<input type="url" class="xxwide url input" ng-model="edit_data.poster_url">
+							<ul class="img-selector">
+								<li ng-repeat="img in edit_data.images.posters track by img.file_path" ng-class="{'img-selected': img.url==edit_data.poster_url}"><img ng-src="{{ img.url }}" ng-click="edit_data.poster_url=img.url"></li>
+							</ul>
+						</dd>
 				</div>
 				<div ng-show="data.hero_image_url || editing">
 					<dt>Hero Image</dt>
 						<dd ng-hide="editing"><a target="_blank" ng-href="{{ data.hero_image_url }}"><img ng-src="{{ data.hero_image_url }}" style="max-height:200px;width:auto;"></a></dd>
-						<dd ng-show="editing" class="field"><input type="url" class="xxwide url input" ng-model="edit_data.hero_image_url"></dd>
+						<dd ng-show="editing" class="field">
+							<input type="url" class="xxwide url input" ng-model="edit_data.hero_image_url">
+							<ul class="img-selector">
+								<li ng-repeat="img in edit_data.images.backdrops track by img.file_path" ng-class="{'img-selected': img.url==edit_data.hero_image_url}"><img ng-src="{{ img.url }}" ng-click="edit_data.hero_image_url=img.url"></li>
+							</ul>
+						</dd>
 				</div>
 				<dt>Distributor</dt>
 					<dd ng-hide="editing"><a ng-href="#/distributors/{{ data.distributor.id }}">{{ data.distributor.name }}</a></dd>

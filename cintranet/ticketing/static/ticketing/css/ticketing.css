@@ -70,3 +70,9 @@ ul.bulleted-list > li {
 	width: 20%;
 	padding: 0 2px;
 }
+.img-selector img {
+	border: 2px solid transparent;
+}
+.img-selector .img-selected img {
+	border: 2px solid red;
+}
