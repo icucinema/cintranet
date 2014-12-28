@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'impersonate',
     'reversion',
+    'django_extensions',
 
     'sitewide',
     'auth',
@@ -183,6 +184,7 @@ TICKETING_SEASON_ENTITLEMENT = 2
 TICKETING_STANDARD_EVENT_TYPE = 1
 TICKETING_DOUBLEBILL_EVENT_TYPE = 2
 TMDB_API_KEY = "91555fc0d844a9ff2177850a87a88294"
+RT_API_KEY = "ws8fjdpxjuyb8bk3dmp34gss"
 
 INTERNAL_IPS = [
 	'127.0.0.1',

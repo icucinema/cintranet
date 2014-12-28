@@ -16,12 +16,14 @@ from model_utils.managers import InheritanceManager
 from model_utils.fields import StatusField
 from model_utils import Choices
 from tmdbsimple import TMDB
+from rottentomatoes import RT
 import requests
 
 ACCEPTABLE_CHARACTERS_RE = re.compile(r'[^abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\' \-_]+')
 Q = models.Q
 F = models.F
 tmdb = TMDB(settings.TMDB_API_KEY)
+rt = RT(settings.RT_API_KEY)
 _tmdb_conf = None
 tmdb_url_re = re.compile(r'^https?://[a-z\.]+/movie/(?P<tmdb_id>\d+)-.*$')
 imdb_url_re = re.compile(r'^https?://[a-z\.]+/title/tt(?P<imdb_id>\d+)/?.*$')
@@ -295,10 +297,24 @@ class Film(models.Model):
         return self
 
     @classmethod
+    def annotate_with_rottentomatoes(cls, obj):
+        search = rt.search(obj.name)
+        if not search:
+            return obj
+        obj.rotten_tomatoes_id = None
+        for result in search:
+            if result['title'] == obj.name: # look for an exact name
+                obj.rotten_tomatoes_id = result['id']
+                break
+        else:
+            obj.rotten_tomatoes_id = search[0]['id'] # or just get the first match...
+        return obj
+
+    @classmethod
     def search_tmdb(cls, query):
         search = tmdb.Search()
         search.movie({'query': query})
-        return [cls.from_tmdb(r['id']) for r in search.results]
+        return [cls.annotate_with_rottentomatoes(cls.from_tmdb(r['id'])) for r in search.results]
 
     def update_tmdb(self):
         movie = tmdb.Movies(self.tmdb_id)
