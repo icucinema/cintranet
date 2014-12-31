@@ -229,12 +229,14 @@ class Film(models.Model):
     tmdb_id = models.PositiveIntegerField(null=True, blank=True)
     imdb_id = models.CharField(max_length=20, null=False, blank=True, default="")
     rotten_tomatoes_id = models.CharField(max_length=20, null=False, blank=True, default="")
+    youtube_id = models.CharField(max_length=20, null=False, blank=True, default="")
 
     name = models.CharField(max_length=256, default="", null=False, blank=False)
     sorting_name = models.CharField(max_length=256, null=False, blank=False)
     description = models.TextField(default="", null=False, blank=True)
     short_description = models.TextField(default="", null=False, blank=True)
     certificate = models.CharField(max_length=12, default="", null=False, blank=False)
+    length = models.PositiveSmallIntegerField(default=None, null=True, blank=True)
 
     poster_url = models.URLField(blank=True, null=False, default="")
     hero_image_url = models.URLField(blank=True, null=False, default="")
@@ -316,19 +318,33 @@ class Film(models.Model):
         search.movie({'query': query})
         return [cls.annotate_with_rottentomatoes(cls.from_tmdb(r['id'])) for r in search.results]
 
-    def update_tmdb(self):
+    def update_tmdb(self, force_update_images=False, force_update_video=False):
         movie = tmdb.Movies(self.tmdb_id)
-        movie.info({'append_to_response': 'releases,images'})
+        movie.info({'append_to_response': 'releases,images,videos'})
+
+        self.fetch_tmdb_images(movie)
+        self.fetch_tmdb_videos(movie)
+
         self.name = movie.title
         self.description = movie.overview
         self.short_description = movie.overview
         self.imdb_id = movie.imdb_id
-        self.poster_url = tmdb_construct_poster(movie.poster_path)
-        self.hero_image_url = tmdb_construct_poster(movie.backdrop_path)
+        self.length = movie.runtime
+
         for country in movie.releases['countries']:
             if country['iso_3166_1'] == 'GB':
                 self.certificate = country['certification']
-        self.fetch_tmdb_images(movie)
+                break
+
+        if not self.poster_url or force_update_images:
+            self.poster_url = tmdb_construct_poster(movie.poster_path)
+        if not self.hero_image_url or force_update_images:
+            self.hero_image_url = tmdb_construct_poster(movie.backdrop_path)
+
+        if not self.youtube_id or force_update_video:
+            trailers = filter(lambda video: video.type == 'Trailer', self._videos)
+            if trailers:
+                self.youtube_id = trailers[0]['key']
 
     def fetch_tmdb_images(self, movie=None):
         if movie is None:
@@ -336,14 +352,25 @@ class Film(models.Model):
                 return {}
             movie = tmdb.Movies(self.tmdb_id)
             movie.info({'append_to_response': 'images'})
+
         self._images = {}
         for image_type, images in movie.images.iteritems():
             self._images[image_type] = curr_images = []
             for image in images:
                 image['url'] = tmdb_construct_poster(image['file_path'])
                 curr_images.append(image)
+
         return self._images
 
+    def fetch_tmdb_videos(self, movie=None):
+        if movie is None:
+            if not self.tmdb_id:
+                return {}
+            movie = tmdb.Movies(self.tmdb_id)
+            movie.info({'append_to_response': 'videos'})
+
+        self._videos = filter(lambda video: video.site == 'YouTube', movie.videos)
+        return self._videos
 
     def update_imdb(self):
         resp = requests.get("http://www.imdb.com/title/{}/parentalguide".format(self.imdb_id))
