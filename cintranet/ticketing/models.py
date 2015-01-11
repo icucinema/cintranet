@@ -175,7 +175,7 @@ class Punter(models.Model):
             )
             if c:
                 entitlements_created += 1
-                more_write_to(u'Added {} to https://staff.wide.icucinema.co.uk/ticketing/#/punters/{}'.format(eobj.entitlement.name, obj.id))
+                more_write_to(u'Added {} to https://staff.icucinema.co.uk/ticketing/#/punters/{}'.format(eobj.entitlement.name, obj.id))
             if c and not created:
                 obj.comment += '\n' + note
                 should_save = True
@@ -188,7 +188,7 @@ class Punter(models.Model):
                     ticket = Ticket(punter=obj, ticket_type_id=tt_id, status='pending_collection', transaction_id=order_num)
                     ticket.save()
                     entitlements_created += 1
-                more_write_to(u'[{}] Granted {} to https://staff.wide.icucinema.co.uk/ticketing/#/punters/{}'.format(quantity_bought - tt_count, ticket.ticket_type, obj.id))
+                more_write_to(u'[{}] Granted {} to https://staff.icucinema.co.uk/ticketing/#/punters/{}'.format(quantity_bought - tt_count, ticket.ticket_type, obj.id))
                 
         if should_save:
             obj.save() # in case comment has changed
