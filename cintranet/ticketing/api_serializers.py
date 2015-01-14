@@ -129,13 +129,17 @@ class PunterSerializer(ModelSerializer):
 class FilmSerializer(ModelSerializer):
     distributor = DistributorSerializer()
     images = serializers.SerializerMethodField()
+    videos = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
         super(FilmSerializer, self).__init__(*args, **kwargs)
 
         self.with_images = False
+        self.with_videos = False
         if 'request' in self.context and self.context['request'].query_params.get('with_images'):
             self.with_images = True
+        if 'request' in self.context and self.context['request'].query_params.get('with_videos'):
+            self.with_videos = True
 
     def get_images(self, obj):
         if not self.with_images:
@@ -146,19 +150,28 @@ class FilmSerializer(ModelSerializer):
             return images
         return obj.fetch_tmdb_images()
 
+    def get_videos(self, obj):
+        if not self.with_videos:
+            return {}
+
+        videos = getattr(obj, '_videos', None)
+        if videos:
+            return videos
+        return obj.fetch_tmdb_videos()
+
     class Meta:
         model = models.Film
         fields = (
-            'url', 'id', 'name', 'description', 'tmdb_id', 'imdb_id', 'rotten_tomatoes_id', 'poster_url', 'hero_image_url', 'certificate',
-            'is_public', 'distributor', 'images'
+            'url', 'id', 'name', 'description', 'short_description', 'tmdb_id', 'imdb_id', 'rotten_tomatoes_id', 'poster_url', 'hero_image_url', 'certificate',
+            'is_public', 'distributor', 'images', 'videos', 'youtube_id', 'length'
         )
 
 class FlatFilmSerializer(ModelSerializer):
     class Meta:
         model = models.Film
         fields = (
-            'url', 'id', 'name', 'description', 'tmdb_id', 'imdb_id', 'rotten_tomatoes_id', 'poster_url', 'hero_image_url', 'certificate',
-            'is_public', 'distributor'
+            'url', 'id', 'name', 'description', 'short_description', 'tmdb_id', 'imdb_id', 'rotten_tomatoes_id', 'poster_url', 'hero_image_url', 'certificate',
+            'is_public', 'distributor', 'youtube_id', 'length'
         )
 
 class ShowingSerializer(ModelSerializer):

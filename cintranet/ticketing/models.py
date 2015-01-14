@@ -342,7 +342,7 @@ class Film(models.Model):
             self.hero_image_url = tmdb_construct_poster(movie.backdrop_path)
 
         if not self.youtube_id or force_update_video:
-            trailers = filter(lambda video: video.type == 'Trailer', self._videos)
+            trailers = filter(lambda video: video['type'] == 'Trailer', self._videos)
             if trailers:
                 self.youtube_id = trailers[0]['key']
 
@@ -369,7 +369,7 @@ class Film(models.Model):
             movie = tmdb.Movies(self.tmdb_id)
             movie.info({'append_to_response': 'videos'})
 
-        self._videos = filter(lambda video: video.site == 'YouTube', movie.videos['results'])
+        self._videos = filter(lambda video: video['site'] == 'YouTube', movie.videos['results'])
         return self._videos
 
     def update_imdb(self):

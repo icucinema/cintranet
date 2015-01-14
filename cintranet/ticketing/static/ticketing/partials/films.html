@@ -64,6 +64,10 @@ Showing <strong>{{ data.startAt }}</strong>-<strong>{{ data.endAt }}</strong> of
 					<input class="xxwide text input" id="manual-name" ng-model="addFilm.manualItem.name" type="text">
 				</li>
 				<li class="field">
+					<label class="inline" for="manual-short-description">Synopsis</label>
+					<textarea class="xxwide textarea input" id="manual-short-description" ng-model="addFilm.manualItem.short_description"></textarea>
+				</li>
+				<li class="field">
 					<label class="inline" for="manual-description">Description</label>
 					<textarea class="xxwide textarea input" id="manual-description" ng-model="addFilm.manualItem.description"></textarea>
 				</li>
@@ -77,7 +81,7 @@ Showing <strong>{{ data.startAt }}</strong>-<strong>{{ data.endAt }}</strong> of
 				</li>
 				<li class="field" ng-if="addFilm.manualItem.images.posters">
 					<ul class="img-selector">
-						<li ng-repeat="img in addFilm.manualItem.images.posters track by img.file_path"><img ng-src="{{ img.url }}" ng-click="addFilm.manualItem.poster_url=img.url"></li>
+						<li ng-repeat="img in addFilm.manualItem.images.posters track by img.file_path" ng-class="{'img-selected': img.url==addFilm.manualItem.poster_url}"><img ng-src="{{ img.url }}" ng-click="addFilm.manualItem.poster_url=img.url"></li>
 					</ul>
 				</li>
 				<li class="field">
@@ -86,7 +90,16 @@ Showing <strong>{{ data.startAt }}</strong>-<strong>{{ data.endAt }}</strong> of
 				</li>
 				<li class="field" ng-if="addFilm.manualItem.images.backdrops">
 					<ul class="img-selector">
-						<li ng-repeat="img in addFilm.manualItem.images.backdrops track by img.file_path"><img ng-src="{{ img.url }}" ng-click="addFilm.manualItem.hero_image_url=img.url"></li>
+						<li ng-repeat="img in addFilm.manualItem.images.backdrops track by img.file_path" ng-class="{'img-selected': img.url==addFilm.manualItem.hero_image_url}"><img ng-src="{{ img.url }}" ng-click="addFilm.manualItem.hero_image_url=img.url"></li>
+					</ul>
+				</li>
+				<li class="field">
+					<label class="inline" for="manual-youtube-id">Trailer (YouTube ID)</label>
+					<input type="text" class="xxwide text input" ng-model="addFilm.manualItem.youtube_id">
+				</div>
+				<li class="field" ng-if="addFilm.manualItem.videos">
+					<ul class="img-selector">
+						<li ng-repeat="video in addFilm.manualItem.videos track by video.key" ng-class="{'img-selected': video.key==addFilm.manualItem.youtube_id}"><img ng-src="//img.youtube.com/vi/{{ video.key }}/hqdefault.jpg" ng-click="addFilm.manualItem.youtube_id=video.key"><a href="http://www.youtube.com/watch?v={{ video.key }}" target="_blank">Watch ({{ video.name }})</a></li>
 					</ul>
 				</li>
 				<li class="field">

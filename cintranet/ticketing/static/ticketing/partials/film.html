@@ -4,6 +4,11 @@
 	<tabs>
 		<tab tab-title="Information">
 			<dl>
+				<div ng-show="data.short_description || editing">
+					<dt>Synopsis</dt>
+						<dd ng-hide="editing">{{ data.short_description }}</dd>
+						<dd ng-show="editing" class="field"><textarea class="input textarea" ng-model="edit_data.short_description" rows="4"></textarea></dd>
+				</div>
 				<div ng-show="data.description || editing">
 					<dt>Description</dt>
 						<dd ng-hide="editing">{{ data.description }}</dd>
@@ -13,6 +18,11 @@
 					<dt>Certificate</dt>
 						<dd ng-hide="editing">{{ data.certificate }}</dd>
 						<dd ng-show="editing" class="field"><input type="text" class="xxwide text input" ng-model="edit_data.certificate"></dd>
+				</div>
+				<div ng-show="data.length || editing">
+					<dt>Runtime (minutes)</dt>
+						<dd ng-hide="editing">{{ data.length }}</dd>
+						<dd ng-show="editing" class="field"><input type="number" class="xxwide text input" ng-model="edit_data.length"></dd>
 				</div>
 				<div ng-show="data.poster_url || editing">
 					<dt>Poster</dt>
@@ -31,6 +41,16 @@
 							<input type="url" class="xxwide url input" ng-model="edit_data.hero_image_url">
 							<ul class="img-selector">
 								<li ng-repeat="img in edit_data.images.backdrops track by img.file_path" ng-class="{'img-selected': img.url==edit_data.hero_image_url}"><img ng-src="{{ img.url }}" ng-click="edit_data.hero_image_url=img.url"></li>
+							</ul>
+						</dd>
+				</div>
+				<div ng-show="data.youtube_id || editing">
+					<dt>Trailer</dt>
+					<dd ng-hide="editing"><a target="_blank" ng-href="//www.youtube.com/watch?v={{ data.youtube_id }}"><img ng-src="//img.youtube.com/vi/{{ data.youtube_id }}/hqdefault.jpg" style="height: 100px"><br>YouTube</a></dd>
+						<dd ng-show="editing" class="field">
+							<input type="text" class="xxwide url input" ng-model="edit_data.youtube_id">
+							<ul class="img-selector">
+								<li ng-repeat="video in edit_data.videos track by video.key" ng-class="{'img-selected': video.key==edit_data.youtube_id}"><img ng-src="//img.youtube.com/vi/{{ video.key }}/hqdefault.jpg" ng-click="edit_data.youtube_id=video.key"><a href="http://www.youtube.com/watch?v={{ video.key }}" target="_blank">Watch ({{ video.name }})</a></li>
 							</ul>
 						</dd>
 				</div>

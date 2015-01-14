@@ -92,12 +92,12 @@ class FilmViewSet(viewsets.ModelViewSet):
             return self.serializer_class
         return api_serializers.FlatFilmSerializer
 
-    @detail_route()
+    @detail_route(methods=['post'])
     def update_remote(self, request, pk=None):
         film = self.get_object()
         film.update_remote()
         film.save()
-        return Response(api_serializers.FilmSerializer(film).data)
+        return Response(api_serializers.FilmSerializer(film, context={'request': request}).data)
 
     @list_route(methods=['get'])
     def search_tmdb(self, request, pk=None):
