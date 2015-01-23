@@ -19,7 +19,7 @@ from cintranet.utils import IRCCatPinger
 THIS_YEAR = 2014
 THIS_YEARS_MEMBERSHIP_ID = 8066
 LAST_YEARS_MEMBERSHIP_ID = 4995
-EHACK_URL = 'http://146.169.44.88:5000'
+EHACK_URL = 'http://ehacktivities.lukegb.com:5000'
 
 class Command(BaseCommand):
     args = 'eactivities_session_key'
