@@ -615,7 +615,7 @@ app.controller('FilmCtrl', function($rootScope, $scope, $routeParams, $location,
 		return '#/films/' + film.id + '/createBor/' + show_week_date;
 	};
 	$scope.borUrl = function(bor) {
-		return $scope.mediaify(bor.pdf_file+"/__fn/"+bor.fake_filename);
+		return bor.pdf_file+"/__fn/"+bor.fake_filename;
 	};
 });
 app.controller('PuntersCtrl', function($rootScope, $scope, $routeParams, $location, Restangular) {
