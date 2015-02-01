@@ -7,7 +7,7 @@ def get_button_class(sold, initial):
     btn_class = 'info'
 
     if initial is None:
-        return 'inverse'
+        return btn_class
 
     danger_max = initial * 0.2
     warning_max = initial * 0.4
