@@ -45,6 +45,7 @@ class Command(BaseCommand):
         with transaction.atomic():
             try:
                 self.ehack = requests.session()
+                print session
                 self.ehack.headers['Authorization'] = 'Token ' + self.ehack.post('{}/session'.format(EHACK_URL), data={'session': session}).json()['token']
 
                 self.update_membership_blob()

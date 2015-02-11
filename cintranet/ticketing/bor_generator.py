@@ -67,7 +67,7 @@ def build_agg_data_for_show_week(film, show_week):
             tt_name = ticket_type_count['ticket_type__name']
             sold_count = ticket_type_count['count']
 
-            bor_price /= m.TicketType.objects.get(pk=ticket_type_count['ticket_type__id']).event.showings.all().count()
+            #bor_price /= m.TicketType.objects.get(pk=ticket_type_count['ticket_type__id']).event.showings.all().count()
     
             this_take = bor_price * sold_count
     
@@ -82,7 +82,7 @@ def build_agg_data_for_show_week(film, show_week):
             refunded_count = ticket_type_count['count']
     
             this_refunded = bor_price * refunded_count
-            this_refunded /= m.TicketType.objects.get(pk=ticket_type_count['ticket_type__id']).event.showings.all().count()
+            #this_refunded /= m.TicketType.objects.get(pk=ticket_type_count['ticket_type__id']).event.showings.all().count()
     
             update_showing_agg_data(showing_agg_data, tt_name, bor_price, {
                 'refund_count': refunded_count,

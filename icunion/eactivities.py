@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime, timedelta
 import re
 from decimal import Decimal
 from io import BytesIO
@@ -14,6 +15,22 @@ DEBUG = False
 TOTAL_NET_SALE_RE = re.compile(r"^Total Net Sale \([^)]+\)$")
 PRICE_INC_VAT_RE = re.compile(r"^Price inc. VAT/Unit \([^)]+\)$")
 
+class EActivitiesEvent(object):
+    def __init__(self):
+        self.centre = 172
+        self.event_type = 3
+        self.name = ''
+        self.description = ''
+        self.postcode = ''
+        self.start_date = datetime.now()
+        self.end_date = datetime.now() + timedelta(seconds=60*60)
+        self.banner_image = None
+
+    def __unicode__(self):
+        return u'EActivitiesEvent: "{}" ({}) start:{} end:{}'.format(self.name, self.description, self.start_date, self.end_date)
+    def __str__(self):
+        return unicode(self).encode('utf-8')
+
 class MemberListMunger(object):
     def __init__(self, itera, associate_pairs):
         self.itera = itera
@@ -23,7 +40,7 @@ class MemberListMunger(object):
         return self
 
     def munge(self, record):
-        rr = [record['First Name'], record['Last Name']]
+        rr = [record['First Name'], record['Surname']]
         record['Status'] = 'full'
         naps = list(self.associate_pairs)
         for rb in self.associate_pairs:
@@ -62,6 +79,10 @@ class EActivities(object):
     @property
     def _ajax_handler_url(self):
         return "https://{}/common/ajax_handler.php".format(self.base_domain)
+
+    @property
+    def _file_handler_url(self):
+        return "https://{}/common/file_handler.php".format(self.base_domain)
 
     def _members_report_start_url(self, club_id):
         return "https://{}/admin/csp/details/{}".format(self.base_domain, club_id)
@@ -125,6 +146,37 @@ class EActivities(object):
             print "Got status code", resp.status_code
 
         return resp
+
+    def upload_file(self, navigate, filename, file_data, file_mime):
+        file_data = {'files[]': (filename, file_data, file_mime)}
+        if DEBUG:
+            print "Uploading file..."
+        resp = self.r.post(self._file_handler_url, files=file_data, data={'navigate': navigate})
+        resp.encoding = 'utf8'
+        if DEBUG:
+            print "Got status code", resp.status_code, resp.text
+        resp.raise_for_status()
+        return u'returnvalue">0' in resp.text
+
+    def create_event(self, event):
+        self._request_page("https://{}/admin/csp/whatson".format(self.base_domain)).raise_for_status()
+        self._ajax_handler(ajax='setup', navigate='2780')
+        kws = {
+            'data[2794]': event.centre,
+            'data[2782]': event.event_type,
+            'data[2783]': event.name,
+            'data[2784]': event.description,
+            'data[2788]': event.location,
+            'data[4123]': event.postcode,
+            'data[2786]': event.start_date.strftime('%Y-%m-%d %H:%M:%S'),
+            'data[2787]': event.end_date.strftime('%Y-%m-%d %H:%M:%S'),
+        }
+        self._ajax_handler(ajax='insertsql', navigate='2781', **kws)
+        self._ajax_handler(ajax='update', navigate='2781')
+        if event.banner_image:
+            self.upload_file('2791', 'hi-ajc.jpg', event.banner_image, 'image/jpeg')
+            self._ajax_handler(ajax='update', navigate='1211')
+        self._ajax_handler(ajax='submit', navigate='2781', Submitted='1', ajax_id='0', ajax_type='2')
 
     def read_associate_members_list(self, mlxml):
         s = BeautifulSoup(mlxml)

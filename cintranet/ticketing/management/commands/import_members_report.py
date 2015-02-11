@@ -123,7 +123,7 @@ class Command(BaseCommand):
     def handle_member(self, csv_row, entitlements):
         # massage the data set
         cid = csv_row['CID']
-        name = u"{} {}".format(csv_row['First Name'], csv_row['Last Name'])
+        name = u"{} {}".format(csv_row['First Name'], csv_row['Surname'])
         note = u"Bought membership on {} (order no {})".format(
             csv_row['Date'],
             csv_row['Order No']
