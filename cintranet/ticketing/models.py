@@ -139,6 +139,10 @@ class Punter(models.Model):
         quantity_bought = int(csv_row.get('Quantity', 1))
         order_num = csv_row.get('Order No', '')
 
+        name = name.strip()
+        if name == '':
+            name = username or email
+
         filter_on = {}
         if cid != '' and not cid.startswith('AM-'):
             filter_on = {'cid': cid}
