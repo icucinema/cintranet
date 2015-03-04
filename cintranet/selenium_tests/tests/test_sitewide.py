@@ -72,6 +72,70 @@ class MainAppTestCase(SeleniumTestCase):
         self.assertIn('Members:', members_btn.text)
         self.assertIn('400', members_btn.text)
 
+    def test_product_count(self):
+        # Some nitwit creates 3 products, of which 2 are on sale
+        Product.objects.create(name='Flibbit', currently_available=True, union_url='/', sold=0, initial=300)
+        Product.objects.create(name='Widget', currently_available=True, union_url='/', sold=200, initial=300)
+        Product.objects.create(name='Arc Welder', currently_available=False, union_url='/', sold=10, initial=10)
+
+        # Gwen opens the homepage
+        self.open('/')
+
+        # She notices that there are products displayed
+        btns = self.wd.find_elements_by_css_selector('.row .twelve.columns .btn.medium')
+
+        # She notices that there are 3 buttons
+        self.assertEqual(len(btns), 3)
+
+        # She notices that there is a button for the two products on sale
+        for product_name in ['Flibbit sold on shop', 'Widget sold on shop']:
+            self.assertTrue(
+                any(product_name in btn.text for btn in btns)
+            )
+        # but not one for the Arc Welder
+        self.assertFalse(
+            any('Arc Welder' in btn.text for btn in btns)
+        )
+
+        # She notices that the Flibbit button is red
+        self.assertTrue(
+            all('danger' in btn.get_attribute('class') for btn in btns if 'Flibbit' in btn.text)
+        )
+        # but that the Widget button is green
+        self.assertTrue(
+            all('success' in btn.get_attribute('class') for btn in btns if 'Widget' in btn.text)
+        )
+
+        # Someone buys 90 Flibbits
+        Product.objects.filter(name='Flibbit').update(sold=90)
+
+        # Gwen refreshes the page
+        self.open('/')
+        btns = self.wd.find_elements_by_css_selector('.row .twelve.columns .btn.medium')
+
+        # There are still 3 buttons
+        self.assertEqual(len(btns), 3)
+
+        # But now the Flibbit button is yellow
+        self.assertTrue(
+            all('warning' in btn.get_attribute('class') for btn in btns if 'Flibbit' in btn.text)
+        )
+
+        # Someone buys 200 Flibbits
+        Product.objects.filter(name='Flibbit').update(sold=290)
+
+        # Gwen refreshes the page
+        self.open('/')
+        btns = self.wd.find_elements_by_css_selector('.row .twelve.columns .btn.medium')
+
+        # There are still 3 buttons
+        self.assertEqual(len(btns), 3)
+
+        # But now the Flibbit button is blue
+        self.assertTrue(
+            all('info' in btn.get_attribute('class') for btn in btns if 'Flibbit' in btn.text)
+        )
+
     def test_homepage_login(self):
         # James goes to the staff homepage
         self.open('/')
