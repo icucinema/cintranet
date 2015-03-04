@@ -6,8 +6,8 @@ INSTALLED_APPS += ['debug_toolbar',]
 
 MIDDLEWARE_CLASSES += ['debug_toolbar.middleware.DebugToolbarMiddleware',]
 
-AUTH_LDAP_SERVER_URI = "ldap://su-cinema-ernie.su.ic.ac.uk"
-AUTH_LDAP_START_TLS = False
+AUTH_LDAP_SERVER_URI = "ldap://ldap.icucinema.co.uk"
+AUTH_LDAP_START_TLS = True
 STATIC_ROOT = "static"
 MEDIA_ROOT = "media"
 
