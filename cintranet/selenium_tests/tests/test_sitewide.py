@@ -48,6 +48,30 @@ class MainAppTestCase(SeleniumTestCase):
 
         # He closes the webpage
 
+    def test_members_count(self):
+        # Jonny opens the homepage
+        self.open('/')
+
+        self.wd.wait_for_css('.btn.primary.medium')
+
+        # He notices Cinema has 100 members
+        members_btn = self.wd.find_css('.row .twelve.columns .btn.primary.medium button')
+        self.assertIn('Members:', members_btn.text)
+        self.assertIn('100', members_btn.text)
+
+        # Someone in the background buys membership 300 times due to a bug in imperialcollegeunion.org
+        membership = Product.objects.get(name='Cinema Membership 14-15')
+        membership.sold += 300
+        membership.save()
+
+        # Jonny gets impatient and refreshes the page
+        self.open('/')
+
+        # He notices Cinema now has 400 members
+        members_btn = self.wd.find_css('.row .twelve.columns .btn.primary.medium button')
+        self.assertIn('Members:', members_btn.text)
+        self.assertIn('400', members_btn.text)
+
     def test_homepage_login(self):
         # James goes to the staff homepage
         self.open('/')
