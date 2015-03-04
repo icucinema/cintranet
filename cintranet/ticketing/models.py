@@ -416,6 +416,7 @@ class Film(models.Model):
 class ShowingsWeek(models.Model):
     film = models.ForeignKey(Film, related_name='showing_weeks', null=False, blank=False)
     start_time = models.DateTimeField(null=False, blank=False)
+    additional_bit = models.CharField(max_length=120, default="", null=False, blank=True)
 
     royalties_percent = models.PositiveSmallIntegerField(null=True, blank=True)
     royalties_minimum = models.PositiveSmallIntegerField(null=True, blank=True, help_text=u'Minimum Guarantee (net/no VAT)')
@@ -425,7 +426,7 @@ class ShowingsWeek(models.Model):
     def box_office_return(self):
         if self.showings.count() == 0:
             return None
-        return self.film.box_office_returns.filter(start_time=self.start_time).first()
+        return self.film.box_office_returns.filter(start_time=self.start_time, additional_bit=self.additional_bit).first()
 
     def __unicode__(self):
         return u'{} ({})'.format(self.film.name, self.start_time)
@@ -521,6 +522,7 @@ class BoxOfficeReturn(models.Model):
     pdf_file = models.FileField(upload_to='box_office_returns', null=False, blank=False)
     film = models.ForeignKey(Film, related_name='box_office_returns')
     start_time = models.DateField(null=False, blank=False)
+    additional_bit = models.CharField(max_length=120, default="", null=False, blank=True)
 
     @property
     def fake_filename(self):
