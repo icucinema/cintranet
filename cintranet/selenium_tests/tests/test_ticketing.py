@@ -194,5 +194,6 @@ class PuntersTestCase(LoggedInTestCase):
 
         self.wd.wait_for_css('section.tabs')
 
+        self.assertAnyElement('h2', lambda el: el.text == 'Janet Doe')
         for k, v in data.iteritems():
             self.assertAnyElement('dt', lambda el: el.text == k and self.assertAnyElement('dd', lambda el: el.text == v, el.parent))
