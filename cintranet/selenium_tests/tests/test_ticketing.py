@@ -220,3 +220,81 @@ class PuntersTestCase(LoggedInTestCase):
         self.assertEqual(len(tab_list_els), 1)
         tab_list_el = tab_list_els[0]
         self.assertAllElements('h5', lambda el: 'Test Entitlement' in el.text and self.assertHasClass(el, 'valid'), tab_list_el)
+
+    def test_can_edit_entitlements(self):
+        self.open(reverse('root') + '#/punters')
+        self.wd.wait_for_css('table.striped')
+
+        punter_table = self.wd.find_visible_css('table.striped')
+        punter_rows = punter_table.find_elements_by_css_selector('tbody > tr')
+        punter_row = punter_rows[0]
+        punter_row.find_element_by_css_selector('td a').click()
+
+        self.wd.wait_for_css('section.tabs')
+        self.wd.find_visible_css('section.tabs').find_element_by_partial_link_text('Entitlements').click()
+
+        self.assertEqual(self.wd.find_visible_css('section.tabs').find_element_by_partial_link_text('Entitlements').text, 'Entitlements (1)')
+        tab_content = self.wd.find_visible_css('.tab-content.active')
+        tab_list_els = tab_content.find_elements_by_css_selector('ul.bulleted-list > li')
+        self.assertEqual(len(tab_list_els), 1)
+        tab_list_el = tab_list_els[0]
+
+        edit_button = self.wd.find_visible_css('.primary.medium.btn > a', tab_list_el)
+        self.assertEqual(edit_button.text, 'Edit')
+        edit_button.click()
+
+        button_input = self.wd.find_visible_css('input[type="number"]', tab_list_el)
+        button_input.clear()
+        button_input.send_keys('0')
+
+        save_button = self.wd.find_visible_css('.success.btn > a', tab_list_el)
+        self.assertEqual(save_button.text, 'Save')
+        save_button.click()
+
+        self.open(reverse('root') + '#/punters')
+        self.wd.wait_for_css('table.striped')
+
+        punter_table = self.wd.find_visible_css('table.striped')
+        punter_rows = punter_table.find_elements_by_css_selector('tbody > tr')
+        punter_row = punter_rows[0]
+        punter_row.find_element_by_css_selector('td a').click()
+
+        self.wd.wait_for_css('section.tabs')
+        self.wd.find_visible_css('section.tabs').find_element_by_partial_link_text('Entitlements').click()
+
+        self.assertEqual(self.wd.find_visible_css('section.tabs').find_element_by_partial_link_text('Entitlements').text, 'Entitlements (1)')
+        tab_content = self.wd.find_visible_css('.tab-content.active')
+        tab_list_els = tab_content.find_elements_by_css_selector('ul.bulleted-list > li')
+        self.assertEqual(len(tab_list_els), 1)
+        tab_list_el = tab_list_els[0]
+        self.assertAllElements('h5', lambda el: 'Test Entitlement' in el.text and self.assertHasClass(el, 'invalid'), tab_list_el)
+
+        edit_button = self.wd.find_visible_css('.primary.medium.btn > a', tab_list_el)
+        self.assertEqual(edit_button.text, 'Edit')
+        edit_button.click()
+
+        button_input = self.wd.find_visible_css('input[type="number"]', tab_list_el)
+        button_input.clear()
+        button_input.send_keys('1')
+
+        save_button = self.wd.find_visible_css('.success.btn > a', tab_list_el)
+        self.assertEqual(save_button.text, 'Save')
+        save_button.click()
+
+        self.open(reverse('root') + '#/punters')
+        self.wd.wait_for_css('table.striped')
+
+        punter_table = self.wd.find_visible_css('table.striped')
+        punter_rows = punter_table.find_elements_by_css_selector('tbody > tr')
+        punter_row = punter_rows[0]
+        punter_row.find_element_by_css_selector('td a').click()
+
+        self.wd.wait_for_css('section.tabs')
+        self.wd.find_visible_css('section.tabs').find_element_by_partial_link_text('Entitlements').click()
+
+        self.assertEqual(self.wd.find_visible_css('section.tabs').find_element_by_partial_link_text('Entitlements').text, 'Entitlements (1)')
+        tab_content = self.wd.find_visible_css('.tab-content.active')
+        tab_list_els = tab_content.find_elements_by_css_selector('ul.bulleted-list > li')
+        self.assertEqual(len(tab_list_els), 1)
+        tab_list_el = tab_list_els[0]
+        self.assertAllElements('h5', lambda el: 'Test Entitlement' in el.text and self.assertHasClass(el, 'valid'), tab_list_el)

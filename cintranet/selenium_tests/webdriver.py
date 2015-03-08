@@ -13,9 +13,10 @@ except AttributeError:
 class CustomWebDriver(web_driver_module.WebDriver):
     """Our own WebDriver with some helpers added"""
 
-    def find_css(self, css_selector):
+    def find_css(self, css_selector, el=None):
         """Shortcut to find elements by CSS. Returns either a list or singleton"""
-        elems = self.find_elements_by_css_selector(css_selector)
+        el = el or self
+        elems = el.find_elements_by_css_selector(css_selector)
         found = len(elems)
         if found == 1:
             return elems[0]
@@ -23,8 +24,9 @@ class CustomWebDriver(web_driver_module.WebDriver):
             return []
         return elems
 
-    def find_visible_css(self, css_selector):
-        candidates = self.find_elements_by_css_selector(css_selector)
+    def find_visible_css(self, css_selector, el=None):
+        el = el or self
+        candidates = el.find_elements_by_css_selector(css_selector)
         elems = [e for e in candidates if e.is_displayed()]
         if len(elems) == 1:
             return elems[0]
