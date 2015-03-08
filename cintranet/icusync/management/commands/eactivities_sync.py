@@ -162,7 +162,7 @@ class Command(BaseCommand):
             self.update_from_purchase_report(sku_tt, pr, 'tickettype')
 
     def update_from_purchase_report(self, sku_e, pr, what):
-        self.stdout.write("Processing {}s from SKU for {}".format(what, str(sku_e)))
+        self.stdout.write(u"Processing {}s from SKU for {}".format(what, str(sku_e).decode('utf-8')))
 
         if what == 'entitlement':
             automatic_entitlements = {
