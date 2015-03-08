@@ -716,7 +716,12 @@ app.controller('PunterCtrl', function($rootScope, $scope, $routeParams, $locatio
 	};
 	$scope.saveEditData = function() {
 		$scope.data = $scope.edit_data;
-		$scope.edit_data.put().then(updateData);
+		var safeFields = ['cid', 'comment', 'email', 'login', 'name', 'punter_type'];
+		var newObj = {};
+		safeFields.forEach(function(safeField) {
+			newObj[safeField] = $scope.edit_data[safeField];
+		});
+		$scope.edit_data.patch(newObj).then(updateData);
 		$scope.data_editing = false;
 	};
 

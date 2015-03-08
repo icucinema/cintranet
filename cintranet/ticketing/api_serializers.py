@@ -113,8 +113,8 @@ class PunterIdentifierSerializer(ModelSerializer):
         )
 
 class PunterSerializer(ModelSerializer):
-    entitlement_details = EntitlementDetailSerializer(many=True)
-    identifiers = PunterIdentifierSerializer(many=True)
+    entitlement_details = EntitlementDetailSerializer(many=True, read_only=True)
+    identifiers = PunterIdentifierSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.Punter
