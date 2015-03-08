@@ -8,21 +8,13 @@ from ..webdriver import CustomWebDriver
 class MainAppTestCase(SeleniumTestCase):
 
     def setUp(self):
-        from django.conf import settings
-        if settings.DEBUG == False:
-            settings.DEBUG = True
-
         User.objects.create_superuser(username='admin',
                                       password='pw',
+                                      first_name='James',
                                       email='root@icucinema.co.uk')
         Product.objects.create(name='Cinema Membership 14-15',
                                currently_available=True,
                                sold=100)
-
-        self.wd = CustomWebDriver()
-
-    def tearDown(self):
-        self.wd.quit()
 
     def test_homepage(self):
         # George goes to the staff homepage
@@ -160,7 +152,7 @@ class MainAppTestCase(SeleniumTestCase):
         # Now he's back on the homepage
         self.wd.wait_for_css('.index-header')
         # and he is welcomed to the site
-        self.assertIn('Welcome back,', self.wd.find_css('body .twelve .success.alert').text)
+        self.wd.has_alert('Welcome back, James!', 'success')
 
     def test_login_fail(self):
         # Jack opens the login page

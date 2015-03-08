@@ -28,3 +28,5 @@ MIGRATION_MODULES = DisableMigrations()
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
+SOUTH_TESTS_MIGRATE = False
+DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
