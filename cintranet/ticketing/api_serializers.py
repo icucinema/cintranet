@@ -93,7 +93,7 @@ class TicketSerializer(ModelSerializer):
         )
 
 class EntitlementDetailSerializer(ModelSerializer):
-    entitlement = EntitlementSerializer()
+    entitlement = EntitlementSerializer(read_only=True)
     valid = serializers.ReadOnlyField()
 
     class Meta:

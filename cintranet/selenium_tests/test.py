@@ -40,3 +40,8 @@ class SeleniumTestCase(LiveServerTestCase):
         base = in_el or self.wd
         self.assertTrue(all(expr(el) for el in base.find_elements_by_css_selector(selector)), 'one of {} failed expectation'.format(selector))
         return True
+
+    def assertHasClass(self, item, class_):
+        item_classes = item.get_attribute('class').split(' ')
+        self.assertIn(class_, item_classes)
+        return True

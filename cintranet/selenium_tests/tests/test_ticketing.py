@@ -23,10 +23,6 @@ class LoggedInTestCase(SeleniumTestCase):
         for button in buttons:
             self.assertHasClass(button, 'default')
 
-    def assertHasClass(self, item, class_):
-        item_classes = item.get_attribute('class').split(' ')
-        self.assertIn(class_, item_classes)
-
 class NotLoggedInTestCase(SeleniumTestCase):
     def test_requires_login(self):
         self.open(reverse('root'))
@@ -34,13 +30,20 @@ class NotLoggedInTestCase(SeleniumTestCase):
 
 class PuntersTestCase(LoggedInTestCase):
     def setUp(self):
-        models.Punter.objects.create(
+        punter_jane_doe = models.Punter.objects.create(
             punter_type=models.Punter.STATUS.full,
             name='Jane Doe',
             cid='00516767',
             login='jd1311',
             email='jane.doe11@imperial.ac.uk',
             comment='some comment here'
+        )
+        ent_test = models.Entitlement.objects.create(
+            name='Test Entitlement',
+        )
+        entdet_test_jane_doe = models.EntitlementDetail.objects.create(
+            punter=punter_jane_doe,
+            entitlement=ent_test,
         )
         super(PuntersTestCase, self).setUp()
 
@@ -198,3 +201,22 @@ class PuntersTestCase(LoggedInTestCase):
         self.assertAnyElement('h2', lambda el: el.text == 'Janet Doe')
         for k, v in data.iteritems():
             self.assertAnyElement('dt', lambda el: el.text == k and self.assertAnyElement('dd', lambda el: el.text == v, el.parent))
+
+    def test_can_view_entitlements(self):
+        self.open(reverse('root') + '#/punters')
+        self.wd.wait_for_css('table.striped')
+
+        punter_table = self.wd.find_visible_css('table.striped')
+        punter_rows = punter_table.find_elements_by_css_selector('tbody > tr')
+        punter_row = punter_rows[0]
+        punter_row.find_element_by_css_selector('td a').click()
+
+        self.wd.wait_for_css('section.tabs')
+        self.wd.find_visible_css('section.tabs').find_element_by_partial_link_text('Entitlements').click()
+
+        self.assertEqual(self.wd.find_visible_css('section.tabs').find_element_by_partial_link_text('Entitlements').text, 'Entitlements (1)')
+        tab_content = self.wd.find_visible_css('.tab-content.active')
+        tab_list_els = tab_content.find_elements_by_css_selector('ul.bulleted-list > li')
+        self.assertEqual(len(tab_list_els), 1)
+        tab_list_el = tab_list_els[0]
+        self.assertAllElements('h5', lambda el: 'Test Entitlement' in el.text and self.assertHasClass(el, 'valid'), tab_list_el)
