@@ -60,8 +60,7 @@ class PuntersTestCase(LoggedInTestCase):
 
 
     def test_can_list(self):
-        self.open(reverse('root') + '#/punters')
-        self.wd.wait_for_css('table.striped')
+        self.load_punters_page()
 
         punter_table = self.wd.find_visible_css('table.striped')
         punter_rows = punter_table.find_elements_by_css_selector('tbody > tr')
@@ -95,52 +94,34 @@ class PuntersTestCase(LoggedInTestCase):
     def test_can_page(self):
         for n in range(20):
             self.createPunter(n)
-        self.open(reverse('root') + '#/punters')
-        self.wd.wait_for_css('table.striped')
+        self.load_punters_page()
         
-        nextBtns = self.get_next_buttons()
-        prevBtns = self.get_prev_buttons()
-        self.assertButtonsAreGreen(nextBtns)
-        self.assertButtonsAreGrey(prevBtns)
-
-        self.click_next()
-        
-        nextBtns = self.get_next_buttons()
-        prevBtns = self.get_prev_buttons()
-        self.assertButtonsAreGreen(nextBtns)
-        self.assertButtonsAreGreen(prevBtns)
+        self.assertButtonsAreGreen(self.get_next_buttons())
+        self.assertButtonsAreGrey(self.get_prev_buttons())
 
         self.click_next()
 
-        nextBtns = self.get_next_buttons()
-        prevBtns = self.get_prev_buttons()
-        self.assertButtonsAreGrey(nextBtns)
-        self.assertButtonsAreGreen(prevBtns)
-        
-        self.click_prev()
+        self.assertButtonsAreGreen(self.get_next_buttons())
+        self.assertButtonsAreGreen(self.get_prev_buttons())
 
-        nextBtns = self.get_next_buttons()
-        prevBtns = self.get_prev_buttons()
-        self.assertButtonsAreGreen(nextBtns)
-        self.assertButtonsAreGreen(prevBtns)
+        self.click_next()
+
+        self.assertButtonsAreGrey(self.get_next_buttons())
+        self.assertButtonsAreGreen(self.get_prev_buttons())
 
         self.click_prev()
+
+        self.assertButtonsAreGreen(self.get_next_buttons())
+        self.assertButtonsAreGreen(self.get_prev_buttons())
+
+        self.click_prev()
         
-        nextBtns = self.get_next_buttons()
-        prevBtns = self.get_prev_buttons()
-        self.assertButtonsAreGreen(nextBtns)
-        self.assertButtonsAreGrey(prevBtns)
+        self.assertButtonsAreGreen(self.get_next_buttons())
+        self.assertButtonsAreGrey(self.get_prev_buttons())
 
     def test_can_drill_down(self):
-        self.open(reverse('root') + '#/punters')
-        self.wd.wait_for_css('table.striped')
-
-        punter_table = self.wd.find_visible_css('table.striped')
-        punter_rows = punter_table.find_elements_by_css_selector('tbody > tr')
-        punter_row = punter_rows[0]
-        punter_row.find_element_by_css_selector('td a').click()
-
-        self.wd.wait_for_css('section.tabs')
+        self.load_punters_page()
+        self.click_on_first_punter()
 
         self.assertAnyElement('h2', lambda el: el.text == 'Jane Doe')
 
@@ -155,15 +136,9 @@ class PuntersTestCase(LoggedInTestCase):
             self.assertAnyElement('dt', lambda el: el.text == k and self.assertAnyElement('dd', lambda el: el.text == v, el.parent))
 
     def test_can_edit(self):
-        self.open(reverse('root') + '#/punters')
-        self.wd.wait_for_css('table.striped')
+        self.load_punters_page()
+        self.click_on_first_punter()
 
-        punter_table = self.wd.find_visible_css('table.striped')
-        punter_rows = punter_table.find_elements_by_css_selector('tbody > tr')
-        punter_row = punter_rows[0]
-        punter_row.find_element_by_css_selector('td a').click()
-
-        self.wd.wait_for_css('section.tabs')
         self.wd.find_visible_css('.medium.primary.btn a').click()
 
         self.wd.find_visible_css('[ng-model="edit_data.punter_type"]').send_keys('A')
@@ -202,42 +177,44 @@ class PuntersTestCase(LoggedInTestCase):
         for k, v in data.iteritems():
             self.assertAnyElement('dt', lambda el: el.text == k and self.assertAnyElement('dd', lambda el: el.text == v, el.parent))
 
-    def test_can_view_entitlements(self):
+    def load_punters_page(self):
         self.open(reverse('root') + '#/punters')
         self.wd.wait_for_css('table.striped')
 
+    def open_tab(self, tab_name):
+        self.wd.wait_for_css('section.tabs')
+        self.wd.find_visible_css('section.tabs').find_element_by_partial_link_text(tab_name).click()
+        return self.wd.find_visible_css('.tab-content.active')
+
+    def click_on_first_punter(self):
         punter_table = self.wd.find_visible_css('table.striped')
         punter_rows = punter_table.find_elements_by_css_selector('tbody > tr')
         punter_row = punter_rows[0]
         punter_row.find_element_by_css_selector('td a').click()
-
         self.wd.wait_for_css('section.tabs')
-        self.wd.find_visible_css('section.tabs').find_element_by_partial_link_text('Entitlements').click()
 
-        self.assertEqual(self.wd.find_visible_css('section.tabs').find_element_by_partial_link_text('Entitlements').text, 'Entitlements (1)')
+    def fetch_first_entitlement(self):
         tab_content = self.wd.find_visible_css('.tab-content.active')
         tab_list_els = tab_content.find_elements_by_css_selector('ul.bulleted-list > li')
         self.assertEqual(len(tab_list_els), 1)
-        tab_list_el = tab_list_els[0]
+        tab_list_el = tab_list_els[0]        
+        return tab_list_el
+
+    def test_can_view_entitlements(self):
+        self.load_punters_page()
+        self.click_on_first_punter()
+        self.open_tab('Entitlements')
+
+        self.assertEqual(self.wd.find_visible_css('section.tabs').find_element_by_partial_link_text('Entitlements').text, 'Entitlements (1)')
+        tab_list_el = self.fetch_first_entitlement()
         self.assertAllElements('h5', lambda el: 'Test Entitlement' in el.text and self.assertHasClass(el, 'valid'), tab_list_el)
 
     def test_can_edit_entitlements(self):
-        self.open(reverse('root') + '#/punters')
-        self.wd.wait_for_css('table.striped')
+        self.load_punters_page()
+        self.click_on_first_punter()
+        tab_content = self.open_tab('Entitlements')
 
-        punter_table = self.wd.find_visible_css('table.striped')
-        punter_rows = punter_table.find_elements_by_css_selector('tbody > tr')
-        punter_row = punter_rows[0]
-        punter_row.find_element_by_css_selector('td a').click()
-
-        self.wd.wait_for_css('section.tabs')
-        self.wd.find_visible_css('section.tabs').find_element_by_partial_link_text('Entitlements').click()
-
-        self.assertEqual(self.wd.find_visible_css('section.tabs').find_element_by_partial_link_text('Entitlements').text, 'Entitlements (1)')
-        tab_content = self.wd.find_visible_css('.tab-content.active')
-        tab_list_els = tab_content.find_elements_by_css_selector('ul.bulleted-list > li')
-        self.assertEqual(len(tab_list_els), 1)
-        tab_list_el = tab_list_els[0]
+        tab_list_el = self.fetch_first_entitlement()
 
         edit_button = self.wd.find_visible_css('.primary.medium.btn > a', tab_list_el)
         self.assertEqual(edit_button.text, 'Edit')
@@ -251,22 +228,12 @@ class PuntersTestCase(LoggedInTestCase):
         self.assertEqual(save_button.text, 'Save')
         save_button.click()
 
-        self.open(reverse('root') + '#/punters')
-        self.wd.wait_for_css('table.striped')
 
-        punter_table = self.wd.find_visible_css('table.striped')
-        punter_rows = punter_table.find_elements_by_css_selector('tbody > tr')
-        punter_row = punter_rows[0]
-        punter_row.find_element_by_css_selector('td a').click()
+        self.load_punters_page()
+        self.click_on_first_punter()
+        tab_content = self.open_tab('Entitlements')
 
-        self.wd.wait_for_css('section.tabs')
-        self.wd.find_visible_css('section.tabs').find_element_by_partial_link_text('Entitlements').click()
-
-        self.assertEqual(self.wd.find_visible_css('section.tabs').find_element_by_partial_link_text('Entitlements').text, 'Entitlements (1)')
-        tab_content = self.wd.find_visible_css('.tab-content.active')
-        tab_list_els = tab_content.find_elements_by_css_selector('ul.bulleted-list > li')
-        self.assertEqual(len(tab_list_els), 1)
-        tab_list_el = tab_list_els[0]
+        tab_list_el = self.fetch_first_entitlement()
         self.assertAllElements('h5', lambda el: 'Test Entitlement' in el.text and self.assertHasClass(el, 'invalid'), tab_list_el)
 
         edit_button = self.wd.find_visible_css('.primary.medium.btn > a', tab_list_el)
@@ -281,20 +248,11 @@ class PuntersTestCase(LoggedInTestCase):
         self.assertEqual(save_button.text, 'Save')
         save_button.click()
 
-        self.open(reverse('root') + '#/punters')
-        self.wd.wait_for_css('table.striped')
 
-        punter_table = self.wd.find_visible_css('table.striped')
-        punter_rows = punter_table.find_elements_by_css_selector('tbody > tr')
-        punter_row = punter_rows[0]
-        punter_row.find_element_by_css_selector('td a').click()
+        self.load_punters_page()
+        self.click_on_first_punter()
+        self.open_tab('Entitlements')
 
-        self.wd.wait_for_css('section.tabs')
-        self.wd.find_visible_css('section.tabs').find_element_by_partial_link_text('Entitlements').click()
-
-        self.assertEqual(self.wd.find_visible_css('section.tabs').find_element_by_partial_link_text('Entitlements').text, 'Entitlements (1)')
-        tab_content = self.wd.find_visible_css('.tab-content.active')
-        tab_list_els = tab_content.find_elements_by_css_selector('ul.bulleted-list > li')
-        self.assertEqual(len(tab_list_els), 1)
-        tab_list_el = tab_list_els[0]
+        tab_content = self.open_tab('Entitlements')
+        tab_list_el = self.fetch_first_entitlement()
         self.assertAllElements('h5', lambda el: 'Test Entitlement' in el.text and self.assertHasClass(el, 'valid'), tab_list_el)
