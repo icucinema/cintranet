@@ -1,11 +1,11 @@
-from carrot.connection import BrokerConnection
+from config import PRINTER_CONFIG, LIVE_PRINTER_CLASS, LIVE_PRINTER_SETTINGS, LIVE_CASHDRAWER_CLASS, LIVE_CASHDRAWER_SETTINGS
 
-from config import BROKER_CONFIG, PRINTER_CONFIG, LIVE_PRINTER_CLASS, LIVE_PRINTER_SETTINGS, LIVE_CASHDRAWER_CLASS, LIVE_CASHDRAWER_SETTINGS
+from redis import StrictRedis
 
 from pointofsale import printer, hardware
 
 if __name__ == '__main__':
-    conn = BrokerConnection(**BROKER_CONFIG)
+    conn = StrictRedis('su-cinema-ernie.su.ic.ac.uk')
 
     hard_printer = getattr(hardware, LIVE_PRINTER_CLASS)(**LIVE_PRINTER_SETTINGS)
     hard_cashdrawer = getattr(hardware, LIVE_CASHDRAWER_CLASS)(printer=hard_printer, **LIVE_CASHDRAWER_SETTINGS)

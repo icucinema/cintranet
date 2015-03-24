@@ -1,11 +1,27 @@
-from carrot.connection import BrokerConnection
-from carrot.messaging import Consumer
-
 import requests
 from datetime import datetime
 import threading
+import json
 
 from . import hardware
+
+class Consumer(object):
+    def __init__(self, connection, queue):
+        self.connection = connection
+        self.queue = queue
+        self.callbacks = []
+
+    def register_callback(self, cb):
+        self.callbacks.append(cb)
+
+    def wait(self):
+        while True:
+            _, msg = self.connection.blpop(self.queue)
+            print msg
+            msg = json.loads(msg)
+            for cb in self.callbacks:
+                cb(msg)
+
 
 class PrinterRegistry(object):
     def __init__(self, url, auth_token):
@@ -65,16 +81,15 @@ class Printer(object):
         print "Running as printer", self.data['id']
 
     def _setup_amqp(self, conn):
-        self.consumer = Consumer(connection=conn, exchange="printer", queue="printer.{}".format(self.data['name']), routing_key=self.data['name'])
-        self.consumer.register_callback(lambda message_data, message: self.message_received(message_data, message))
+        self.consumer = Consumer(connection=conn, queue="printer.{}".format(self.data['name']))
+        self.consumer.register_callback(lambda message_data: self.message_received(message_data))
 
     def message_received(self, message_data, message):
         raise Exception("'message_received' must be implemented!")
 
 class TestPrinter(Printer):
-    def message_received(self, message_data, message):
+    def message_received(self, message_data):
         print "Got message", message_data
-        message.ack()
 
 class LivePrinter(Printer):
     def __init__(self, printer, cash_drawer=None, *args, **kwargs):
@@ -82,21 +97,16 @@ class LivePrinter(Printer):
         self.cash_drawer = cash_drawer
         super(LivePrinter, self).__init__(*args, **kwargs)
 
-    def message_received(self, message_data, message):
+    def message_received(self, message_data):
         message_type = message_data.get('print_type')
         if message_type == 'test':
             self.printer.do_print(message_data['text'])
-            message.ack()
         elif message_type == 'ticket':
             self.printer.print_ticket(message_data['ticket'])
-            message.ack()
         elif message_type == 'sales_report':
             self.printer.print_report(message_data['report_data'])
-            message.ack()
         elif message_type == 'cash_drawer':
             if self.cash_drawer:
                 self.cash_drawer.open()
-            message.ack()
         else:
             print "Got unknown message_type", message_type
-            message.reject()

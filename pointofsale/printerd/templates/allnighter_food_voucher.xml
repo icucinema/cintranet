@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<ticket>
+  <align mode="center">
+    <font width="2" height="2"><sensibreak>{{ ticket_type }}</sensibreak></font><br />
+    <barcode type="CODE39" height="40">{{ ticket_number }}</barcode><br />
+    {{ timestamp.strftime('%Y-%m-%d %H:%M:%S') }}<br />
+    {{ ticket_type }} (£{{ ticket_type_price }})<br />
+    {{ ticket_number }}<br />
+  </align>
+</ticket>
