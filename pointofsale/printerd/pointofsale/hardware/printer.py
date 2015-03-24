@@ -27,6 +27,7 @@ class TicketPrinter(object):
 
     def format_ticket(self, ticket):
         template_fn = ticket['print_template_extension'] or 'basic'
+        print 'Loading template', template_fn
         template = self.environment.get_template(template_fn + '.xml')
 
         ticket['timestamp'] = datetime.datetime.fromtimestamp(ticket['timestamp'])
@@ -34,6 +35,7 @@ class TicketPrinter(object):
 
 
         ticketdata = template.render(ticket).split('\n')
+        print [ln.lstrip() for ln in ticketdata]
         ticket_output = '\n'.join([ln.lstrip() for ln in ticketdata])
 
         return TicketML.parse(template.render(ticket))
