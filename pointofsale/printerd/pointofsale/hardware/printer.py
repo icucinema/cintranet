@@ -38,7 +38,7 @@ class TicketPrinter(object):
         print [ln.lstrip() for ln in ticketdata]
         ticket_output = '\n'.join([ln.lstrip() for ln in ticketdata])
 
-        return TicketML.parse(template.render(ticket))
+        return TicketML.parse(ticket_output)
 
     def print_report(self, events):
         self.do_print(self.format_report(events))
