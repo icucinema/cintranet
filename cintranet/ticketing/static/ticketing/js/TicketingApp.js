@@ -1,6 +1,8 @@
 var STANDARD_EVENT_TYPE = 1;
 var DOUBLEBILL_EVENT_TYPE = 2;
 
+var NTLIVE_EVENT_TYPE = 9;
+
 var app = angular.module('TicketingApp', [
 	'ngRoute',
 	'ngAnimate',
@@ -896,6 +898,9 @@ app.controller('ShowingWizardCtrl', function($rootScope, $scope, Restangular, $q
 	Restangular.one('event-types', DOUBLEBILL_EVENT_TYPE).get().then(function(res) {
 		eventTypes[DOUBLEBILL_EVENT_TYPE] = res;
 	});
+	Restangular.one('event-types', NTLIVE_EVENT_TYPE).get().then(function(res) {
+		eventTypes[NTLIVE_EVENT_TYPE] = res;
+	});
 
 	$scope.restart = function() {
 		$route.reload();
@@ -981,13 +986,21 @@ app.controller('ShowingWizardCtrl', function($rootScope, $scope, Restangular, $q
 				event_types: [],
 				start_time: null
 			};
+
+			var mightCreateDoublebill = true;
 			for (var i = 0; i < that.showings.length; i++) {
+				var applicableEventType = STANDARD_EVENT_TYPE;
+				if (that.showings[i].film.name.indexOf('National Theatre Live') === 0) {
+					applicableEventType = NTLIVE_EVENT_TYPE;
+					mightCreateDoublebill = false;
+				}
+
 				var event = {
 					name: that.showings[i].film.name,
 					showings: [ that.showings[i] ],
-					event_types: [ eventTypes[STANDARD_EVENT_TYPE] ],
+					event_types: [ eventTypes[applicableEventType] ],
 					start_time: that.showings[i].start_time,
-					ticket_types: eventTypes[STANDARD_EVENT_TYPE].ticket_templates
+					ticket_types: eventTypes[applicableEventType].ticket_templates
 				};
 				that.events.push(event);
 				
@@ -1007,7 +1020,7 @@ app.controller('ShowingWizardCtrl', function($rootScope, $scope, Restangular, $q
 
 			// and one big overarching event, too
 			if (that.showings.length != 1) {
-				if (bigEvent.showings.length == 2) {
+				if (bigEvent.showings.length == 2 && mightCreateDoublebill) {
 					bigEvent.event_types = [ eventTypes[DOUBLEBILL_EVENT_TYPE] ];
 					bigEvent.ticket_types = eventTypes[DOUBLEBILL_EVENT_TYPE].ticket_templates;
 				}

@@ -1,24 +1,27 @@
 from django.db import models
 from model_utils import Choices
 
+import time
+import random
+
 from . import utils
 
+def _pick_random_quotation():
+    max_id = FilmQuotation.objects.aggregate(models.Max('id'))['id__max']
+    i = 0
+    return FilmQuotation.objects.order_by('id').filter(id__gte=random.randint(1, max_id), enabled=True)[0]
+
 def _format_ticket_for_printer(ticket):
+    quotation = _pick_random_quotation()
     return {
-        'header': str(ticket.ticket_position_in_showing()).zfill(3),
-        'ticket_head': 'Imperial Cinema Presents',
         'film_title': ticket.ticket_type.event.name,
-        'film_line2': '',
-        'film_line3': '',
-        'date': ticket.ticket_type.event.start_time.strftime('%x'),
-        'time': ticket.ticket_type.event.start_time.strftime('%X'),
-        'type': ticket.ticket_type.name,
-        'price': str(ticket.ticket_type.sale_price),
-        'id': ticket.printed_id(),
-        'number': str(ticket.ticket_position_in_showing()).zfill(3),
-        'website': 'www.imperialcinema.co.uk',
-        'tagline': 'Sponsored by',
-        'ticket_uid': '%d' % (ticket.pk),
+#        'ticket_number': str(ticket.ticket_position_in_showing()).zfill(3),
+        'ticket_number': ticket.id,
+        'timestamp': time.mktime(ticket.ticket_type.event.start_time.timetuple()),
+        'ticket_type_name': ticket.ticket_type.name,
+        'ticket_type_price': float(ticket.ticket_type.sale_price),
+        'film_quote': quotation.quotation,
+        'film_quote_film': quotation.film_title,
         'print_template_extension': ticket.ticket_type.print_template_extension,
     }
 
@@ -42,3 +45,12 @@ class Printer(models.Model):
     def open_cash_drawer(self):
         with utils.get_printer_publisher(self.name) as pub:
             pub.send({"print_type": "cash_drawer"})
+
+
+class FilmQuotation(models.Model):
+    quotation = models.CharField(max_length=120, blank=False, null=False)
+    film_title = models.CharField(max_length=120, blank=False, null=False)
+
+    added_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
+    added_by = models.CharField(max_length=120, blank=False, null=False)
+    enabled = models.BooleanField(default=True, blank=False)

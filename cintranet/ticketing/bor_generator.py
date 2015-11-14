@@ -29,7 +29,7 @@ def format_money(money):
 def determine_ticket_type(tt_name):
     if 'Non-members' in tt_name:
         return 'Adult'
-    elif 'Members' in tt_name or tt_name == 'Season':
+    elif 'Members' in tt_name or tt_name == 'Season' or 'Discount' in tt_name:
         return 'Concession'
     return 'Adult'
 
@@ -50,7 +50,7 @@ def update_showing_agg_data(showing_agg_data, tt_name, bor_price, update_vals):
 
 
 def build_agg_data_for_show_week(film, show_week):
-    show_week = get_show_week(show_week)
+    #show_week = get_show_week(show_week)
 
     showings = film.showing_weeks.get(start_time=show_week).showings.all()
 
@@ -67,6 +67,8 @@ def build_agg_data_for_show_week(film, show_week):
             tt_name = ticket_type_count['ticket_type__name']
             sold_count = ticket_type_count['count']
 
+            if bor_price == 0: continue
+
             #bor_price /= m.TicketType.objects.get(pk=ticket_type_count['ticket_type__id']).event.showings.all().count()
     
             this_take = bor_price * sold_count
@@ -80,6 +82,8 @@ def build_agg_data_for_show_week(film, show_week):
             bor_price = ticket_type_count['ticket_type__box_office_return_price']
             tt_name = ticket_type_count['ticket_type__name']
             refunded_count = ticket_type_count['count']
+
+            if bor_price == 0: continue
     
             this_refunded = bor_price * refunded_count
             #this_refunded /= m.TicketType.objects.get(pk=ticket_type_count['ticket_type__id']).event.showings.all().count()

@@ -3,6 +3,7 @@ import re
 import string
 import random
 import datetime
+import urllib2
 from decimal import Decimal
 
 from django.db import models, transaction
@@ -304,7 +305,15 @@ class Film(models.Model):
 
     @classmethod
     def annotate_with_rottentomatoes(cls, obj):
-        search = rt.search(obj.name)
+        search = None
+        retries = 0
+        while search is None and retries < 5:
+            retries += 1
+            try:
+                search = rt.search(obj.name)
+            except urllib2.HTTPError:
+                continue
+            break
         if not search:
             return obj
         obj.rotten_tomatoes_id = None
