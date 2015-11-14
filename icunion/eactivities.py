@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import re
 from decimal import Decimal
 from io import BytesIO
+from delorean import Delorean
 
 import requests
 from bs4 import BeautifulSoup
@@ -12,7 +13,7 @@ from . import encoding_utils
 
 DEBUG = False
 
-TOTAL_NET_SALE_RE = re.compile(r"^Total Net Sale \([^)]+\)$")
+TOTAL_NET_SALE_RE = re.compile(r"^Provisional Total Net Sale \([^)]+\)$")
 PRICE_INC_VAT_RE = re.compile(r"^Price inc. VAT/Unit \([^)]+\)$")
 
 class EActivitiesEvent(object):
@@ -30,6 +31,14 @@ class EActivitiesEvent(object):
         return u'EActivitiesEvent: "{}" ({}) start:{} end:{}'.format(self.name, self.description, self.start_date, self.end_date)
     def __str__(self):
         return unicode(self).encode('utf-8')
+
+    @property
+    def start_date_in_london(self):
+        return Delorean(self.start_date).shift('Europe/London').datetime
+
+    @property
+    def end_date_in_london(self):
+        return Delorean(self.end_date).shift('Europe/London').datetime
 
 class MemberListMunger(object):
     def __init__(self, itera, associate_pairs):
@@ -168,8 +177,8 @@ class EActivities(object):
             'data[2784]': event.description,
             'data[2788]': event.location,
             'data[4123]': event.postcode,
-            'data[2786]': event.start_date.strftime('%Y-%m-%d %H:%M:%S'),
-            'data[2787]': event.end_date.strftime('%Y-%m-%d %H:%M:%S'),
+            'data[2786]': event.start_date_in_london.strftime('%Y-%m-%d %H:%M:%S'),
+            'data[2787]': event.end_date_in_london.strftime('%Y-%m-%d %H:%M:%S'),
         }
         self._ajax_handler(ajax='insertsql', navigate='2781', **kws)
         self._ajax_handler(ajax='update', navigate='2781')
@@ -244,8 +253,8 @@ class EActivities(object):
                 sku = {
                     'name': bs_sku.find('infotablecell', alias="Product SKU Name").text,
                     'eactivities_id': int(bs_sku.find('infotablecell', alias="Download").attrs['linkobj'].rpartition('/')[-1]),
-                    'purchased_count': int(bs_sku.find('infotablecell', alias="Number Purchased").text),
-                    'total': Decimal(tns),
+                    'purchased_count': max(0, int(bs_sku.find('infotablecell', alias="Number Purchased").text)),
+                    'total': max(Decimal(0), Decimal(tns)),
                     'per_item': Decimal(bs_sku.find('infotablecell', alias=PRICE_INC_VAT_RE).text.replace(',', '')),
                 }
                 pr['purchased_count'] += sku['purchased_count']
