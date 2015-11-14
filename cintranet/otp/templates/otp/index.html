@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Sign-on to External Services{% endblock %}
+
+{% block content %}
+<div class="index-header">
+  <div class="row">
+    <div class="twelve columns">
+      <p><strong>Sign on to External Services!</strong></p>
+    </div>
+  </div>
+</div>
+
+{% for provider in providers %}
+<div class="row row-margin">
+  <div class="twelve columns">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <div class="panel-title">{{ provider.name }}</div>
+      </div>
+      <div class="panel-body">
+        <p><strong>Current Code:</strong> <input type="text" readonly value="{{ provider.generate }}" onclick="this.setSelectionRange(0, this.value.length)"></p>
+{% if provider.meta.username %}
+        <p><strong>Username:</strong> <input type="text" readonly value="{{ provider.meta.username }}" onclick="this.setSelectionRange(0, this.value.length)"></p>
+{% endif %}
+
+        <div class="btn medium primary">
+          <a target="_blank" href="{{ provider.url }}">Take me there »</a>
+        </div>
+        <p></p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

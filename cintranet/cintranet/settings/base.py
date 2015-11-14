@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'stats',
     'inventory',
     'pointofsale',
+    'otp',
 
     'south',
 ]

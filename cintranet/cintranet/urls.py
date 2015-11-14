@@ -25,6 +25,7 @@ urlpatterns = patterns('',
     url(r'^inventory/api/', include('inventory.api_urls')),
     url(r'^inventory/', include('inventory.urls', app_name='inventory', namespace='inventory')),
     url(r'^pointofsale/', include('pointofsale.urls', app_name='pointofsale', namespace='pointofsale')),
+    url(r'^otp/', include('otp.urls', app_name='otp', namespace='otp')),
 )
 
 if settings.DEBUG:
