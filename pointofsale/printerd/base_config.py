@@ -2,7 +2,7 @@ PRINTER_CONFIG = {
     'name': 'Luke Laptop',
     'registry': 'https://staff.icucinema.co.uk/pointofsale/printers/',
     'auth_token': '8c591bda0c0873f3fbf8e4c15c774c6f0fd52a05',
-    'id': 1,
+    'id': 3,
     'live': True,
 }
 

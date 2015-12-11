@@ -36,7 +36,7 @@ class TicketPrinter(object):
 
         ticketdata = template.render(ticket).split('\n')
         print [ln.lstrip() for ln in ticketdata]
-        ticket_output = '\n'.join([ln.lstrip() for ln in ticketdata])
+        ticket_output = u'\n'.join([ln.lstrip() for ln in ticketdata])
 
         return TicketML.parse(ticket_output)
 
