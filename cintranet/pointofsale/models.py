@@ -66,15 +66,15 @@ class FilmQuotation(models.Model):
     valid_from = models.DateTimeField(default=timezone.now, null=True, blank=True)
     valid_to = models.DateTimeField(null=True, blank=True)
 
-    @property
     def usable(self):
         is_usable = self.enabled
         is_usable = is_usable and (self.valid_from is None or timezone.now() >= self.valid_from)
         is_usable = is_usable and (self.valid_to is None or timezone.now() <= self.valid_to)
         return is_usable
+    usable.boolean = True
 
     def __str__(self):
         r = ""
-        if not self.usable:
+        if not self.usable():
             r = "[not in use] "
         return "{}{} [{}]".format(r, self.quotation, self.film_title)
