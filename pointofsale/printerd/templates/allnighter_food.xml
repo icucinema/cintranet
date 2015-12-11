@@ -15,9 +15,6 @@
       <br />
       <align mode="left">{{ film_quote }}</align><br />
       <align mode="right">- <b>{{ film_quote_film }}</b></align><br />
-      <br />
-      Proudly sponsored by:<br />
-      <logo num="2" />
     </align>
   </ticket>
   <ticket>
