@@ -1,18 +1,26 @@
 from django.db import models
+from django.utils import timezone
 from model_utils import Choices
 
 import time
 import random
+from collections import namedtuple
 
 from . import utils
 
+Q = models.Q
+
 def _pick_random_quotation():
-    max_id = FilmQuotation.objects.aggregate(models.Max('id'))['id__max']
-    i = 0
-    return FilmQuotation.objects.order_by('id').filter(id__gte=random.randint(1, max_id), enabled=True)[0]
+    valid_quotations = FilmQuotation.objects.filter(enabled=True).filter((Q(valid_from=None) | Q(valid_from__lte=timezone.now())) & (Q(valid_to=None) | Q(valid_to__gte=timezone.now())))
+    valid_quotation_ids = valid_quotations.values_list('id', flat=True)
+    return FilmQuotation.objects.get(id=random.choice(valid_quotation_ids))
 
 def _format_ticket_for_printer(ticket):
-    quotation = _pick_random_quotation()
+    try:
+        quotation = _pick_random_quotation()
+    except:
+        quotation = namedtuple('QuotationMock', ['quotation', 'film_title'])(None, None)
+
     return {
         'film_title': ticket.ticket_type.event.name,
 #        'ticket_number': str(ticket.ticket_position_in_showing()).zfill(3),
@@ -54,3 +62,6 @@ class FilmQuotation(models.Model):
     added_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
     added_by = models.CharField(max_length=120, blank=False, null=False)
     enabled = models.BooleanField(default=True, blank=False)
+
+    valid_from = models.DateTimeField(default=timezone.now, null=True, blank=True)
+    valid_to = models.DateTimeField(null=True, blank=True)
