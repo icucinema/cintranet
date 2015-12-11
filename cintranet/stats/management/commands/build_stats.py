@@ -16,9 +16,9 @@ from icusync.models import AuthenticationCredential
 import stats.models as models
 from cintranet.utils import IRCCatPinger
 
-THIS_YEAR = 2014
-THIS_YEARS_MEMBERSHIP_ID = 8066
-LAST_YEARS_MEMBERSHIP_ID = 4995
+THIS_YEAR = 2015
+THIS_YEARS_MEMBERSHIP_ID = 13396
+LAST_YEARS_MEMBERSHIP_ID = 8066
 EHACK_URL = 'http://ehacktivities.lukegb.com:5000'
 
 class Command(BaseCommand):
@@ -56,8 +56,8 @@ class Command(BaseCommand):
                 self.irc_pinger.say('#botspam', 'SOMETHING WENT WRONG WHILE PARSING EACTIVITIES: {}: {} ({})'.format(type(ex), ex, ex.args))
 
     def update_membership_blob(self):
-        self.update_membership_data('membership_last_year', LAST_YEARS_MEMBERSHIP_ID, '13-14')
-        self.update_membership_data('membership_this_year', THIS_YEARS_MEMBERSHIP_ID, '14-15')
+        self.update_membership_data('membership_last_year', LAST_YEARS_MEMBERSHIP_ID, '14-15')
+        self.update_membership_data('membership_this_year', THIS_YEARS_MEMBERSHIP_ID, '15-16')
 
     def update_membership_data(self, key, membership_id, year):
         self.stdout.write("Processing {} for {} from {}".format(membership_id, key, year))

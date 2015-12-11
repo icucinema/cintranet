@@ -480,6 +480,7 @@ class DashboardJsonView(View):
         return ticker
 
     def grab_from(self, url):
+        return "5"
         try:
             return requests.get(url).text
         except:
