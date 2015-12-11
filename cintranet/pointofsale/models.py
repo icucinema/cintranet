@@ -77,4 +77,4 @@ class FilmQuotation(models.Model):
         r = ""
         if not self.usable():
             r = "[not in use] "
-        return "{}{} [{}]".format(r, self.quotation, self.film_title)
+        return "{}{} [{}]".format(r, self.quotation.encode('utf-8'), self.film_title.encode('utf-8'))
