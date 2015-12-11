@@ -12,9 +12,9 @@ LIVE_PRINTER_SETTINGS = {
 #    'before_report': '1b6100',
 #    'after_report': '0c',
 #    'template_name': 'ibm.txt',
-    'port': '/dev/ttyUSB0',
+    'port': '/dev/ttyUSB1',
     'baudrate': 19200,
-    'backend_name': 'ibm4610',
+    'backend_name': 'cbm',
 }
 
 #LIVE_CASHDRAWER_CLASS = 'PrinterSerialCashDrawer'

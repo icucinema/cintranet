@@ -13,7 +13,7 @@
       <br />
       <u>http://www.imperialcinema.co.uk</u><br />
       <br />
-      <align mode="left">{{ film_quote }}</align><br />
+      <align mode="left"><sensibreak>{{ film_quote }}</sensibreak></align><br />
       <align mode="right">- <b>{{ film_quote_film }}</b></align><br />
     </align>
   </ticket>
