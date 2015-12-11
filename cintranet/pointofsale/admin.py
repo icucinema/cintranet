@@ -21,4 +21,4 @@ class FilmQuotationAdmin(admin.ModelAdmin):
     list_display = ['quotation', 'film_title', 'usable', 'enabled', 'valid_from', 'valid_to']
     actions = [fq_set_valid_to_now, fq_disable, fq_enable]
 
-admin.site.register(FilmQuotation)
+admin.site.register(FilmQuotation, FilmQuotationAdmin)
