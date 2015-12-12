@@ -54,6 +54,10 @@ class Printer(models.Model):
         with utils.get_printer_publisher(self.name) as pub:
             pub.send({"print_type": "cash_drawer"})
 
+    def print_head(self, data):
+        with utils.get_printer_publisher(self.name) as pub:
+            pub.send({"print_type": "head", "head": data})
+
 
 class FilmQuotation(models.Model):
     quotation = models.CharField(max_length=120, blank=False, null=False)

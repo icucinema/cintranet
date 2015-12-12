@@ -12,7 +12,7 @@ LIVE_PRINTER_SETTINGS = {
 #    'before_report': '1b6100',
 #    'after_report': '0c',
 #    'template_name': 'ibm.txt',
-    'port': '/dev/ttyUSB1',
+    'port': '/dev/ttyUSB0',
     'baudrate': 19200,
     'backend_name': 'cbm',
 }

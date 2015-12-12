@@ -2,6 +2,7 @@ import requests
 from datetime import datetime
 import threading
 import json
+import time
 
 from . import hardware
 
@@ -21,6 +22,7 @@ class Consumer(object):
             msg = json.loads(msg)
             for cb in self.callbacks:
                 cb(msg)
+            time.sleep(1)
 
 
 class PrinterRegistry(object):
@@ -108,5 +110,7 @@ class LivePrinter(Printer):
         elif message_type == 'cash_drawer':
             if self.cash_drawer:
                 self.cash_drawer.open()
+        elif message_type == 'head':
+            self.printer.print_head(message_data['head'])
         else:
             print "Got unknown message_type", message_type

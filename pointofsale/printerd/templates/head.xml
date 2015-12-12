@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<ticket>
+  <align mode="center">
+    <font width="2" height="2"><sensibreak>{{ heading }}</sensibreak></font><br />
+  </align>
+</ticket>

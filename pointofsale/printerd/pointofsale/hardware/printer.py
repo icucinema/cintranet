@@ -25,14 +25,14 @@ class TicketPrinter(object):
     def print_ticket(self, ticket):
         self.do_print(self.format_ticket(ticket))
 
-    def format_ticket(self, ticket):
-        template_fn = ticket['print_template_extension'] or 'basic'
+    def format_ticket(self, ticket, pte_default='basic', add_ticket_attributes=True):
+        template_fn = ticket['print_template_extension'] or pte_default
         print 'Loading template', template_fn
         template = self.environment.get_template(template_fn + '.xml')
 
-        ticket['timestamp'] = datetime.datetime.fromtimestamp(ticket['timestamp'])
-        ticket['ticket_type_price'] = '{:.2f}'.format(ticket['ticket_type_price'])
-
+        if add_ticket_attributes:
+            ticket['timestamp'] = datetime.datetime.fromtimestamp(ticket['timestamp'])
+            ticket['ticket_type_price'] = '{:.2f}'.format(ticket['ticket_type_price'])
 
         ticketdata = template.render(ticket).split('\n')
         print [ln.lstrip() for ln in ticketdata]
@@ -45,6 +45,9 @@ class TicketPrinter(object):
 
     def format_report(self, events):
         return 'nope'
+
+    def print_head(self, head):
+        self.do_print(self.format_ticket(head, 'head', False))
 
 
 class SerialTicketPrinter(TicketPrinter):

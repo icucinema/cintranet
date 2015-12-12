@@ -198,6 +198,9 @@ class SalesReportJobSerializer(serializers.Serializer):
 class TicketJobSerializer(serializers.Serializer):
     tickets = serializers.PrimaryKeyRelatedField(queryset=ticketing.models.Ticket.objects.all(), many=True)
 
+class TicketJobHeadSerializer(serializers.Serializer):
+    heading = serializers.CharField(max_length=100)
+
 class PrinterFilterBackend(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         name = request.GET.get('name', None)
@@ -229,6 +232,16 @@ class PrinterViewSet(viewsets.ModelViewSet):
             tickets = ticketing.models.Ticket.objects.filter(pk__in=serializer.data['tickets'])
             printer.print_tickets(tickets)
             return Response({'status': 'submitted', 'count': len(serializer.data['tickets'])})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @detail_route(methods=['post'])
+    def print_head(self, request, pk=None):
+        printer = self.get_object()
+        serializer = TicketJobHeadSerializer(data=request.data)
+        if serializer.is_valid():
+            printer.print_head(serializer.data)
+            return Response({'status': 'submitted'})
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
