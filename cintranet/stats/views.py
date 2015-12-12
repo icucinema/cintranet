@@ -538,14 +538,18 @@ class CapacityDashboardJsonView(View):
         for row in cursor.fetchall():
             evs.append({"showing_id": row[0], "film_name": row[1], "collected": row[2], "sold": row[3]})
 
-        return self.corsify(HttpResponse(json.dumps(output), content_type="application/json"))
+        return self.corsify(HttpResponse(json.dumps(output), content_type="application/json"), request)
 
     def options(self, request, *args, **kwargs):
         resp = HttpResponse('')
-        return self.corsify(resp)
+        return self.corsify(resp, request)
 
-    def corsify(self, resp):
+    def corsify(self, resp, request):
         resp['Access-Control-Allow-Origin'] = '*'
         resp['Access-Control-Allow-Credentials'] = 'true'
         resp['Access-Control-Allow-Methods'] = 'GET'
+        if request['Origin'] == 'https://staff.icucinema.co.uk':
+            resp['Access-Control-Allow-Origin'] = request['Origin']
+        elif request['Origin'].startswith('http://localhost:') or request['Origin'] == 'http://localhost':
+            resp['Access-Control-Allow-Origin'] = request['Origin']
         return resp
