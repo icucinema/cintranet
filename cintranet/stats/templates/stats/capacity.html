@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Capacity Dashboard</title>
+<link href='https://fonts.googleapis.com/css?family=Oswald:700,400|Droid+Sans' rel='stylesheet' type='text/css'>
+<script src="https://fb.me/react-0.14.3.js"></script>
+<script src="https://fb.me/react-dom-0.14.3.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+<style>
+html {
+  box-sizing: border-box;
+  font-family: "Droid Sans";
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+html, body {
+  padding: 0; margin: 0;
+  height: 100%; width: 100%;
+}
+
+body {
+  background-color: #222;
+  color: #dfdfdf;
+}
+h1 {
+  font-family: Oswald;
+}
+h2, h3, h4, h5, h6 {
+  font-family: "Droid Sans";
+}
+h1, h2, h3, h4, h5, h6 {
+  display: inline-block;
+  margin: 0;
+}
+header {
+  padding: 0 4rem;
+  display: block;
+  background-color: #052443;
+  height: 5rem;
+  line-height: 5rem;
+}
+header > h1 {
+  text-transform: uppercase;
+  font-weight: bold;
+  padding-right: 1em;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  align-content: stretch;
+}
+#capacity {
+  flex: 1;
+
+  display: flex;
+  flex-direction: row;
+}
+.capacity-widget {
+  margin: 0; padding: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+.capacity-row {
+  margin: 0; padding: 0;
+  height: 4rem;
+  padding: 0 4rem;
+  /*background-color: rgba(255, 0, 0, 0.1);*/
+}
+.split-progress-bar {
+  height: 2rem;
+  overflow: hidden;
+  border-radius: 0.2rem;
+}
+.split-progress-bit {
+  display: inline-block;
+  height: 100%;
+  overflow: hidden;
+}
+.split-progress-label {
+  position: relative;
+  top: 25%;
+  padding-left: 0.3rem;
+  display: block;
+  width: 200rem;
+}
+.oversold-text {
+  position: absolute;
+  right: 0;
+  text-align: right;
+}
+.oversold-warning {
+  color: rgba(255, 255, 0, 0.7);
+}
+.oversold-error {
+  color: rgba(255, 60, 60, 0.7);
+  font-weight: bold;
+}
+.capacity-row-head {
+  position: relative;
+}
+footer {
+  height: 240px;
+  width: 100%;
+  position: relative;
+}
+.cam {
+  position: absolute;
+  right: 4rem;
+}
+.fakeCam {
+  width: 320px;
+  height: 240px;
+  background-color: black;
+  line-height: 240px;
+  text-align: center;
+  font-family: Courier New;
+}
+.modifyForm {
+  position: absolute;
+  left: 4rem;
+  bottom: 2rem;
+  width: 100%;
+  padding-right: 400px;
+}
+</style>
+</head>
+<body>
+<header>
+<h1>Imperial Cinema</h1>
+<h2>Capacity Monitoring</h2>
+</header>
+<div id="capacity"></div>
+<footer>
+<div class="cam">
+<div class="fakeCam">UCH Cam</div>
+</div>
+<div class="modifyForm">
+  <label for="capacityField">Capacity:</label> <input type="number" id="capacityField">
+</div>
+</footer>
+<script type="text/babel">
+(function() {
+  "use strict";
+
+  var capacityFigure = null;
+
+  var SplitProgressBar = React.createClass({
+    render: function() {
+      var currentPercent = 0;
+      const inners = this.props.data.map((data, n) => {
+        data.percent = Math.min(100 - currentPercent, data.percent);
+        if (data.percent < 0) {
+          return [];
+        }
+        currentPercent += data.percent;
+
+        return (
+          <div className="split-progress-bit" style={{'width': data.percent + '%', backgroundColor: data.colour}} key={n}>
+            <span className="split-progress-label">{data.label}</span>
+          </div>
+        );
+      });
+
+      return (
+        <div className="split-progress-bar">
+          {inners}
+        </div>
+      );
+    }
+  });
+
+  var CapacityRow = React.createClass({
+    render: function() {
+      const capacity = this.props.capacity;
+      const totalActive = this.props.ev.collected + this.props.ev.sold;
+      const totalRemaining = (capacity - totalActive);
+
+      const splitProgressBarInfo = [
+        { percent: (this.props.ev.collected * 100) / capacity, colour: "rgba(0, 255, 0, 0.2)", label: `${this.props.ev.collected} collected`},
+        { percent: (this.props.ev.sold * 100) / capacity, colour: "rgba(255, 255, 0, 0.2)", label: `${this.props.ev.sold} uncollected` },
+        { percent: (totalRemaining * 100) / capacity, colour: "rgba(0, 0, 255, 0.2)", label: `${totalRemaining} available` },
+      ];
+
+      var oversoldText = '', oversoldClass = '';
+      if (totalRemaining < 0) {
+        oversoldText = `[${-totalRemaining} oversold]`;
+        oversoldClass = "oversold-error";
+      } else if (totalRemaining <= 20) {
+        oversoldText = `[${totalRemaining} left!]`;
+        oversoldClass = "oversold-warning";
+      }
+      if (oversoldClass != '') {
+        oversoldClass += " oversold-text";
+      }
+
+      return (
+        <li className="capacity-row">
+          <div className="capacity-row-head"><h3>{this.props.ev.film_name}</h3> <span className={oversoldClass}>{oversoldText}</span></div>
+          <SplitProgressBar data={splitProgressBarInfo}></SplitProgressBar>
+        </li>
+      );
+    }
+  });
+  var CapacityWidget = React.createClass({
+    render: function() {
+     return (
+       <ol className="capacity-widget">
+         {this.props.data.by_event.map((ev) => <CapacityRow ev={ev} data={this.props.data} capacity={this.props.capacity} key={ev.showing_id} />)}
+       </ol>
+     ); 
+    }
+  });
+
+  var getData = function() {
+    if (document.location.hash == '#dummy') {
+      return new Promise((resolve, reject) => resolve({
+        by_event: [
+          {film_name: "The Alpha Centaurian", collected: 200, sold: 35, showing_id: 1},
+          {film_name: "Ghost", collected: 180, sold: 35, showing_id: 2},
+          {film_name: "The Chronicles of YA Fiction: Narnia Edition Part VII", collected: 140, sold: 35, showing_id: 3},
+          {film_name: "FBI Guns Bang Bang", collected: 60, sold: 15, showing_id: 4},
+          {film_name: "The Last All-Nighter Film", collected: 60, sold: 0, showing_id: 5},
+        ],
+        capacity: 220
+      }));
+    } else if (document.location.hash != '' && capacityFigure == null) {
+      capacityFigure = parseInt(document.location.hash.substring(1), 10);
+      document.getElementById('capacityField').value = capacityFigure;
+    } else if (capacityFigure != null) {
+      capacityFigure = parseInt(document.getElementById('capacityField').value, 10);
+    }
+    var capacityQs = `?capacity=${capacityFigure}`;
+    return window.fetch("https://staff.icucinema.co.uk/stats/capacity/json/" + capacityQs, {credentials: 'include'}).then((resp) => resp.json());
+  };
+
+  var rerender = () => null;
+  
+  var fetchAndUpdate = function() {
+    console.log("Fetching...");
+    getData().then((data) => {
+      console.log(data);
+      if (capacityFigure == null) {
+        capacityFigure = data.capacity;
+        document.getElementById('capacityField').value = capacityFigure;
+      }
+      rerender = () => {
+        console.log("RERENDER", capacityFigure);
+        ReactDOM.render(
+          <CapacityWidget data={data} capacity={capacityFigure} />,
+          document.getElementById('capacity')
+        );
+      };
+      rerender();
+    });
+  };
+
+  document.getElementById('capacityField').addEventListener('change', () => {
+    capacityFigure = parseInt(document.getElementById('capacityField').value, 10);
+    rerender()
+  });
+
+  const UPDATE_INTERVAL = 5000;
+
+  fetchAndUpdate();
+  setInterval(fetchAndUpdate, UPDATE_INTERVAL);
+})();
+</script>
+</body>
+</html>
