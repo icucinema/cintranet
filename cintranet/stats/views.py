@@ -516,8 +516,11 @@ class CapacityDashboardJsonView(View):
         today = datetime.date.today()
         if request.GET.get('date', None) is not None:
             today = datetime.datetime.strptime(request.GET.get('date'), '%Y-%m-%d')
-        tomorrow = today + datetime.timedelta(days=2)
-        events = models.Showing.objects.filter(start_time__gte=today, start_time__lt=tomorrow).order_by('start_time')
+        tomorrowish = today + datetime.timedelta(days=2)
+        events = models.Showing.objects.filter(start_time__gte=today, start_time__lt=tomorrowish).order_by('start_time')
+        if not events.exists():
+            next_event = models.Showing.objects.filter(start_time__gte=today).first()
+            events = models.Showing.objects.filter(start_time__gte=next_event.start_time, start_time__lt=next_event.start_time + datetime.timedelta(days=2)).order_by('start_time')
 
         try:
             capacity = int(request.GET.get('capacity', None))
