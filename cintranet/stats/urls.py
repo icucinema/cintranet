@@ -9,4 +9,6 @@ urlpatterns = patterns('',
     url(r'^overview/money/$', views.OverviewMoneyView.as_view(), name='overview-money'),
     url(r'^dashboard/$', views.DashboardView.as_view(), name='dashboard'),
     url(r'^dashboard/json/$', views.DashboardJsonView.as_view(), name='dashboard-json'),
+    url(r'^capacity/$', views.CapacityDashboardView.as_view(), name='capacity'),
+    url(r'^capacity/json/$', views.CapacityDashboardJsonView.as_view(), name='capacity-json'),
 )
