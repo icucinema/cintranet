@@ -548,8 +548,9 @@ class CapacityDashboardJsonView(View):
         resp['Access-Control-Allow-Origin'] = '*'
         resp['Access-Control-Allow-Credentials'] = 'true'
         resp['Access-Control-Allow-Methods'] = 'GET'
-        if request['Origin'] == 'https://staff.icucinema.co.uk':
-            resp['Access-Control-Allow-Origin'] = request['Origin']
-        elif request['Origin'].startswith('http://localhost:') or request['Origin'] == 'http://localhost':
-            resp['Access-Control-Allow-Origin'] = request['Origin']
+        origin = request.META.get('HTTP_ORIGIN', '')
+        if origin == 'https://staff.icucinema.co.uk':
+            resp['Access-Control-Allow-Origin'] = origin 
+        elif origin.startswith('http://localhost:') or origin.startswith('https://localhost:'):
+            resp['Access-Control-Allow-Origin'] = origin
         return resp
