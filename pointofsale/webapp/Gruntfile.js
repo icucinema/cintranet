@@ -74,12 +74,15 @@ module.exports = function (grunt) {
       proxies: [
         {
           context: '/api',
-          host: '127.0.0.1',
+          host: 'localhost',
           port: 8000,
           https: false,
           xforward: false,
           rewrite: {
             '^/api': '/pointofsale',
+          },
+          headers: {
+            'host': 'staff.icucinema.co.uk',
           },
         },
       ],
@@ -408,9 +411,9 @@ module.exports = function (grunt) {
 
     grunt.task.run([
       'clean:server',
+      'configureProxies:server',
       'wiredep',
       'concurrent:server',
-      'configureProxies:server',
       'autoprefixer',
       'connect:livereload',
       'watch'

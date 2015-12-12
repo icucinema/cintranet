@@ -8,7 +8,7 @@
  * Controller of the webappApp
  */
 angular.module('webappApp')
-  .controller('FooterCtrl', function ($scope, punter, ticket) {
+  .controller('FooterCtrl', function ($scope, punter, ticket, printer) {
     $scope.currentPunterName = function() {
       if (!$scope.currentPunter) return 'Guest';
       if (!$scope.currentPunter.name || !$scope.currentPunter.name.trim()) return '(Unknown: ID: ' + $scope.currentPunter.id + ')';
@@ -18,7 +18,11 @@ angular.module('webappApp')
     var checkPunterHasPendingTickets = function(punterObj) {
       punter.getPendingTickets(punterObj).then(function(res) {
         if (res.length > 0) {
-          ticket.collectAndPrint(res, $scope.configuration.printer).then(function(x) {
+          printer.printHead($scope.configuration.printer, punterObj.name).then(function(x) {
+            return ticket.collectAndPrint(res, $scope.configuration.printer);
+          }, function(x) {
+            alert('Couldn\'t print their name?!?');
+          }).then(function(x) {
             alert('Printed ' + x.count + ' tickets for collection');
           }, function(x) {
             alert('Failed to print tickets for collection - some tickets may have gone AWOL!');

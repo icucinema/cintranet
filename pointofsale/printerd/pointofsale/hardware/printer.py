@@ -26,7 +26,7 @@ class TicketPrinter(object):
         self.do_print(self.format_ticket(ticket))
 
     def format_ticket(self, ticket, pte_default='basic', add_ticket_attributes=True):
-        template_fn = ticket['print_template_extension'] or pte_default
+        template_fn = ticket.get('print_template_extension', pte_default)
         print 'Loading template', template_fn
         template = self.environment.get_template(template_fn + '.xml')
 

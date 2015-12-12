@@ -8,7 +8,7 @@
  * Controller of the webappApp
  */
 angular.module('webappApp')
-  .controller('MainCtrl', function ($scope, $location, ticketType, printer, ticket) {
+  .controller('MainCtrl', function ($rootScope, $scope, $location, ticketType, printer, ticket) {
     if ($scope.configuration == null) {
       $location.url('/setup');
     }

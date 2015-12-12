@@ -19,10 +19,12 @@
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
+    <div class="busy-box" ng-show="isBusy"></div>
+
     <login-dialog></login-dialog>
 
     <!-- Add your site or application content here -->
-    <div class="container-fluid">
+    <div class="container-fluid" ng-class="{'loading': isLoading}">
       <div class="header">
         <h3>CinePoS</h3>
       </div>
@@ -34,7 +36,7 @@
             <strong>Customer:</strong> {{ currentPunterName() }}
         </div>
         <form ng-submit="searchAndSelectPunter(search)" class="footer-form">
-            <input type="text" my-focus class="footer-textbox" ng-model="search" ng-disabled="searchDisabled"></input>
+            <input type="text" my-focus class="footer-textbox" ng-model="search" ng-disabled="searchDisabled || isBusy"></input>
         </form>
       </div>
     </div>
@@ -50,7 +52,18 @@
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/angular/angular.js"></script>
-    <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js"></script>
+    <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/affix.js"></script>
+    <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/alert.js"></script>
+    <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/button.js"></script>
+    <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/carousel.js"></script>
+    <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/collapse.js"></script>
+    <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/dropdown.js"></script>
+    <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/tab.js"></script>
+    <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/transition.js"></script>
+    <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/scrollspy.js"></script>
+    <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/modal.js"></script>
+    <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/tooltip.js"></script>
+    <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/popover.js"></script>
     <script src="bower_components/angular-animate/angular-animate.js"></script>
     <script src="bower_components/angular-cookies/angular-cookies.js"></script>
     <script src="bower_components/angular-messages/angular-messages.js"></script>
@@ -79,6 +92,7 @@
         <script src="scripts/directives/myfocus.js"></script>
         <script src="scripts/controllers/footer.js"></script>
         <script src="scripts/services/ticket.js"></script>
+        <script src="scripts/services/busy.js"></script>
         <!-- endbuild -->
 </body>
 </html>

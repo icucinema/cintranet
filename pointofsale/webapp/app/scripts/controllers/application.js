@@ -12,6 +12,7 @@ angular.module('webappApp')
     $scope.currentUser = null;
     $scope.configuration = null;
     $scope.currentPunter = null;
+    $scope.isLoading = false;
 
     $scope.setCurrentUser = function(user) {
       $scope.currentUser = user;

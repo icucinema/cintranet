@@ -8,7 +8,7 @@
  * Service in the webappApp.
  */
 angular.module('webappApp')
-  .service('punter', function ($http) {
+  .service('punter', function ($http, busy) {
     var currentPunter = null;
 
     this.getCurrentPunter = function() {
@@ -54,20 +54,20 @@ angular.module('webappApp')
         searchParams.search = searchTerm;
       }
 
-      return $http
+      return busy.busy($http
         .get('/api/punters/', {
           params: searchParams,
         })
         .then(function(res) {
           return res.data.results;
-        });
+        }));
     };
 
     this.getPendingTickets = function(punter) {
-      return $http
+      return busy.busy($http
         .get('/api/punters/' + punter.id + '/tickets/?status=pending_collection')
         .then(function(res) {
           return res.data;
-        });
+        }));
     };
   });
