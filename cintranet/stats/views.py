@@ -513,14 +513,8 @@ class CapacityDashboardJsonView(View):
     def get(self, request, *args, **kwargs):
 
         # try to work out if there are events today
-        today = datetime.date.today()
-        if request.GET.get('date', None) is not None:
-            today = datetime.datetime.strptime(request.GET.get('date'), '%Y-%m-%d')
-        tomorrowish = today + datetime.timedelta(days=2)
-        events = models.Showing.objects.filter(start_time__gte=today, start_time__lt=tomorrowish).order_by('start_time')
-        if not events.exists():
-            next_event = models.Showing.objects.filter(start_time__gte=today).first()
-            events = models.Showing.objects.filter(start_time__gte=next_event.start_time, start_time__lt=next_event.start_time + datetime.timedelta(days=2)).order_by('start_time')
+        next_event = models.Showing.objects.filter(start_time__gte=today).first()
+        events = models.Showing.objects.filter(start_time__gte=next_event.start_time, start_time__lt=next_event.start_time + datetime.timedelta(days=2)).order_by('start_time')
 
         try:
             capacity = int(request.GET.get('capacity', None))
@@ -530,13 +524,14 @@ class CapacityDashboardJsonView(View):
         output = {'capacity': capacity}
 
         ev = events.values_list('id', flat=True)
-
-        cursor = connection.cursor()
-        cursor.execute("SELECT s.id, f.name, SUM(CASE WHEN status = 'live' THEN 1 ELSE 0 END) collected, SUM(CASE WHEN status='pending_collection' THEN 1 ELSE 0 END) sold FROM ticketing_ticket t INNER JOIN ticketing_tickettype tt ON t.ticket_type_id=tt.baseticketinfo_ptr_id INNER JOIN ticketing_event e ON e.id = tt.event_id INNER JOIN ticketing_event_showings es ON es.event_id = tt.event_id INNER JOIN ticketing_showing s ON s.id = es.showing_id INNER JOIN ticketing_showingsweek sw ON sw.id=s.week_id INNER JOIN ticketing_film f ON f.id=sw.film_id WHERE s.id IN (" + ','.join([str(n) for n in ev]) + ") GROUP BY s.id, f.name ORDER BY s.id")
-
         evs = {}
-        for row in cursor.fetchall():
-            evs[row[0]] = ({"showing_id": row[0], "film_name": row[1], "collected": row[2], "sold": row[3]})
+
+        if ev:
+            cursor = connection.cursor()
+            cursor.execute("SELECT s.id, f.name, SUM(CASE WHEN status = 'live' THEN 1 ELSE 0 END) collected, SUM(CASE WHEN status='pending_collection' THEN 1 ELSE 0 END) sold FROM ticketing_ticket t INNER JOIN ticketing_tickettype tt ON t.ticket_type_id=tt.baseticketinfo_ptr_id INNER JOIN ticketing_event e ON e.id = tt.event_id INNER JOIN ticketing_event_showings es ON es.event_id = tt.event_id INNER JOIN ticketing_showing s ON s.id = es.showing_id INNER JOIN ticketing_showingsweek sw ON sw.id=s.week_id INNER JOIN ticketing_film f ON f.id=sw.film_id WHERE s.id IN (" + ','.join([str(n) for n in ev]) + ") GROUP BY s.id, f.name ORDER BY s.id")
+
+            for row in cursor.fetchall():
+                evs[row[0]] = ({"showing_id": row[0], "film_name": row[1], "collected": row[2], "sold": row[3]})
         output['by_event'] = [evs[ev_id] for ev_id in ev]
 
         return self.corsify(HttpResponse(json.dumps(output), content_type="application/json"), request)
