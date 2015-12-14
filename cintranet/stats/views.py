@@ -513,6 +513,7 @@ class CapacityDashboardJsonView(View):
     def get(self, request, *args, **kwargs):
 
         # try to work out if there are events today
+        today = datetime.date.today()
         next_event = models.Showing.objects.filter(start_time__gte=today).first()
         events = models.Showing.objects.filter(start_time__gte=next_event.start_time, start_time__lt=next_event.start_time + datetime.timedelta(days=2)).order_by('start_time')
 
