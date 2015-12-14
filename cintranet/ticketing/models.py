@@ -604,6 +604,7 @@ class BaseTicketInfo(models.Model):
     name = models.CharField(max_length=128, null=False, blank=False)
     print_template_extension = models.CharField(max_length=64, null=False, blank=True, default='')
     is_public = models.BooleanField(default=False, null=False, help_text="Display on website?")
+    count_towards_capacity = models.PositiveSmallIntegerField(default=1, help_text="How many people should this count towards capacity?")
 
     objects = InheritanceManager()
 
@@ -641,7 +642,8 @@ class TicketType(BaseTicketInfo):
             'name',
             'print_template_extension',
             'is_public',
-            'box_office_return_price'
+            'box_office_return_price',
+            'count_towards_capacity'
         )
         tt = cls(
             template=template,

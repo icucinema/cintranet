@@ -529,7 +529,7 @@ class CapacityDashboardJsonView(View):
 
         if ev:
             cursor = connection.cursor()
-            cursor.execute("SELECT s.id, f.name, SUM(CASE WHEN status = 'live' THEN 1 ELSE 0 END) collected, SUM(CASE WHEN status='pending_collection' THEN 1 ELSE 0 END) sold FROM ticketing_ticket t INNER JOIN ticketing_tickettype tt ON t.ticket_type_id=tt.baseticketinfo_ptr_id INNER JOIN ticketing_event e ON e.id = tt.event_id INNER JOIN ticketing_event_showings es ON es.event_id = tt.event_id INNER JOIN ticketing_showing s ON s.id = es.showing_id INNER JOIN ticketing_showingsweek sw ON sw.id=s.week_id INNER JOIN ticketing_film f ON f.id=sw.film_id WHERE s.id IN (" + ','.join([str(n) for n in ev]) + ") GROUP BY s.id, f.name ORDER BY s.id")
+            cursor.execute("SELECT s.id, f.name, SUM(CASE WHEN status = 'live' THEN bti.count_towards_capacity ELSE 0 END) collected, SUM(CASE WHEN status='pending_collection' THEN bti.count_towards_capacity ELSE 0 END) sold FROM ticketing_ticket t INNER JOIN ticketing_baseticketinfo bti ON bti.id = t.ticket_type_id INNER JOIN ticketing_tickettype tt ON t.ticket_type_id=tt.baseticketinfo_ptr_id INNER JOIN ticketing_event e ON e.id = tt.event_id INNER JOIN ticketing_event_showings es ON es.event_id = tt.event_id INNER JOIN ticketing_showing s ON s.id = es.showing_id INNER JOIN ticketing_showingsweek sw ON sw.id=s.week_id INNER JOIN ticketing_film f ON f.id=sw.film_id WHERE s.id IN (" + ','.join([str(n) for n in ev]) + ") GROUP BY s.id, f.name ORDER BY s.id")
 
             for row in cursor.fetchall():
                 evs[row[0]] = ({"showing_id": row[0], "film_name": row[1], "collected": row[2], "sold": row[3]})
