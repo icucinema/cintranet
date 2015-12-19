@@ -234,7 +234,7 @@ class OverviewMoneyView(ReportView):
 
             this_costing = dict(event_dict['costing'])
             this_costing['take'] = this_costing['take'] / len(event.showings.all())
-            this_costing['bor_cost'] = this_costing['bor_cost'] / len(event.showings.all())
+            this_costing['bor_cost'] = this_costing['bor_cost']
 
             for showing in event.showings.all():
                 showing_dict = showings.setdefault(showing.id, {
@@ -513,14 +513,14 @@ class CapacityDashboardJsonView(View):
     def get(self, request, *args, **kwargs):
 
         # try to work out if there are events today
-        today = datetime.date.today()
+        today = datetime.date.today() - datetime.timedelta(days=1)
         next_event = models.Showing.objects.filter(start_time__gte=today).first()
         events = models.Showing.objects.filter(start_time__gte=next_event.start_time, start_time__lt=next_event.start_time + datetime.timedelta(days=2)).order_by('start_time')
 
         try:
             capacity = int(request.GET.get('capacity', None))
         except:
-            capacity = 220
+            capacity = 211
 
         output = {'capacity': capacity}
 
@@ -533,7 +533,7 @@ class CapacityDashboardJsonView(View):
 
             for row in cursor.fetchall():
                 evs[row[0]] = ({"showing_id": row[0], "film_name": row[1], "collected": row[2], "sold": row[3]})
-        output['by_event'] = [evs[ev_id] for ev_id in ev]
+        output['by_event'] = [evs[ev_id] for ev_id in ev if ev_id in evs]
 
         return self.corsify(HttpResponse(json.dumps(output), content_type="application/json"), request)
 
