@@ -10,11 +10,11 @@ class AuthenticationCredential(models.Model):
         return self.auth_slug
 
 class Product(models.Model):
-    org_id = models.PositiveSmallIntegerField(null=True, blank=True)
-    eactivities_id = models.PositiveSmallIntegerField(null=True, blank=True)
+    org_id = models.PositiveIntegerField(null=True, blank=True)
+    eactivities_id = models.PositiveIntegerField(null=True, blank=True)
     name = models.CharField(max_length=256, null=False, blank=True)
-    sold = models.PositiveSmallIntegerField(null=True, blank=True)
-    initial = models.PositiveSmallIntegerField(null=True, blank=True)
+    sold = models.PositiveIntegerField(null=True, blank=True)
+    initial = models.PositiveIntegerField(null=True, blank=True)
     currently_available = models.BooleanField(default=False, null=False)
 
     def __unicode__(self):
@@ -28,11 +28,11 @@ class Product(models.Model):
 
 class SKU(models.Model):
     product = models.ForeignKey(Product)
-    org_id = models.PositiveSmallIntegerField(null=True, blank=True)
-    eactivities_id = models.PositiveSmallIntegerField(null=True, blank=True)
+    org_id = models.PositiveIntegerField(null=True, blank=True)
+    eactivities_id = models.PositiveIntegerField(null=True, blank=True)
     name = models.CharField(max_length=256, null=False, blank=False)
-    sold = models.PositiveSmallIntegerField(null=True, blank=True)
-    initial = models.PositiveSmallIntegerField(null=True, blank=True)
+    sold = models.PositiveIntegerField(null=True, blank=True)
+    initial = models.PositiveIntegerField(null=True, blank=True)
     dirty = models.BooleanField(null=False, default=False)
 
     def __unicode__(self):
@@ -41,7 +41,7 @@ class SKU(models.Model):
 class SKUEntitlement(models.Model):
     sku = models.ForeignKey(SKU)
     entitlement = models.ForeignKey(ticketing.models.Entitlement)
-    uses_remaining = models.PositiveSmallIntegerField(null=True, blank=True)
+    uses_remaining = models.PositiveIntegerField(null=True, blank=True)
 
     subscribe_to_mailing_list = models.BooleanField(null=False, default=False)
     mailing_list_subscribe_header = models.TextField(null=False, blank=True)
