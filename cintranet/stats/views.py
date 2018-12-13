@@ -520,7 +520,7 @@ class CapacityDashboardJsonView(View):
         try:
             capacity = int(request.GET.get('capacity', None))
         except:
-            capacity = 211
+            capacity = 216
 
         output = {'capacity': capacity}
 

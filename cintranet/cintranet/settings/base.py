@@ -28,6 +28,7 @@ ALLOWED_HOSTS = [
     'staff.icucinema.co.uk',
     'staff.wide.imperialcinema.co.uk',
     'staff.imperialcinema.co.uk',
+    'pos.icucinema.co.uk',
 ]
 
 
@@ -207,3 +208,5 @@ BROKER_PASSWORD = "cintranet"
 BROKER_VHOST = "/cintranet"
 
 ROLLUP_ADDR = "http://su-cinema-ernie.su.ic.ac.uk:13111"
+
+CSRF_TRUSTED_ORIGINS = ['staff.icucinema.co.uk', 'pos.icucinema.co.uk']
