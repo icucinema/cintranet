@@ -6,13 +6,13 @@ from django.db import models
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
-
 def paste_determine_filename(instance, filename):
     if '.' in filename:
         filename, _, ext = filename.rpartition('.')
     else:
         ext = 'bin'
     return os.path.join('cinbin_images', uuid.uuid4().hex + '.' + ext)
+
 
 def slug_generator():
     ADJECTIVES = ['tasty', 'delicious', 'scrummy', 'yummy', 'appetizing', 'disgusting', 'gross', 'hideous', 'beautiful', 'fluorescent', 'friendly', 'evil', 'good', 'nice', 'riveting', 'indigestible', 'foreign', 'violent', 'gentle', 'peaceful', 'shiny', 'dull', 'exciting', 'boring', 'fun']
@@ -23,7 +23,7 @@ def slug_generator():
 
 class BasePaste(models.Model):
     slug = models.CharField(max_length=256, default='', null=False, unique=True)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, models.CASCADE)
     public = models.BooleanField(default=False, blank=False, null=False)
     posted = models.DateTimeField(auto_now_add=True, null=False, blank=False)
 
@@ -46,12 +46,12 @@ class TextPaste(BasePaste):
     content = models.TextField(null=False, blank=True)
 
     def get_absolute_url(self):
-        from django.core.urlresolvers import reverse
+        from django.urls import reverse
         return reverse('cinbin:cinbin_textpaste', kwargs={'slug': self.slug})
 
 class ImagePaste(BasePaste):
     content = models.ImageField(upload_to=paste_determine_filename)
 
     def get_absolute_url(self):
-        from django.core.urlresolvers import reverse
+        from django.urls import reverse
         return reverse('cinbin:cinbin_imagepaste', kwargs={'slug': self.slug})

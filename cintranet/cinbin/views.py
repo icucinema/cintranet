@@ -7,7 +7,7 @@ from django.core.exceptions import PermissionDenied
 
 class IndexView(RedirectView):
     def get_redirect_url(self):
-        from django.core.urlresolvers import reverse
+        from django.urls import reverse
         return reverse('cinbin:cinbin_textpaste_create')
 
 class RecentPastesMixin(object):
@@ -35,7 +35,7 @@ class TextPasteView(RecentPastesMixin, DetailView):
 
     def get_object(self, queryset=None):
         obj = super(TextPasteView, self).get_object(queryset)
-        if not obj.public and not self.request.user.is_authenticated():
+        if not obj.public and not self.request.user.is_authenticated:
             raise PermissionDenied
         return obj
 
