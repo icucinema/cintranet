@@ -62,7 +62,7 @@ class LoginView(SetAuthCookieMixin, FormView):
         return cd
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             return HttpResponseRedirect("/")
         return super(LoginView, self).dispatch(request, *args, **kwargs)
 

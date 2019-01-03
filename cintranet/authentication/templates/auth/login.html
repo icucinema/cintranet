@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load floppyforms %}
+{#% load floppyforms %#}
 
 {% block title %}Log in{% endblock %}
 
@@ -17,7 +17,7 @@
 			<input type="hidden" name="next" value="{{ next }}">
 			<fieldset>
 				<legend>Log in</legend>
-				{% form form using "floppy_gumby_forms/layouts/gumby.html" %}
+				{{ form.as_p }}
 				<div class="medium primary btn"><button type="submit">Log in</button></div>
 			</fieldset>
 		</form>
