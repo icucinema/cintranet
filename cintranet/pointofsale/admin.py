@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.utils import timezone
-
 from .models import Printer, FilmQuotation
 
 admin.site.register(Printer)

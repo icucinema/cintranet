@@ -1,20 +1,18 @@
+#from django.shortcuts import render
 from decimal import Decimal
 import datetime
 from collections import OrderedDict
-
-from django.shortcuts import render
-from django.db.models import Q
-
+from . import models
 import ticketing.models
-from . import models, utils
-
 from rest_framework import viewsets, serializers, filters, status
-from rest_framework.response import Response
 from rest_framework.decorators import list_route, detail_route
+from rest_framework.response import Response
+from django.db.models import Q
 
 class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = ticketing.models.Ticket
+        fields = '__all__'
 
 class TicketPrototypeSerializer(serializers.Serializer):
     ticket_type = serializers.PrimaryKeyRelatedField(queryset=ticketing.models.TicketType.objects.all())
@@ -92,6 +90,7 @@ class TicketTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ticketing.models.TicketType
+        fields = '__all__'
 
 class EventFilterSerializer(serializers.Serializer):
     date = serializers.DateTimeField()
@@ -149,6 +148,7 @@ class PunterFilterBackend(filters.BaseFilterBackend):
 class PunterSerializer(serializers.ModelSerializer):
     class Meta:
         model = ticketing.models.Punter
+        fields = "__all__"
 
 class TicketTypeQuerySerializer(serializers.Serializer):
     events = serializers.PrimaryKeyRelatedField(queryset=ticketing.models.Event.objects.all(), many=True)
@@ -187,10 +187,11 @@ class PunterViewSet(viewsets.ReadOnlyModelViewSet):
         if detailed_mode:
             tickets = tickets.select_related('ticket_type', 'ticket_type__event')
         return Response(serializer(tickets, many=True).data)
-        
+
 class PrinterSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Printer
+        fields = '__all__'
 
 class SalesReportJobSerializer(serializers.Serializer):
     events = serializers.PrimaryKeyRelatedField(queryset=ticketing.models.Event.objects.all(), many=True)
@@ -256,9 +257,11 @@ class DetailedTicketTicketTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ticketing.models.TicketType
+        fields = '__all__'
 
 class DetailedTicketSerializer(serializers.ModelSerializer):
     ticket_type = DetailedTicketTicketTypeSerializer()
 
     class Meta:
         model = ticketing.models.Ticket
+        fields = '__all__'

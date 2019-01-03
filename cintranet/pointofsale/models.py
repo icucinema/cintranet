@@ -1,13 +1,9 @@
 from django.db import models
 from django.utils import timezone
-from model_utils import Choices
-
+from collections import namedtuple
 import time
 import random
-from collections import namedtuple
-
 from . import utils
-
 Q = models.Q
 
 def _pick_random_quotation():
@@ -33,7 +29,6 @@ def _format_ticket_for_printer(ticket):
         'print_template_extension': ticket.ticket_type.print_template_extension,
     }
 
-
 class Printer(models.Model):
     name = models.CharField(max_length=256, null=False, default=False, unique=True)
     last_seen = models.DateTimeField(null=False)
@@ -58,6 +53,8 @@ class Printer(models.Model):
         with utils.get_printer_publisher(self.name) as pub:
             pub.send({"print_type": "head", "head": data})
 
+    def __str__(self):
+      return self.name
 
 class FilmQuotation(models.Model):
     quotation = models.CharField(max_length=120, blank=False, null=False)

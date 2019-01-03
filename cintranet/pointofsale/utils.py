@@ -1,4 +1,3 @@
-import contextlib
 import redis
 import json
 
@@ -8,7 +7,7 @@ class Publisher(object):
         self.name = name
 
     def send(self, obj):
-        print "pushing", obj, "into", self.name
+        print("pushing", obj, "into", self.name)
         self.conn.lpush('printer.{}'.format(self.name), json.dumps(obj))
 
     def __enter__(self):
@@ -18,7 +17,7 @@ class Publisher(object):
         return False
 
 def get_connection():
-    return redis.StrictRedis.from_url('redis://localhost/0')
+    return redis.StrictRedis.from_url('redis://redis/0')
 
 def get_printer_publisher(name, conn=None):
     if conn is None:
