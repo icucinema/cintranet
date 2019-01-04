@@ -113,13 +113,13 @@ class EActivities(object):
         new_kwargs = self._munge_params(kwargs)
 
         if DEBUG:
-            print "Fetching", self._ajax_handler_url, "with", new_kwargs
+            print("Fetching", self._ajax_handler_url, "with", new_kwargs)
 
         resp = self.r.post(self._ajax_handler_url, data=new_kwargs, stream=stream)
         resp.encoding = 'utf8'
 
         if DEBUG:
-            print "Got status code", resp.status_code, "with text", resp.text
+            print("Got status code", resp.status_code, "with text", resp.text)
 
         return resp
 
@@ -131,19 +131,19 @@ class EActivities(object):
         new_kwargs = self._munge_params(kwargs)
 
         if DEBUG:
-            print "Fetching", self._data_handler_url, "with", new_kwargs
+            print("Fetching", self._data_handler_url, "with", new_kwargs)
 
         resp = self.r.get(self._data_handler_url, params=new_kwargs, stream=stream)
         resp.encoding = 'utf8'
 
         if DEBUG:
-            print "Got status code", resp.status_code
+            print("Got status code", resp.status_code)
 
         return resp
 
     def _request_page(self, url, stream=False):
         if DEBUG:
-            print "Fetching", url, "(as GET)"
+            print("Fetching", url, "(as GET)")
 
         if not url.startswith('http'):
             url = 'https://{}{}'.format(self.base_domain, url)
@@ -152,18 +152,18 @@ class EActivities(object):
         resp.encoding = 'utf8'
 
         if DEBUG:
-            print "Got status code", resp.status_code
+            print("Got status code", resp.status_code)
 
         return resp
 
     def upload_file(self, navigate, filename, file_data, file_mime):
         file_data = {'files[]': (filename, file_data, file_mime)}
         if DEBUG:
-            print "Uploading file..."
+            print("Uploading file...")
         resp = self.r.post(self._file_handler_url, files=file_data, data={'navigate': navigate})
         resp.encoding = 'utf8'
         if DEBUG:
-            print "Got status code", resp.status_code, resp.text
+            print("Got status code", resp.status_code, resp.text)
         resp.raise_for_status()
         return u'returnvalue">0' in resp.text
 
@@ -247,7 +247,7 @@ class EActivities(object):
             }
             bs_skus = bs_pr.find_all("infotablerow")
             for bs_sku in bs_skus:
-                print bs_sku
+                print(bs_sku)
                 tns = bs_sku.find('infotablecell', alias=TOTAL_NET_SALE_RE).text.replace(',', '')
                 if tns == u'\xa0': tns = '0'
                 sku = {
@@ -292,7 +292,7 @@ if __name__ == '__main__':
     import sys
 
     if len(sys.argv) != 2:
-        print "{} <eActivities session cookie>".format(sys.argv[0])
+        print("{} <eActivities session cookie>".format(sys.argv[0]))
         sys.exit(1)
 
     DEBUG = True

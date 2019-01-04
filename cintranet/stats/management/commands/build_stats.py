@@ -14,7 +14,7 @@ from django.utils.timezone import utc
 from icunion.eactivities import EActivities
 from icusync.models import AuthenticationCredential
 import stats.models as models
-from cintranet.utils import IRCCatPinger
+#from cintranet.utils import IRCCatPinger
 
 THIS_YEAR = 2015
 THIS_YEARS_MEMBERSHIP_ID = 13396
@@ -40,17 +40,16 @@ class Command(BaseCommand):
 
         self.club_id = getattr(settings, 'EACTIVITIES_CLUB_ID', 411)
 
-        self.irc_pinger = IRCCatPinger('localhost', 22222)
+        #self.irc_pinger = IRCCatPinger('localhost', 22222)
 
         with transaction.atomic():
             try:
-                self.ehack = requests.session()
-                print session
-                self.ehack.headers['Authorization'] = 'Token ' + self.ehack.post('{}/session'.format(EHACK_URL), data={'session': session}).json()['token']
-
+                #self.ehack = requests.session()
+                print(session)
+                #self.ehack.headers['Authorization'] = 'Token ' + self.ehack.post('{}/session'.format(EHACK_URL), data={'session': session}).json()['token']
                 self.update_membership_blob()
-                self.update_products_blobs()
-                self.update_money_blob()
+                #self.update_products_blobs() # I'm assuming we can't do this anymore
+                #self.update_money_blob() # I'm assuming we can't do this anymore
             except Exception as ex:
                 traceback.print_exc()
                 self.irc_pinger.say('#botspam', 'SOMETHING WENT WRONG WHILE PARSING EACTIVITIES: {}: {} ({})'.format(type(ex), ex, ex.args))

@@ -5,7 +5,7 @@ import decimal
 import json
 import collections
 import random
-import requests
+#import requests
 Decimal = decimal.Decimal
 
 from django.views.generic.base import TemplateView, View
@@ -124,7 +124,7 @@ class OverviewAudiencePlayweekView(ReportView):
 
     def process_raw_playweek(self, current_playweek, current_playweek_data):
         cpd = []
-        for name, turnout in current_playweek_data['data'].iteritems():
+        for name, turnout in current_playweek_data['data'].items():
             cpd.append([
                 name,
                 turnout,
@@ -185,7 +185,7 @@ class OverviewAudienceFilmView(OverviewAudiencePlayweekView):
             for showing in raw_datum['showings']:
                 film_data[showing['name']] = film_data.get(showing['name'], 0) + raw_datum['turnout']
 
-        film_data = sorted(film_data.iteritems(), key=lambda fd: fd[0])
+        film_data = sorted(film_data.items(), key=lambda fd: fd[0])
 
         return film_data
 
@@ -292,7 +292,7 @@ class OverviewMoneyView(ReportView):
                     '',
                     ''
                 ])
-                for k, v in showing['costing'].iteritems():
+                for k, v in showing['costing'].items():
                     running_totals[k] += v
             h[2] = quantize(running_totals['take'])
             h[3] = quantize(running_totals['refunded'])
@@ -410,7 +410,7 @@ class DashboardJsonView(View):
                 'sales': smodels.StatsData.objects.get(key='products_' + str(p['id'])).value
             })
 
-        money = [y for (x, y) in smodels.StatsData.objects.get(key='finances').value['funding_overview'].iteritems() if x == 'SGI (1)']
+        money = [y for (x, y) in smodels.StatsData.objects.get(key='finances').value['funding_overview'].items() if x == 'SGI (1)']
         money = money[0] if money else 0
 
         ticker = self.generate_ticker()
@@ -427,7 +427,7 @@ class DashboardJsonView(View):
 
     def change_year_to_this_year(self, data):
         out = collections.OrderedDict()
-        for k, v in data.iteritems():
+        for k, v in data.items():
             y, dash, rest = k.partition('-')
             y = str(int(y) + 1)
             new_k = y + dash + rest
@@ -481,10 +481,10 @@ class DashboardJsonView(View):
 
     def grab_from(self, url):
         return "5"
-        try:
-            return requests.get(url).text
-        except:
-            return ""
+        #try:
+        #    return requests.get(url).text
+        #except:
+        #    return ""
 
     def generate_live_data(self):
         data = {}

@@ -1,20 +1,25 @@
 import codecs
 import csv
+import collections
 
 """ Utilities to read eActivities CSVs with correct character encodings """
 
-class EActivitiesEncodingRecoder(object):
+class EActivitiesEncodingRecoder(collections.Iterator):
     """
     Iterator that reads an encoded stream and reencodes the input to UTF-8
     """
     def __init__(self, f, encoding):
+        print(encoding)
         self.reader = codecs.getreader(encoding)(f)
 
     def __iter__(self):
         return self
 
-    def next(self):
-        return self.reader.next().encode('cp850').decode('iso8859-1').encode("utf-8")
+    def __next__(self):
+        l = self.reader.__next__()
+        #print(l)
+        #print(type(l))
+        return l#.encode('cp850').decode('iso8859-1').encode("utf-8")
 
 class EActivitiesCsvReader(object):
 
@@ -22,9 +27,10 @@ class EActivitiesCsvReader(object):
         f = EActivitiesEncodingRecoder(f, encoding)
         self.reader = csv.reader(f, dialect=dialect, **kwds)
 
-    def next(self):
-        row = self.reader.next()
-        return [unicode(s, "utf-8") for s in row]
+    def __next__(self):
+        row = self.reader.__next__()
+        return [s for s in row]
+        #return [unicode(s, "utf-8") for s in row]
 
     def __iter__(self):
         return self
