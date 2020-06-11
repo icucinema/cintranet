@@ -220,6 +220,7 @@ class EActivities(object):
     def _open_purchases_summary(self, club_id):
         # preselect the correct club
         self.r.get(self._purchase_report_start_url(club_id))
+        print self._purchase_report_start_url(club_id)
 
         # open the page...
         self._ajax_handler(ajax='setup', navigate='847')
@@ -231,6 +232,7 @@ class EActivities(object):
         ps = self._open_purchases_summary(club_id)
 
         bs = BeautifulSoup(ps.content)
+        print ps.content
         bs_prs = bs.find("enclosure", label="Purchase Reports").find_all("infotable")
 
         prs = []

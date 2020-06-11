@@ -110,7 +110,7 @@ class EventCalendar(ICalFeed):
     timezone = "UTC"
 
     def items(self):
-        return models.Event.objects.all().order_by('-start_time')
+        return models.Event.objects.filter(start_time__gte=datetime.datetime(2019, 9, 30)).order_by('-start_time')
  
     def item_title(self, item):
         return item.name
@@ -121,5 +121,11 @@ class EventCalendar(ICalFeed):
     def item_start_datetime(self, item):
         return item.start_time
 
+    def item_location(self, item):
+        return "UCH"
+
+    def item_end_datetime(self, item):
+        return item.end_time
+
     def item_link(self, item):
-        return "https://staff.wide.imperialcinema.co.uk/ticketing/#/events/{}".format(item.id)
+        return "https://staff.icucinema.co.uk/ticketing/#/events/{}".format(item.id)

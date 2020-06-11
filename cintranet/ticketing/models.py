@@ -329,7 +329,9 @@ class Film(models.Model):
     def search_tmdb(cls, query):
         search = tmdb.Search()
         search.movie({'query': query})
-        return [cls.annotate_with_rottentomatoes(cls.from_tmdb(r['id'])) for r in search.results]
+#       l = [cls.annotate_with_rottentomatoes(cls.from_tmdb(r['id'])) for r in search.results]
+        l =  [cls.from_tmdb(r['id']) for r in search.results]
+        return l
 
     def update_tmdb(self, force_update_images=False, force_update_video=False):
         movie = tmdb.Movies(self.tmdb_id)
@@ -484,6 +486,10 @@ class Showing(models.Model):
         return self.film.name
 
     @property
+    def end_time(self):
+        return self.start_time + datetime.timedelta(minutes=self.film.length)
+
+    @property
     def show_week(self):
         # go backwards until we find a Friday!
         show_week = self.start_time.date()
@@ -569,6 +575,10 @@ class Event(models.Model):
     @property
     def tickets(self):
         return Ticket.objects.filter(ticket_type__event=self)
+
+    @property
+    def end_time(self):
+        return max([showing.end_time for showing in self.showings.all()])
 
     @property
     def playweek(self):

@@ -88,9 +88,9 @@ class Command(BaseCommand):
                 p.sold = product['purchased_count']
                 if 'total_count' in product.keys():
                     p.initial = product['total_count']
-                if 'org_id' in product.keys():
+                if 'eactivities_id' in product.keys():
                     p.currently_available = True
-                    p.org_id = product['org_id']
+                    p.eactivities_id = product['eactivities_id']
                 p.save()
     
                 for sku in product['skus']:
